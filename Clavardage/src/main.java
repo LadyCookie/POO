@@ -2,6 +2,8 @@ import network.*;
 
 public class main {
 
+	
+	/*
 	void EnvoyerMessageUDP (String message) {
 		String usernameSrc = "Jac";
 		String usernameDest = "Bob";
@@ -9,5 +11,5 @@ public class main {
 		Co.sendMessageNormalAll(message,usernameSrc,usernameDest);
 		
 	}
-	
+	*/
 }
