@@ -1,14 +1,16 @@
+package data;
+
 import java.util.*;
 
 public class ModelData {
 
 	private LocalUser user;
-	private UserList userList;
+	private ArrayList<User> userList;
 	private ArrayList<Session> sessionList;
 	
 	public ModelData (LocalUser user) {
 		this.user=user;
-		this.userList=new UserList();
+		this.userList=new ArrayList<User>();
 		this.sessionList=new ArrayList<Session>();
 	}
 	
@@ -44,14 +46,14 @@ public class ModelData {
 	}
 	
 	public void addUser(User U) {
-		this.userList.addUser(U);
+		this.userList.add(U);
 	}
 
 	public void removeUser(User U) {
-		this.userList.removeUser(U);
+		this.userList.remove(U);
 	}
 	
-	public UserList usersConnected() {
+	public ArrayList<User> usersConnected() {
 		return this.userList;
 	}
 }

@@ -1,14 +1,19 @@
 package model;
-import java.util.Date;
+import data.*;
 
-public class Message {
-	private Date time;
+public class Message extends Packet {
 	
-	public Message() {
-		this.time=new Date();
+	private static final long serialVersionUID = 1L;
+	
+	private String content;
+	
+	public Message(User source, User dest,String content) {
+		super(source,dest);
+		this.content=content;
+	}
+
+	public String getContent() {
+		return this.content;
 	}
 	
-	public Date getTime() {
-		return this.time;
-	}
 }

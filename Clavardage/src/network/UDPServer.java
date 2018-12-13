@@ -3,14 +3,31 @@ package network;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.io.IOException;
+import java.net.SocketException;
+import java.io.*;
+import java.util.*;
+import data.*;
+
 
 public class UDPServer extends Thread{
 	private DatagramSocket socket;
 	private byte[] buf = new byte[1024];
 	
-	public UDPServer(DatagramSocket socket) {
-		this.socket=socket;
+	public UDPServer() {
+		try {
+		this.socket=new DatagramSocket(4445);
+		}
+		catch ( SocketException e) {
+		}
+	}
+	
+	
+	//permet de convertir un objet java en byte[] pour l'envoi
+	public static byte[] serialize(Object obj) throws IOException {
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    ObjectOutputStream os = new ObjectOutputStream(out);
+	    os.writeObject(obj);
+	    return out.toByteArray();
 	}
 	
 	public void run() {

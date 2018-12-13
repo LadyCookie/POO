@@ -1,3 +1,4 @@
+package data;
 
 public class LocalUser {
 	private User Client;
