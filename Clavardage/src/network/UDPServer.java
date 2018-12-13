@@ -4,38 +4,30 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.io.*;
 import java.util.*;
 import data.*;
-import model.*;
 
 
 public class UDPServer extends Thread{
 	
 	private DatagramSocket socket;
-	private InetAddress address;
 	private byte[] buf = new byte[1024];
+	public ModelData CurrentData;
 	
-	public static ModelData CurrentData;
-	
-	public UDPServer() {
-		//on connecte une socket à internet et on recupère notre adresse IP
-		try (final DatagramSocket socket = new DatagramSocket()){
-			socket.setBroadcast(true);
-			socket.connect(InetAddress.getByName("8.8.8.8"),10002);
-			this.address = socket.getLocalAddress();
-			this.socket= new DatagramSocket(4445);
-		}catch (UnknownHostException| SocketException e) {
-			System.out.println("No internet");
+	public UDPServer(ModelData dat) {
+		this.CurrentData = dat;
+		try {
+			this.socket = new DatagramSocket(4445);
+		} catch (SocketException e) {
 		}
 	}
 	
 	//permet de convertir un objet java en byte[] pour l'envoi
-	public static byte[] serialize(UserListPacket usrlPacket) throws IOException {
+	public static byte[] serialize(ArrayList<User> ListUser) throws IOException {
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    ObjectOutputStream os = new ObjectOutputStream(out);
-	    os.writeObject(usrlPacket);
+	    os.writeObject(ListUser);
 	    return out.toByteArray();
 	}
 	
@@ -44,34 +36,38 @@ public class UDPServer extends Thread{
 		while(running) {
 			DatagramPacket incomingPacket = new DatagramPacket(buf,buf.length);
 			try {
-				System.out.println("Serveur : J'ecoute\n");
+				System.out.println("Serveur : J'ecoute");
 				//on attend de recevoir un message
 				this.socket.receive(incomingPacket);
-				System.out.println("Serveur : J'ai recu un msg\n");
-				//On recupere le port et l'adresse distants
+				System.out.println("Serveur : J'ai recu un msg");
+				
+				//on extrait l'adresse et le msg
 				InetAddress dstAddress = incomingPacket.getAddress();
-				int port= incomingPacket.getPort();
+				String msg = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
 				
-				//on récupère le pseudo de l'envoyeur et on l'ajoute aux utilisateurs connectés
-				String pseudo = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
-				System.out.println("Server: son pseudo est: "+pseudo+"\n");
-				
-				//Si on ne reçoit pas un pseudo mais la commande de fin, on ferme le socket
-				if(pseudo.equals("end")) {
-					running=false;
-				} else {
-					User newUser = new User(pseudo,dstAddress);
-					CurrentData.addUser(newUser);
+				if(msg.equals("ListRQ")) {
+					//On recupere le port distant
+					int port= incomingPacket.getPort();
 					
 					//on prend notre propre liste de Connected Users, on la transforme en bytes et on met dans buf
-					UserListPacket usrlPacket = new UserListPacket(CurrentData.getLocalUser().getUser(),newUser,CurrentData.usersConnected());
-					byte[] data = serialize(usrlPacket);
-					buf = data;
+					byte[] data = serialize(CurrentData.usersConnected());
+					System.out.println("Server : J'ai serialized ma liste "+data.length);
 					
 					//on renvoi à l'envoyeur
-					incomingPacket = new DatagramPacket(buf,buf.length,dstAddress,port);
-					this.socket.send(incomingPacket);
-					System.out.println("Server : J'ai envoyé ma liste\n");
+					DatagramPacket outgoingPacket = new DatagramPacket(data,data.length,dstAddress,port);
+					System.out.println("Server : j'envoi un paquet de "+ outgoingPacket.getLength());
+					this.socket.send(outgoingPacket);
+					System.out.println("Server : J'ai envoyé ma liste");
+					
+				} else if(msg.equals("end")) {
+					running=false;
+					System.out.println("Server: J'ai recu l'ordre de m eteindre");
+				} else {
+					//on recupère le pseudo
+					System.out.println("Server: son pseudo est: "+msg+"");
+					User newUser = new User(msg,dstAddress);
+					CurrentData.addUser(newUser);
+					System.out.println("Server: J'ai ajouté "+msg+" a ma liste");
 				}
 			} catch (IOException e) {
 				System.out.println("Probleme UDPServer");

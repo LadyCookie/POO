@@ -9,78 +9,71 @@ import java.util.*;
 public class UDPClient {
 
 	private DatagramSocket socket;
-	private byte[] buf = new byte[1024];
-	private InetAddress address;
+	private byte[] buf_envoi = new byte[1024];
+	private byte[] buf_recept = new byte[1024];
+	private byte[] buf_recept2 = new byte[1024];
+	private InetAddress localAddr;
 	public static InetAddress broadcastAddr;
-	
-	
-	public static ModelData CurrentData;
 	
 	public UDPClient () {
 		//on connecte une socket à internet et on recupère notre adresse IP
 		try (final DatagramSocket socket = new DatagramSocket()){
 			socket.setBroadcast(true);
 			socket.connect(InetAddress.getByName("8.8.8.8"),10002);
-			this.address = socket.getLocalAddress();
+			this.localAddr = socket.getLocalAddress();
 			this.socket= new DatagramSocket();
-			System.out.println("Client : Mon adresse est"+address.toString()+"\n");
-			System.out.println("Client : Mon socket est "+this.socket.toString()+"\n");
-		}catch (UnknownHostException| SocketException e) {
-			System.out.println("No internet");
-		}
-	}
-	
-	//permet d'extraire un UserListPacket d'une série de byte
-	public static UserListPacket deserialize(byte[] data) throws IOException, ClassNotFoundException {
-		ByteArrayInputStream in = new ByteArrayInputStream(data);
-	    ObjectInputStream is = new ObjectInputStream(in);
-		return (UserListPacket) is.readObject();
-	}
-	    
-
-	//fonction d'envoi d'un broadcast
-	public void sendBroadcast(String pseudo) {
-		//on veut envoyer son pseudo en broadcast
-		//buf = CurrentData.getLocalUser().getUser().getUsername().getBytes();
-		buf= pseudo.getBytes();
-		try {
+			System.out.println("Client : Mon adresse est"+localAddr.toString()+"");
+			System.out.println("Client : Mon socket est "+this.socket.toString()+"");
 			//on recupere l'adresse de broadcast
-			NetworkInterface ni=NetworkInterface.getByInetAddress(this.address);
+			NetworkInterface ni=NetworkInterface.getByInetAddress(localAddr);
 			for (int i =0; i<ni.getInterfaceAddresses().size();i++) {
 				if(ni.getInterfaceAddresses().get(i).getBroadcast() != null) {
 					broadcastAddr=ni.getInterfaceAddresses().get(i).getBroadcast();
 				}
 			}
-			System.out.println("Client : J'ai l'adresse de broacast"+ broadcastAddr.toString() +"\n");
-			
+			System.out.println("Client : J'ai l'adresse de broacast"+ broadcastAddr.toString() +"");
+		}catch (UnknownHostException| SocketException e) {
+			System.out.println("No internet");
+		}
+	}
+	
+	
+	//permet d'extraire un UserListPacket d'une série de byte
+	public static ArrayList<User> deserialize(byte[] data) throws IOException, ClassNotFoundException {
+		ByteArrayInputStream in = new ByteArrayInputStream(data);
+	    ObjectInputStream is = new ObjectInputStream(in);
+		return (ArrayList<User>) is.readObject();
+	}
+	    
+	//fonction d'envoi d'un broadcast pour demander les listes
+	public ArrayList<User> sendBroadcastListRequest() {
+		buf_envoi= "ListRQ".getBytes();
+		try {
 			//on fabrique le packet UDP à envoyer
-			DatagramPacket packet = new DatagramPacket(buf,buf.length,broadcastAddr,4445);
-			System.out.println("Client : Paquet fabriqué\n");
+			DatagramPacket packet = new DatagramPacket(buf_envoi,buf_envoi.length,broadcastAddr,4445);
+			System.out.println("Client : Paquet demande liste fabriqué");
 			this.socket.send(packet);
-			System.out.println("Client : J'ai envoye ma demande en broadcast\n");
+			System.out.println("Client : J'ai envoye ma demande de list en broadcast");
 			
 			//On attend une reponse
-			packet = new DatagramPacket(buf,buf.length);
-			this.socket.receive(packet);
-			System.out.println("Client : J'ai reçu un paquet\n");
+			DatagramPacket incomingPacket = new DatagramPacket(buf_recept2,buf_recept2.length);
+			this.socket.receive(incomingPacket);
+			System.out.println("Client : J'ai reçu ma liste");
 			
 			//On recupere la donnee et on en extrait la liste d'utilisateurs connectes
-			byte[] data=packet.getData();
-			UserListPacket p=deserialize(data);
+			byte[] data=incomingPacket.getData();
+			System.out.println("Client : Taille de liste "+data.length+" taille envoyé "+incomingPacket.getLength());
+			ArrayList<User> list=deserialize(data);
 			
-		    //On choisit de n'ecouter les paquets que de cette source
-			InetAddress srcAddr=p.getSource().getAddr();
-			ArrayList<User> usrl=p.getUserList();
-			User sender = p.getSource();
-			System.out.println("Server : le pseudo "+ sender.getUsername()+"\n");
-			CurrentData.usersConnected().addAll(usrl);
-			System.out.println("Client : J'ai mis à jour ma liste\n");
-			
-			
+			System.out.println("Client : J'ai deserialized ma liste");
+			return list;
 			/*
+			//On choisit de n'ecouter les paquets que de cette source
 			//On boucle tant qu'on a pas recu la liste vide
 			while (!(usrl.isEmpty())) {
 				//on attend le reste des packets
+				InetAddress srcAddr=p.getSource().getAddr();
+				User sender = p.getSource();
 				this.socket.receive(packet);
 				
 				data=packet.getData();
@@ -91,12 +84,28 @@ public class UDPClient {
 					CurrentData.usersConnected().addAll(usrl);
 				}			
 			}			*/
-			
+						
 		}catch (IOException e) {
 			System.out.println("Client: IOException");
 		} catch	(ClassNotFoundException e) {
 			System.out.println("Client : ClassNotFoundException");
 		}
+		return null;
+	}
+	
+	//fonction d'envoi du pseudo en broadcast
+	public void sendBroadcastPseudo(String pseudo) {
+		buf_recept= pseudo.getBytes();
+		try {
+			//on fabrique le packet UDP à envoyer
+			DatagramPacket packet = new DatagramPacket(buf_recept,buf_recept.length,broadcastAddr,4445);
+			System.out.println("Client : Paquet pseudo fabriqué ("+pseudo+")"+"");
+			this.socket.send(packet);
+			System.out.println("Client : J'ai envoye mon pseudo en broadcast");
+			
+		}catch (IOException e) {
+			System.out.println("Client: IOException");
+		} 
 	}
 	
 	public void close(){
