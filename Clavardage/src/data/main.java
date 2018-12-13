@@ -9,6 +9,7 @@ import static org.junit.Assert.assertFalse;
 
 public class main {
 	UDPClient client;
+	UDPServer server;
 	
 	@Before
 	public void setup() {
@@ -18,16 +19,12 @@ public class main {
 	
 	@Test
 	public void test() {
-		String echo= client.sendTXT("helloserver");
-		assertEquals("helloserver", echo);
-		echo= client.sendTXT("helloworking");
-		assertFalse(echo.equals("helloserver"));
-		
+		client.sendBroadcast("Bob");		
 	}
 	
 	@After
 	public void tearDown() {
-		client.sendTXT("end");
+		client.sendBroadcast("end");
 		client.close();
 	}
 }

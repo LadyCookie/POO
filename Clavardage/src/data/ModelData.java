@@ -45,6 +45,14 @@ public class ModelData {
 		return result;
 	}
 	
+	public ArrayList<User> usersConnected() {
+		return this.userList;
+	}
+	
+	public LocalUser getLocalUser() {
+		return this.user;
+	}
+	
 	public void addUser(User U) {
 		this.userList.add(U);
 	}
@@ -53,7 +61,5 @@ public class ModelData {
 		this.userList.remove(U);
 	}
 	
-	public ArrayList<User> usersConnected() {
-		return this.userList;
-	}
+	
 }

@@ -10,6 +10,10 @@ public class LocalUser {
 		this.connected=false;
 	}
 	
+	public User getUser() {
+		return this.Client;
+	}
+	
 	void setConnected(){
 		this.connected=true;
 	}
