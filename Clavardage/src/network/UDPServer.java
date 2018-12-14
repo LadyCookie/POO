@@ -28,7 +28,10 @@ public class UDPServer extends Thread{
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    ObjectOutputStream os = new ObjectOutputStream(out);
 	    os.writeObject(ListUser);
-	    return out.toByteArray();
+	    byte [] data = out.toByteArray();
+	    os.close();
+	    out.close();
+	    return data;
 	}
 	
 	public void run() {
@@ -46,12 +49,13 @@ public class UDPServer extends Thread{
 				String msg = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
 				
 				if(msg.equals("ListRQ")) {
+					System.out.println("Server : Il me demande ma liste ");
 					//On recupere le port distant
 					int port= incomingPacket.getPort();
 					
 					//on prend notre propre liste de Connected Users, on la transforme en bytes et on met dans buf
 					byte[] data = serialize(CurrentData.usersConnected());
-					System.out.println("Server : J'ai serialized ma liste "+data.length);
+					System.out.println("Server : J'ai serialized ma liste, taille de la donnee: "+data.length);
 					
 					//on renvoi à l'envoyeur
 					DatagramPacket outgoingPacket = new DatagramPacket(data,data.length,dstAddress,port);
@@ -65,12 +69,24 @@ public class UDPServer extends Thread{
 				} else {
 					//on recupère le pseudo
 					System.out.println("Server: son pseudo est: "+msg+"");
+					ListIterator<User> i= CurrentData.usersConnected().listIterator();
+					User local=i.next();
+					boolean trouve = false;
+					while(i.hasNext() && !trouve) {
+						System.out.println("Server: Je cherche si son pseudo est dans ma liste");
+						if(local.getUsername().equals(msg)) {
+							System.out.println("Server: J'ai deja un "+msg+" dans ma liste, je le retire");
+							CurrentData.removeUser(local);
+							trouve=true;
+						}
+						local = i.next();
+					}
 					User newUser = new User(msg,dstAddress);
 					CurrentData.addUser(newUser);
 					System.out.println("Server: J'ai ajouté "+msg+" a ma liste");
 				}
 			} catch (IOException e) {
-				System.out.println("Probleme UDPServer");
+				System.out.println("Probleme dans la serialisation");
 			}
 		}
 		this.socket.close();

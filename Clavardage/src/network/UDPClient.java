@@ -11,7 +11,6 @@ public class UDPClient {
 	private DatagramSocket socket;
 	private byte[] buf_envoi = new byte[1024];
 	private byte[] buf_recept = new byte[1024];
-	private byte[] buf_recept2 = new byte[1024];
 	private InetAddress localAddr;
 	public static InetAddress broadcastAddr;
 	
@@ -56,13 +55,13 @@ public class UDPClient {
 			System.out.println("Client : J'ai envoye ma demande de list en broadcast");
 			
 			//On attend une reponse
-			DatagramPacket incomingPacket = new DatagramPacket(buf_recept2,buf_recept2.length);
+			byte[] data = new byte [1024];
+			DatagramPacket incomingPacket = new DatagramPacket(data,data.length);
 			this.socket.receive(incomingPacket);
-			System.out.println("Client : J'ai reçu ma liste");
+			System.out.println("Client : J'ai reçu ma liste "+incomingPacket.getLength());
 			
 			//On recupere la donnee et on en extrait la liste d'utilisateurs connectes
-			byte[] data=incomingPacket.getData();
-			System.out.println("Client : Taille de liste "+data.length+" taille envoyé "+incomingPacket.getLength());
+			System.out.println("Client : Taille de la donnée "+data.length);
 			ArrayList<User> list=deserialize(data);
 			
 			System.out.println("Client : J'ai deserialized ma liste");
