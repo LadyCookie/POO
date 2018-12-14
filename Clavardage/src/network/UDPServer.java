@@ -7,16 +7,15 @@ import java.net.SocketException;
 import java.io.*;
 import java.util.*;
 import data.*;
+import model.*;
 
 
-public class UDPServer extends Thread{
+public class UDPServer extends  Thread{
 	
 	private DatagramSocket socket;
 	private byte[] buf = new byte[1024];
-	public ModelData CurrentData;
 	
-	public UDPServer(ModelData dat) {
-		this.CurrentData = dat;
+	public UDPServer() {
 		try {
 			this.socket = new DatagramSocket(4445);
 		} catch (SocketException e) {
@@ -24,21 +23,21 @@ public class UDPServer extends Thread{
 	}
 	
 	//permet de convertir un objet java en byte[] pour l'envoi
-	public static byte[] serialize(ArrayList<User> ListUser) throws IOException {
+	public static byte[] serialize(PacketUserList ListUser) throws IOException {
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    ObjectOutputStream os = new ObjectOutputStream(out);
 	    os.writeObject(ListUser);
 	    byte [] data = out.toByteArray();
-	    os.close();
-	    out.close();
+	//   os.close();
+	 //   out.close();
 	    return data;
 	}
 	
 	public void run() {
 		boolean running = true;
 		while(running) {
-			DatagramPacket incomingPacket = new DatagramPacket(buf,buf.length);
 			try {
+				DatagramPacket incomingPacket = new DatagramPacket(buf,buf.length);
 				System.out.println("Serveur : J'ecoute");
 				//on attend de recevoir un message
 				this.socket.receive(incomingPacket);
@@ -54,40 +53,42 @@ public class UDPServer extends Thread{
 					int port= incomingPacket.getPort();
 					
 					//on prend notre propre liste de Connected Users, on la transforme en bytes et on met dans buf
-					byte[] data = serialize(CurrentData.usersConnected());
-					System.out.println("Server : J'ai serialized ma liste, taille de la donnee: "+data.length);
-					
+					PacketUserList PacketList = new PacketUserList(Controller.Data.usersConnected());
+					System.out.println("Server : Je demarre la serialisation");
+				    
+					byte[] data = serialize(PacketList);
+				  			
 					//on renvoi à l'envoyeur
 					DatagramPacket outgoingPacket = new DatagramPacket(data,data.length,dstAddress,port);
 					System.out.println("Server : j'envoi un paquet de "+ outgoingPacket.getLength());
 					this.socket.send(outgoingPacket);
 					System.out.println("Server : J'ai envoyé ma liste");
-					
 				} else if(msg.equals("end")) {
 					running=false;
 					System.out.println("Server: J'ai recu l'ordre de m eteindre");
 				} else {
 					//on recupère le pseudo
 					System.out.println("Server: son pseudo est: "+msg+"");
-					ListIterator<User> i= CurrentData.usersConnected().listIterator();
+					ListIterator<User> i= Controller.Data.usersConnected().listIterator();
 					User local=i.next();
 					boolean trouve = false;
 					while(i.hasNext() && !trouve) {
 						System.out.println("Server: Je cherche si son pseudo est dans ma liste");
-						if(local.getUsername().equals(msg)) {
-							System.out.println("Server: J'ai deja un "+msg+" dans ma liste, je le retire");
-							CurrentData.removeUser(local);
+						if(local.getAddr().equals(dstAddress)) {
+							System.out.println("Server: J'ai deja cette addr dans ma liste, je le retire");
+							Controller.Data.removeUser(local);
 							trouve=true;
 						}
 						local = i.next();
 					}
 					User newUser = new User(msg,dstAddress);
-					CurrentData.addUser(newUser);
+					Controller.Data.addUser(newUser);
 					System.out.println("Server: J'ai ajouté "+msg+" a ma liste");
-				}
-			} catch (IOException e) {
-				System.out.println("Probleme dans la serialisation");
+				}	
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
+			
 		}
 		this.socket.close();
 	}

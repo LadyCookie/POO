@@ -38,10 +38,10 @@ public class UDPClient {
 	
 	
 	//permet d'extraire un UserListPacket d'une série de byte
-	public static ArrayList<User> deserialize(byte[] data) throws IOException, ClassNotFoundException {
+	public static PacketUserList deserialize(byte[] data) throws IOException, ClassNotFoundException {
 		ByteArrayInputStream in = new ByteArrayInputStream(data);
 	    ObjectInputStream is = new ObjectInputStream(in);
-		return (ArrayList<User>) is.readObject();
+		return (PacketUserList) is.readObject();
 	}
 	    
 	//fonction d'envoi d'un broadcast pour demander les listes
@@ -62,7 +62,8 @@ public class UDPClient {
 			
 			//On recupere la donnee et on en extrait la liste d'utilisateurs connectes
 			System.out.println("Client : Taille de la donnée "+data.length);
-			ArrayList<User> list=deserialize(data);
+			PacketUserList Packetlist=deserialize(data);
+			ArrayList<User> list = Packetlist.getUserList();
 			
 			System.out.println("Client : J'ai deserialized ma liste");
 			return list;

@@ -26,21 +26,21 @@ public class main {
 	
 	@Test
 	public void test() {
-		String pseudo_test = "Bob";
+		String pseudo_test = "Claude";
 		ArrayList<User> list = client.sendBroadcastListRequest();
 		boolean trouve=false;
 		//si la liste n'est pas vide on cherche si le pseudo est déja dans la liste
 		if ( !( list.isEmpty() ) && (list != null) ) {
 			System.out.println("Sa liste n'est pas vide");
 			ListIterator<User> i= list.listIterator();
-			User local=i.next();
+			
 			while(i.hasNext() && !trouve) {
+				User local=i.next();
 				System.out.println("Je cherche si son pseudo est dans la liste");
-				System.out.println("Elle contient pseudo"+local.getUsername());
+				System.out.println("Elle contient pseudo "+local.getUsername());
 				if(local.getUsername().equals(pseudo_test)) {
 					trouve=true;
 				}
-				local = i.next();
 			}
 		} else {
 			System.out.println("Sa liste est vide");

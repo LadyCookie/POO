@@ -17,18 +17,14 @@ public class LocalUser {
 			socket.connect(InetAddress.getByName("8.8.8.8"),10002);
 			InetAddress address = socket.getLocalAddress();
 			this.Client=new User(pseudo,address);
-			this.connected=false;
+			this.connected=true;
 		}catch (UnknownHostException| SocketException e) {
 			System.out.println("No internet");
 		}
-		
 	}
 	
 	public User getUser() {
 		return this.Client;
 	}
 	
-	void setConnected(){
-		this.connected=true;
-	}
 }

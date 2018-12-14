@@ -8,9 +8,9 @@ public class ModelData {
 	private ArrayList<User> userList;
 	private ArrayList<Session> sessionList;
 	
-	public ModelData (LocalUser user) {
+	public ModelData (LocalUser user,ArrayList<User> l) {
 		this.user=user;
-		this.userList=new ArrayList<User>();
+		this.userList=l;
 		this.sessionList=new ArrayList<Session>();
 	}
 	
