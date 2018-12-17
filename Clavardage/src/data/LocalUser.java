@@ -27,4 +27,15 @@ public class LocalUser {
 		return this.Client;
 	}
 	
+	public boolean getConnected() {
+		return this.connected;
+	}
+	
+	public void setUser(User user) {
+		this.Client = user;
+	}
+	
+	public void setConnected(boolean B) {
+		this.connected = B;
+	}
 }

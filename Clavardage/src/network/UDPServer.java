@@ -66,6 +66,22 @@ public class UDPServer extends  Thread{
 				} else if(msg.equals("end")) {
 					running=false;
 					System.out.println("Server: J'ai recu l'ordre de m eteindre");
+				} else if (msg.equals("disconnect")){
+					System.out.println("Server: message de deconnection");
+					
+					//on cherche cet utilisateur dans la liste
+					ListIterator<User> i= Controller.Data.usersConnected().listIterator();
+					User local=i.next();
+					boolean trouve = false;
+					while(i.hasNext() && !trouve) {
+						System.out.println("Server: Je cherche si son pseudo est dans ma liste");
+						if(local.getAddr().equals(dstAddress)) {
+							System.out.println("Server: J'ai cette addr dans ma liste, je le retire");
+							Controller.Data.removeUser(local);
+							trouve=true;
+						}
+						local = i.next();
+					}
 				} else {
 					//on recupère le pseudo
 					System.out.println("Server: son pseudo est: "+msg+"");

@@ -14,8 +14,14 @@ public class Controller {
 		//appel de la fenetre de login, pour tenter de donner le pseudo, d'instancier Data
 	}
 	
-	//renvoi à reviser
+	//Tente de se connecter avec un pseudo donné, renvoi true ou false selon si ça a reussi
 	public boolean PerformConnect(String pseudo) {
+		//on verifie si le pseudo est dans la liste des pseudo interdits
+		if(pseudo.equals("ListRQ") || pseudo.equals("end") || pseudo.equals("disconnect")) {
+			return false;
+		}
+		
+		//on ouvre un nouveau client UDP
 		UDPClient client = new UDPClient();
 		ArrayList<User> list = client.sendBroadcastListRequest();
 		boolean trouve=false;
@@ -32,13 +38,26 @@ public class Controller {
 		if (!trouve) {
 			client.sendBroadcastPseudo(pseudo);
 			client.close();
+			
 			LocalUser lU = new LocalUser(pseudo);
 			list.add(lU.getUser());		//on l'ajoute dans sa propre liste
 			Controller.Data = new ModelData(lU,list);  //On instancie la ModelData
+			Data.getLocalUser().setConnected(true);
 			new UDPServer().start();   //on lance le server UDP
 			return true;
 		} else {
 			return false;
 		} 
+	}
+	
+	//tente de se deconnecter, change LocalUser connected si ça reussit
+	public void PerformDisconnect() {
+		//on ouvre un nouveau client UDP
+		UDPClient client = new UDPClient();
+		
+		if ( client.sendDisconnect(Data.usersConnected())) {
+			Data.getLocalUser().setConnected(false);
+		}
+		client.close();
 	}
 }
