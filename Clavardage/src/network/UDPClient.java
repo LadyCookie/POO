@@ -56,6 +56,7 @@ public class UDPClient {
 			//On attend une reponse
 			byte[] data = new byte [1024];
 			DatagramPacket incomingPacket = new DatagramPacket(data,data.length);
+			this.socket.setSoTimeout(30000); //on laisse le socket ouvert 30s sinon il lance une exception
 			this.socket.receive(incomingPacket);
 			System.out.println("Client : J'ai reçu ma liste "+incomingPacket.getLength());
 			
@@ -66,7 +67,10 @@ public class UDPClient {
 			
 			System.out.println("Client : J'ai deserialized ma liste");
 			return list;
-						
+		} catch (SocketTimeoutException e) {	
+			//si il n'a rien reçu venant du réseau, il assume qu'il est seul et renvoi la liste vide
+			System.out.println("Client: Aucune liste reçu, je suis seul sur le reseau");
+			return new ArrayList<User>();
 		}catch (IOException e) {
 			System.out.println("Client: IOException");
 		} catch	(ClassNotFoundException e) {

@@ -25,29 +25,32 @@ public class Controller {
 		UDPClient client = new UDPClient();
 		ArrayList<User> list = client.sendBroadcastListRequest();
 		boolean trouve=false;
-		//on assume que la liste ne peut pas etre vide (il y a au moins l'envoyeur dedans)
-		//on cherche si le pseudo est déja dans la liste
-		ListIterator<User> i= list.listIterator();
-		while(i.hasNext() && !trouve) {
-			User local=i.next();
-			if(local.getUsername().equals(pseudo)) {
-				trouve=true;
-			}
-		}
-
-		if (!trouve) {
-			client.sendBroadcastPseudo(pseudo);
-			client.close();
-			
-			LocalUser lU = new LocalUser(pseudo);
-			list.add(lU.getUser());		//on l'ajoute dans sa propre liste
-			Controller.Data = new ModelData(lU,list);  //On instancie la ModelData
-			Data.getLocalUser().setConnected(true);
-			new UDPServer().start();   //on lance le server UDP
+		//si le Client n'a rien reçu il aura reçu la liste vide, donc il peut prendre n'import quel pseudo
+		if (list.isEmpty()) {
 			return true;
-		} else {
-			return false;
-		} 
+		}else {
+			//on cherche si le pseudo est déja dans la liste
+			ListIterator<User> i= list.listIterator();
+			while(i.hasNext() && !trouve) {
+				User local=i.next();
+				if(local.getUsername().equals(pseudo)) {
+					trouve=true;
+				}
+			}
+			if (!trouve) {
+				client.sendBroadcastPseudo(pseudo);
+				client.close();
+				
+				LocalUser lU = new LocalUser(pseudo);
+				list.add(lU.getUser());		//on l'ajoute dans sa propre liste
+				Controller.Data = new ModelData(lU,list);  //On instancie la ModelData
+				Data.getLocalUser().setConnected(true);
+				new UDPServer().start();   //on lance le server UDP
+				return true;
+			} else {
+				return false;
+			} 
+		}
 	}
 	
 	//tente de se deconnecter, change LocalUser connected si ça reussit
