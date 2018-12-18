@@ -38,45 +38,45 @@ public class UDPServer extends  Thread{
 		while(running) {
 			try {
 				DatagramPacket incomingPacket = new DatagramPacket(buf,buf.length);
-				System.out.println("Serveur : J'ecoute");
+				//System.out.println("Serveur : J'ecoute");
 				//on attend de recevoir un message
 				this.socket.receive(incomingPacket);
-				System.out.println("Serveur : J'ai recu un msg");
+				//System.out.println("Serveur : J'ai recu un msg");
 				
 				//on extrait l'adresse et le msg
 				InetAddress dstAddress = incomingPacket.getAddress();
 				String msg = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
 				
 				if(msg.equals("ListRQ")) {
-					System.out.println("Server : Il me demande ma liste ");
+					//System.out.println("Server : Il me demande ma liste ");
 					//On recupere le port distant
 					int port= incomingPacket.getPort();
 					
 					//on prend notre propre liste de Connected Users, on la transforme en bytes et on met dans buf
 					PacketUserList PacketList = new PacketUserList(Controller.Data.usersConnected());
-					System.out.println("Server : Je demarre la serialisation");
+					//System.out.println("Server : Je demarre la serialisation");
 				    
 					byte[] data = serialize(PacketList);
 				  			
 					//on renvoi à l'envoyeur
 					DatagramPacket outgoingPacket = new DatagramPacket(data,data.length,dstAddress,port);
-					System.out.println("Server : j'envoi un paquet de "+ outgoingPacket.getLength());
+					//System.out.println("Server : j'envoi un paquet de "+ outgoingPacket.getLength());
 					this.socket.send(outgoingPacket);
-					System.out.println("Server : J'ai envoyé ma liste");
+					//System.out.println("Server : J'ai envoyé ma liste");
 				} else if(msg.equals("end")) {
 					running=false;
-					System.out.println("Server: J'ai recu l'ordre de m eteindre");
+					//System.out.println("Server: J'ai recu l'ordre de m eteindre");
 				} else if (msg.equals("disconnect")){
-					System.out.println("Server: message de deconnection");
+					//System.out.println("Server: message de deconnection");
 					
 					//on cherche cet utilisateur dans la liste
 					ListIterator<User> i= Controller.Data.usersConnected().listIterator();
 					User local=i.next();
 					boolean trouve = false;
 					while(i.hasNext() && !trouve) {
-						System.out.println("Server: Je cherche si son pseudo est dans ma liste");
+						//System.out.println("Server: Je cherche si son pseudo est dans ma liste");
 						if(local.getAddr().equals(dstAddress)) {
-							System.out.println("Server: J'ai cette addr dans ma liste, je le retire");
+							//System.out.println("Server: J'ai cette addr dans ma liste, je le retire");
 							Controller.Data.removeUser(local);
 							trouve=true;
 						}
@@ -84,14 +84,14 @@ public class UDPServer extends  Thread{
 					}
 				} else {
 					//on recupère le pseudo
-					System.out.println("Server: son pseudo est: "+msg+"");
+					//System.out.println("Server: son pseudo est: "+msg+"");
 					ListIterator<User> i= Controller.Data.usersConnected().listIterator();
 					User local=i.next();
 					boolean trouve = false;
 					while(i.hasNext() && !trouve) {
-						System.out.println("Server: Je cherche si son pseudo est dans ma liste");
+						//System.out.println("Server: Je cherche si son pseudo est dans ma liste");
 						if(local.getAddr().equals(dstAddress)) {
-							System.out.println("Server: J'ai deja cette addr dans ma liste, je le retire");
+							//System.out.println("Server: J'ai deja cette addr dans ma liste, je le retire");
 							Controller.Data.removeUser(local);
 							trouve=true;
 						}
@@ -99,7 +99,7 @@ public class UDPServer extends  Thread{
 					}
 					User newUser = new User(msg,dstAddress);
 					Controller.Data.addUser(newUser);
-					System.out.println("Server: J'ai ajouté "+msg+" a ma liste");
+					//System.out.println("Server: J'ai ajouté "+msg+" a ma liste");
 				}	
 			} catch (IOException e1) {
 				e1.printStackTrace();

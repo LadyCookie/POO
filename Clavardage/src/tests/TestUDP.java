@@ -14,28 +14,34 @@ import network.*;
 import model.*;
 
 public class TestUDP {
-	UDPClient client;
-	UDPServer server;
+	Controller Cont1;
+	Controller Cont2;
 	
 	@Before
 	public void setup() {
-		try {
 		//On crée un utilisateur
-		Controller Cont1 = new Controller();
-		Perform
-		
-		
-		
-		//on lance un client
-		client = new UDPClient();
-		} catch(UnknownHostException e) {
+		Cont1 = new Controller();
+		if (!Cont1.PerformConnect("Bob")) {
+			System.out.println("La connection du premier Controller a raté");
+		} else {
+			System.out.println("La connection du premier Controller, Bob, a reussi");
 		}
 	}
 	
-	@Test
+	@Test	
 	public void test() {
-		String pseudo_test = "Claude";
-		ArrayList<User> list = client.sendBroadcastListRequest();
+		Cont2= new Controller();
+		//TEST 1
+		System.out.println("Test 1:\nOn tente de se connecter avec un pseudo déjà utilisé");
+		boolean success= Cont1.PerformConnect("Bob");
+		System.out.println("Réponse attendu: false \nRéponse obtenue: "+success);
+		
+		//TEST 2
+		System.out.println("Test 1:\nOn tente de se connecter avec un pseudo valide");
+		success= Cont1.PerformConnect("Claude");
+		System.out.println("Réponse attendu: true \nRéponse obtenue: "+success);
+		System.out.println("La liste des utilisateurs connectés de Cont1 est: "+success);
+		/*
 		boolean trouve=false;
 		//si la liste n'est pas vide on cherche si le pseudo est déja dans la liste
 		if ( !( list.isEmpty() ) && (list != null) ) {
@@ -50,6 +56,7 @@ public class TestUDP {
 					trouve=true;
 				}
 			}
+			
 		} else {
 			System.out.println("Sa liste est vide");
 		}
@@ -59,12 +66,12 @@ public class TestUDP {
 		} else {
 			System.out.println("Try again");
 		} 
+		*/
 	}
 	
 	@After
 	public void tearDown() {
-		client.sendBroadcastPseudo("end");
-		client.close();
+		Cont1.PerformDisconnect();
 	}
 
 }
