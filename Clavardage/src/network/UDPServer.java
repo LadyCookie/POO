@@ -4,7 +4,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.io.*;
@@ -124,7 +123,6 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			
 		}
 		this.socket.close();
 	}

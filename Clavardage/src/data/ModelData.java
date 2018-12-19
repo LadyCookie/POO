@@ -42,13 +42,13 @@ public class ModelData{
 			this.sessionList.add(local);
 		}
 		//envoi une notification de changement
+		pcs.firePropertyChange("sessionList", ancientList, this.sessionList);
 	}
 	
 	public void addUser(User U) {
 		ArrayList<User> ancientList= this.userList;
 		this.userList.add(U);
 		pcs.firePropertyChange("userList", ancientList, this.userList);
-		
 	}
 
 	public void removeUser(User U) {
@@ -61,6 +61,9 @@ public class ModelData{
 		this.userList = l;
 	}
 	
+	public void setSessionList(ArrayList<Session> l) {
+		this.sessionList = l;
+	}
 	
 	public ArrayList<MessageChat> getHistoric(String Username){
 		ListIterator<Session> i= this.sessionList.listIterator();

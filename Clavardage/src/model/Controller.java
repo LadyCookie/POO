@@ -22,6 +22,8 @@ public class Controller implements PropertyChangeListener{
 		//si on a changé la liste d'utilisateur on met à jour la notre
 		if(evt.getPropertyName().equals("userList")) {
 			this.Data.setUserConnected((ArrayList<User>) evt.getNewValue());
+		} else if(evt.getPropertyName().equals("sessionList")) {
+			this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
 		}
 	}
 	
