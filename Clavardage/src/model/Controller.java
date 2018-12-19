@@ -13,17 +13,32 @@ public class Controller implements PropertyChangeListener{
 
 	private ModelData Data;
 	
+	//pour tracker les changements faits à ModelData
+	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	
 	public Controller(){
 		//appel de la fenetre de login, pour tenter de donner le pseudo, d'instancier Data
 	}
+	
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		System.out.println("Controller : un Listener a été ajouté");
+		pcs.addPropertyChangeListener(listener);
+	 }
 
 	//on ecoute si des changements sont fait à ModelData
 	public void propertyChange(PropertyChangeEvent evt) {
+		System.out.println("Controller: j'ai reçu un event");
 		//si on a changé la liste d'utilisateur on met à jour la notre
 		if(evt.getPropertyName().equals("userList")) {
+			System.out.println("Controller: la liste d'utilisateur a changé");
+			ArrayList<User> oldlist = this.Data.usersConnected();
 			this.Data.setUserConnected((ArrayList<User>) evt.getNewValue());
+			pcs.firePropertyChange("userList",oldlist , evt.getNewValue());
 		} else if(evt.getPropertyName().equals("sessionList")) {
+			ArrayList<Session> oldlist = this.Data.getSessionlist();
+			System.out.println("Controller: la liste de session a changé");
 			this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
+			pcs.firePropertyChange("sessionList",oldlist , evt.getNewValue());
 		}
 	}
 	
@@ -63,10 +78,10 @@ public class Controller implements PropertyChangeListener{
 			this.Data = new ModelData(lU,list);  //On instancie la ModelData
 			
 			this.Data.getLocalUser().setConnected(true);
-			this.Data.addPropertyChangeListener(this); //on s'ajoute aux changements
 			
 			UDPServer server= new UDPServer(this.Data,portsrc); //on crée un server UDP pour ce client
-			this.Data.addPropertyChangeListener(server); //on l'ajoute à la liste des listeners
+			addPropertyChangeListener(server); //on l'ajoute à la liste des listeners
+			server.addPropertyChangeListener(this); //on s'ajoute aux listerners du server
 			server.start();   //on lance le server UDP
 			return true;
 		} else {
@@ -88,4 +103,5 @@ public class Controller implements PropertyChangeListener{
 		client.close();
 		return false;
 	}
+	
 }

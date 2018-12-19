@@ -4,7 +4,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.ListIterator;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;

@@ -1,7 +1,6 @@
 package data;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
+
 import java.util.*;
 
 
@@ -11,8 +10,7 @@ public class ModelData{
 	private ArrayList<User> userList;
 	private ArrayList<Session> sessionList;
 	
-	//pour tracker les changements faits à ModelData
-	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	
 	
 	public ModelData (LocalUser user,ArrayList<User> l) {
 		this.user=user;
@@ -20,12 +18,8 @@ public class ModelData{
 		this.sessionList=new ArrayList<Session>();
 	}
 	
-	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		pcs.addPropertyChangeListener(listener);
-	 }
 	
 	public void addMessage(MessageChat message,String OtherUser){
-		ArrayList<Session> ancientList = this.sessionList; 
 		
 		ListIterator<Session> i= this.sessionList.listIterator();
 		boolean trouve=false;
@@ -41,20 +35,14 @@ public class ModelData{
 			local.addMessage(message);
 			this.sessionList.add(local);
 		}
-		//envoi une notification de changement
-		pcs.firePropertyChange("sessionList", ancientList, this.sessionList);
 	}
 	
 	public void addUser(User U) {
-		ArrayList<User> ancientList= this.userList;
 		this.userList.add(U);
-		pcs.firePropertyChange("userList", ancientList, this.userList);
 	}
 
 	public void removeUser(User U) {
-		ArrayList<User> ancientList= this.userList;
 		this.userList.remove(U);
-		pcs.firePropertyChange("userList", ancientList, this.userList);
 	}
 	
 	public void setUserConnected(ArrayList<User> l) {
@@ -75,6 +63,10 @@ public class ModelData{
 			}
 		}		
 		return result;
+	}
+	
+	public ArrayList<Session> getSessionlist() {
+		return this.sessionList;
 	}
 	
 	public ArrayList<User> usersConnected() {

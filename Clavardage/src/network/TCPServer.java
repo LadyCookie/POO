@@ -15,6 +15,7 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		
 	private ServerSocket socket;
 	private ModelData Data;
+	private String localUsername;
 		/*public MyServerSocket(String ipAddress) throws Exception {
 	        if (ipAddress != null && !ipAddress.isEmpty()) 
 	          this.server = new ServerSocket(0, 1, InetAddress.getByName(ipAddress));
@@ -25,14 +26,17 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 	public TCPServer(InetAddress addr,ModelData Data,int port) throws Exception{
 		this.Data=Data;
 		this.socket = new ServerSocket(port,1,addr);
+		this.localUsername = this.Data.getLocalUser().getUser().getUsername();
 	}
 	
 	public void propertyChange(PropertyChangeEvent evt) {
+		System.out.println("Controller: la liste de session a changé");
 		//si on a changé la liste d'utilisateur/session on met à jour la notre
 		if(evt.getPropertyName().equals("userList")) {
 			this.Data.setUserConnected((ArrayList<User>) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("sessionList")) {
 			this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
+			
 		}
 	}
 	
@@ -42,7 +46,7 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 			ListIterator<User> i= this.Data.usersConnected().listIterator();
 			while(i.hasNext()) {
 				User local=i.next();
-				if (local.getAddr().equals(addr)){
+				if (local.getAddr().equals(addr) && !local.getUsername().equals(this.localUsername)){
 					return local.getUsername();
 				}
 			}
@@ -57,14 +61,14 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        String data = null;
 		        Socket client = this.socket.accept();
 		        InetAddress clientAddr = client.getInetAddress();
-		        System.out.println("\r\nNew connection from " + clientAddr.toString());
+		        System.out.println("\r\nServer "+this.localUsername+": New connection from " + clientAddr.toString());
 		        String pseudo = findpseudo(clientAddr);
 			    //Read the data coming into the socket
 			    BufferedReader in = new BufferedReader( new InputStreamReader(client.getInputStream()));  
 			        
 			    //on ajoute le message à la session
 			    while ( (data = in.readLine()) != null ) {
-			        System.out.println("\r\nMessage from " + clientAddr.toString() + ": " + data);
+			        System.out.println("\r\nServer "+this.localUsername+": Message from " + pseudo + ": " + data);
 			        MessageChat message = new MessageChat(pseudo, new Date(),data);
 			        Data.addMessage(message,pseudo);
 			    }

@@ -5,6 +5,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeEvent;
 import java.io.*;
 import java.util.*;
@@ -13,6 +14,8 @@ import model.*;
 
 
 public class UDPServer extends  Thread implements PropertyChangeListener {
+	
+	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
 	private DatagramSocket socket;
 	private byte[] buf = new byte[65535];
@@ -32,10 +35,16 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 		}
 	}
 	
-	//fonction appelée lorsque une modification est faites à ModelData
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		System.out.println("Server : un Listener a été ajouté");
+		pcs.addPropertyChangeListener(listener);
+	 }
+	
+	//fonction appelée lorsque une modification est faites à Data
 	public void propertyChange(PropertyChangeEvent evt) {
 		//si on a changé la liste d'utilisateur on met à jour la notre
-		if(evt.getPropertyName().equals("userList")) {
+		if(evt.getPropertyName().equals("userList")) { 
+			System.out.println("Server: la liste de session a changé");
 			this.Data.setUserConnected((ArrayList<User>) evt.getNewValue());
 		}
 	}
@@ -97,7 +106,9 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 						//System.out.println("Server: Je cherche si son addr est dans ma liste");
 						if(local.getAddr().equals(dstAddress)) {
 							//System.out.println("Server: J'ai cette addr dans ma liste, je le retire");
+							ArrayList<User> oldlist = Data.usersConnected(); 
 							Data.removeUser(local);
+							pcs.firePropertyChange("userList", oldlist, Data.usersConnected());							
 							trouve=true;
 						}
 					}
@@ -107,6 +118,8 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 					ListIterator<User> i= Data.usersConnected().listIterator();
 					User local=i.next();
 					boolean trouve = false;
+					ArrayList<User> oldlist = Data.usersConnected(); 
+					
 					while(i.hasNext() && !trouve) {
 						//System.out.println("Server: Je cherche si son addr/pseudo est dans ma liste");
 						if(local.getAddr().equals(dstAddress)) {
@@ -118,6 +131,7 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 					}
 					User newUser = new User(msg,dstAddress);
 					Data.addUser(newUser);
+					pcs.firePropertyChange("userList", oldlist, Data.usersConnected());
 					//System.out.println("Server: J'ai ajouté "+msg+" a ma liste");
 				}	
 			} catch (IOException e1) {
