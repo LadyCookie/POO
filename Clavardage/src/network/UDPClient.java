@@ -6,10 +6,10 @@ import model.*;
 import data.*;
 import java.util.*;
 
-public class UDPClient {
+public class UDPClient{
 
 	private DatagramSocket socket;
-	private byte[] buf = new byte[1024];
+	private byte[] buf = new byte[65535];
 	private InetAddress localAddr;
 	public static InetAddress broadcastAddr;
 	
@@ -20,8 +20,6 @@ public class UDPClient {
 			socket.connect(InetAddress.getByName("8.8.8.8"),10002);
 			this.localAddr = socket.getLocalAddress();
 			this.socket= new DatagramSocket();
-			//System.out.println("Client : Mon adresse est"+localAddr.toString()+"");
-			//System.out.println("Client : Mon socket est "+this.socket.toString()+"");
 			//on recupere l'adresse de broadcast
 			NetworkInterface ni=NetworkInterface.getByInetAddress(localAddr);
 			for (int i =0; i<ni.getInterfaceAddresses().size();i++) {
@@ -29,12 +27,10 @@ public class UDPClient {
 					broadcastAddr=ni.getInterfaceAddresses().get(i).getBroadcast();
 				}
 			}
-			//System.out.println("Client : J'ai l'adresse de broacast"+ broadcastAddr.toString() +"");
 		}catch (UnknownHostException| SocketException e) {
 			//System.out.println("No internet");
 		}
 	}
-	
 	
 	//permet d'extraire un UserListPacket d'une série de byte
 	private PacketUserList deserialize(byte[] data) throws IOException, ClassNotFoundException {
@@ -44,19 +40,20 @@ public class UDPClient {
 	}
 	    
 	//fonction d'envoi d'un broadcast pour demander les listes
-	public ArrayList<User> sendBroadcastListRequest() {
+	public ArrayList<User> sendBroadcastListRequest(int portsrc, int portdist) {
 		buf= "ListRQ".getBytes();
 		try {
 			//on fabrique le packet UDP à envoyer
-			DatagramPacket packet = new DatagramPacket(buf,buf.length,broadcastAddr,4445);
+			DatagramPacket packet = new DatagramPacket(buf,buf.length,broadcastAddr,portdist);
 			//System.out.println("Client : Paquet demande liste fabriqué");
 			this.socket.send(packet);
 			//System.out.println("Client : J'ai envoye ma demande de list en broadcast");
 			
 			//On attend une reponse
-			byte[] data = new byte [1024];
+			byte[] data = new byte [65535];
 			DatagramPacket incomingPacket = new DatagramPacket(data,data.length);
-			this.socket.setSoTimeout(30000); //on laisse le socket ouvert 30s sinon il lance une exception
+			incomingPacket.setPort(portdist);
+			this.socket.setSoTimeout(5000); //on laisse le socket ouvert 30s sinon il lance une exception
 			this.socket.receive(incomingPacket);
 			//System.out.println("Client : J'ai reçu ma liste "+incomingPacket.getLength());
 			
@@ -80,11 +77,11 @@ public class UDPClient {
 	}
 	
 	//fonction d'envoi du pseudo en broadcast
-	public boolean sendBroadcastPseudo(String pseudo) {
+	public boolean sendBroadcastPseudo(String pseudo, int portdist) {
 		buf= pseudo.getBytes();
 		try {
 			//on fabrique le packet UDP à envoyer
-			DatagramPacket packet = new DatagramPacket(buf,buf.length,broadcastAddr,4445);
+			DatagramPacket packet = new DatagramPacket(buf,buf.length,broadcastAddr,portdist);
 			//System.out.println("Client : Paquet pseudo fabriqué ("+pseudo+")"+"");
 			this.socket.send(packet);
 			//System.out.println("Client : J'ai envoye mon pseudo en broadcast");
@@ -96,28 +93,27 @@ public class UDPClient {
 	}
 
 	//fonction d'envoi d'un disconnect aux utilisateurs connectés
-	public boolean sendDisconnect(ArrayList<User> list) {
+	public boolean sendDisconnect(ArrayList<User> list, int portsrc,int portdst) {
 		buf= "disconnect".getBytes();
 		try {
 			//on fabrique le packet UDP à envoyer
 			DatagramPacket packet = new DatagramPacket(buf,buf.length);
-			packet.setPort(4445);
+			packet.setPort(portdst);
 			
 			//on parcourt la liste et on envoi à chaque utilisateur
 			ListIterator<User> i= list.listIterator();
 			while(i.hasNext()) {
 				User local=i.next();
 				packet.setAddress(local.getAddr());
-				////System.out.println("Client : Paquet disconnect pour "+local.getUsername()+" fabriqué");
+				//System.out.println("Client : Paquet disconnect pour "+local.getUsername()+" fabriqué");
 				this.socket.send(packet);
 				//System.out.println("Client : Paquet disconnect envoyé");
 			}		
 			
 			//on envoi au server l'ordre de s'eteindre
 			buf= "end".getBytes();
-			DatagramPacket packetServer = new DatagramPacket(buf,buf.length,localAddr,4445);
+			DatagramPacket packetServer = new DatagramPacket(buf,buf.length,localAddr,portsrc);
 			this.socket.send(packetServer);
-			
 			return true;
 		}catch (IOException e) {
 				//System.out.println("Client: IOException : " +e.toString());
