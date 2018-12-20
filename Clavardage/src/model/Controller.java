@@ -11,7 +11,9 @@ import network.*;
 
 public class Controller implements PropertyChangeListener{
 
-	private ModelData Data;
+	public volatile ModelData Data;
+	
+	private UDPServer server;
 	
 	//pour tracker les changements faits à ModelData
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -21,24 +23,29 @@ public class Controller implements PropertyChangeListener{
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		System.out.println("Controller : un Listener a été ajouté");
+		//System.out.println("Controller : un Listener a été ajouté");
 		pcs.addPropertyChangeListener(listener);
 	 }
 
 	//on ecoute si des changements sont fait à ModelData
 	public void propertyChange(PropertyChangeEvent evt) {
-		System.out.println("Controller: j'ai reçu un event");
 		//si on a changé la liste d'utilisateur on met à jour la notre
 		if(evt.getPropertyName().equals("userList")) {
-			System.out.println("Controller: la liste d'utilisateur a changé");
-			ArrayList<User> oldlist = this.Data.usersConnected();
+			//System.out.println("Controller: la liste d'utilisateur a changé");
+			ArrayList<User> oldlist = new ArrayList<User>(this.Data.usersConnected());
 			this.Data.setUserConnected((ArrayList<User>) evt.getNewValue());
-			pcs.firePropertyChange("userList",oldlist , evt.getNewValue());
+			if (oldlist.equals((ArrayList<User>) evt.getNewValue())) {
+				//System.out.println("Controller : user change fired");
+			}
+			pcs.firePropertyChange("userList",oldlist , (ArrayList<User>) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("sessionList")) {
-			ArrayList<Session> oldlist = this.Data.getSessionlist();
-			System.out.println("Controller: la liste de session a changé");
+			ArrayList<Session> oldlist = new ArrayList<Session>(this.Data.getSessionlist());
+			//System.out.println("Controller: la liste de session a changé");
 			this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
-			pcs.firePropertyChange("sessionList",oldlist , evt.getNewValue());
+			if (oldlist.equals((ArrayList<User>) evt.getNewValue())) {
+				System.out.println("Controller : session change fired");
+			}
+			pcs.firePropertyChange("sessionList",oldlist , (ArrayList<Session>) evt.getNewValue());
 		}
 	}
 	
@@ -79,9 +86,9 @@ public class Controller implements PropertyChangeListener{
 			
 			this.Data.getLocalUser().setConnected(true);
 			
-			UDPServer server= new UDPServer(this.Data,portsrc); //on crée un server UDP pour ce client
-			addPropertyChangeListener(server); //on l'ajoute à la liste des listeners
-			server.addPropertyChangeListener(this); //on s'ajoute aux listerners du server
+			this.server= new UDPServer(this.Data,portsrc); //on crée un server UDP pour ce client
+			addPropertyChangeListener(this.server); //on l'ajoute à la liste des listeners
+			this.server.addPropertyChangeListener(this); //on s'ajoute aux listerners du server
 			server.start();   //on lance le server UDP
 			return true;
 		} else {
@@ -102,6 +109,5 @@ public class Controller implements PropertyChangeListener{
 		} 
 		client.close();
 		return false;
-	}
-	
+	}	
 }

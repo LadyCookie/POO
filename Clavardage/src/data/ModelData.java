@@ -30,7 +30,7 @@ public class ModelData{
 				trouve=true;
 			}
 		}
-		if(!trouve) {
+		if(!trouve) { 
 			Session local=new Session(OtherUser);
 			local.addMessage(message);
 			this.sessionList.add(local);

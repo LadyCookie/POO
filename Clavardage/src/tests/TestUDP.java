@@ -72,8 +72,6 @@ public class TestUDP {
 		afficherList(Cont1.getModelData().usersConnected());
 		System.out.println("La liste des utilisateurs connectés de Cont3 est: ");
 		afficherList(Cont3.getModelData().usersConnected());
-		System.out.println("On s'attend à ce qu'elles soient vides toutes les deux, ");
-		System.out.println("car on est sur le même ordinateur et la liste se vide par adresse");
 	}
 	
 	@After
