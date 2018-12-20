@@ -26,12 +26,14 @@ public class ModelData{
 		boolean trouve=false;
 		while(i.hasNext() && !trouve) {
 			Session local=i.next();
-			if(local.getOtherUser()==OtherUser) {
+			if(local.getOtherUser().equals(OtherUser)) {
+				
 				local.addMessage(message);
 				trouve=true;
 			}
 		}
 		if(!trouve) { 
+			//local est une session
 			Session local=new Session(OtherUser);
 			local.addMessage(message);
 			this.sessionList.add(local);
@@ -59,7 +61,7 @@ public class ModelData{
 		ArrayList<MessageChat> result=new ArrayList<MessageChat>();
 		while(i.hasNext()) {
 			Session local=i.next();
-			if(local.getOtherUser()==Username) {
+			if(local.getOtherUser().equals(Username)) {
 				result=local.getMessageChat();
 			}
 		}		

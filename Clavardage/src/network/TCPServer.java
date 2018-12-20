@@ -29,7 +29,7 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		//System.out.println("Server : un Listener a été ajouté");
+		////System.out.println("Server : un Listener a été ajouté");
 		pcs.addPropertyChangeListener(listener);
 	 }
 	
@@ -37,27 +37,32 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		//si on a changé la liste d'utilisateur/session on met à jour la notre
 		if(evt.getPropertyName().equals("userList")) {
 			this.Data.setUserConnected((ArrayList<User>) evt.getNewValue());
+			//System.out.println("TCP Server: la liste d'utilisateurs a changé");
 		} else if(evt.getPropertyName().equals("sessionList")) {
 			this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
-			System.out.println("TCP Server: la liste de active session a changé");
+			//System.out.println("TCP Server: la liste de session a changé");
 		} else if(evt.getPropertyName().equals("activesessionList")) {
 			this.activesessionList = ((ArrayList<InetAddress>) evt.getNewValue());
+			//System.out.println("TCP Server: la liste de active session a changé");
 		}
 	}
 	
-
 	public void run() {
 		boolean running=true;
 		while(running) {
 			try {
-		        String data = null;
+				//System.out.println("Server TCP "+this.localUsername+" :J'écoute");
+		        String data = "";
 		        Socket client = this.socket.accept();
 		        InetAddress clientAddr = client.getInetAddress();
-		        System.out.println("\r\nServer "+this.localUsername+": New connection from " + clientAddr.toString());
+		        //System.out.println("\r\nServer "+this.localUsername+": New connection from " + clientAddr.toString());
 		        String pseudo = this.Data.getPseudo(clientAddr); //on verifie si il est dans notre liste
 		        if(!this.activesessionList.contains(clientAddr)) {
 		        	ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
 		        	this.activesessionList.add(clientAddr);
+		        	if(!oldlist.equals(this.activesessionList)) {
+		        		//System.out.println("TCP Server "+this.localUsername+": active session change fired");
+		        	}
 		        	pcs.firePropertyChange("activesessionList", oldlist, this.activesessionList);
 		        }
 		        
@@ -67,13 +72,17 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 			    //on ajoute le message à la session
 			    while ( (data = in.readLine()) != null ) {
 			        System.out.println("\r\nServer "+this.localUsername+": Message from " + pseudo + ": " + data);
-			        ArrayList<Session> oldlist = new ArrayList<Session>(Data.getSessionlist());
+			        
+			        ArrayList<Session> oldlist = new ArrayList<Session>(this.Data.getSessionlist());
 			        MessageChat message = new MessageChat(pseudo, new Date(),data);
-			        Data.addMessage(message,pseudo);
-			        pcs.firePropertyChange("sessionList", oldlist, Data.getSessionlist());
+			        this.Data.addMessage(message,pseudo);
+			        if(!oldlist.equals(this.Data.getSessionlist())) {
+		        		//System.out.println("TCP Server "+this.localUsername+" : update de session fired");
+		        	}
+			        pcs.firePropertyChange("sessionList", oldlist, this.Data.getSessionlist());
 			    }
 	        }catch (Exception e) {
-	        	System.out.println(e.toString());
+	        	//System.out.println(e.toString());
 	        }
 		}
     }

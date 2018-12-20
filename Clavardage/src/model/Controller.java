@@ -23,11 +23,12 @@ public class Controller implements PropertyChangeListener{
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
 	public Controller(){
+		this.activesessionList = new ArrayList<InetAddress>();
 		//appel de la fenetre de login, pour tenter de donner le pseudo, d'instancier Data
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		//System.out.println("Controller : un Listener a été ajouté");
+		////System.out.println("Controller : un Listener a été ajouté");
 		pcs.addPropertyChangeListener(listener);
 	}
 
@@ -39,26 +40,27 @@ public class Controller implements PropertyChangeListener{
 	public void propertyChange(PropertyChangeEvent evt) {
 		//si on a changé la liste d'utilisateur on met à jour la notre
 		if(evt.getPropertyName().equals("userList")) {
-			//System.out.println("Controller: la liste d'utilisateur a changé");
+			////System.out.println("Controller: la liste d'utilisateur a changé");
 			ArrayList<User> oldlist = new ArrayList<User>(this.Data.usersConnected());
 			this.Data.setUserConnected((ArrayList<User>) evt.getNewValue());
 			if (oldlist.equals((ArrayList<User>) evt.getNewValue())) {
-				System.out.println("Controller : user change fired");
+				//System.out.println("Controller : user change fired");
 			}
 			pcs.firePropertyChange("userList",oldlist , (ArrayList<User>) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("sessionList")) {
 			ArrayList<Session> oldlist = new ArrayList<Session>(this.Data.getSessionlist());
-			//System.out.println("Controller: la liste de session a changé");
+			//System.out.println("Controller "+this.Data.getLocalUser().getUser().getUsername()+" : la liste de session a changé");
 			this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
-			if (oldlist.equals((ArrayList<User>) evt.getNewValue())) {
-				System.out.println("Controller : session change fired");
+			if (oldlist.equals((ArrayList<Session>) evt.getNewValue())) {
+				//System.out.println("Controller : session change fired");
 			}
 			pcs.firePropertyChange("sessionList",oldlist , (ArrayList<Session>) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("activesessionList")) {
+			//System.out.println("Controller : j'ai reçu un evenement de changement de session active");
 			ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
 			this.activesessionList = ((ArrayList<InetAddress>) evt.getNewValue());
 			if (oldlist.equals((ArrayList<InetAddress>) evt.getNewValue())) {
-				System.out.println("Controller : active user change fired");
+				//System.out.println("Controller : active user change fired");
 			}
 			pcs.firePropertyChange("activesessionList",oldlist , (ArrayList<InetAddress>) evt.getNewValue());
 		}
@@ -109,7 +111,7 @@ public class Controller implements PropertyChangeListener{
 				
 				return true;
 			}catch(Exception e) {
-				System.out.println("Controller: "+e.toString());
+				//System.out.println("Controller: "+e.toString());
 			}
 		} 
 		return false;
@@ -128,6 +130,7 @@ public class Controller implements PropertyChangeListener{
 		client.close();
 		return false;
 	}	
+	
 
 	public boolean sendMessage(String pseudo, String msg,int portdst) {
 		try {
@@ -136,7 +139,7 @@ public class Controller implements PropertyChangeListener{
 				ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
 				this.activesessionList.add(addr); //on ajoute à la liste des sessions actives
 				if (oldlist.equals(this.activesessionList)) {
-					System.out.println("Controller : active user change fired");
+					//System.out.println("Controller : active user change fired");
 				}
 				pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
 			}
@@ -145,20 +148,19 @@ public class Controller implements PropertyChangeListener{
 			
 			this.activesessionList.add(addr); //on ajoute à la liste des sessions actives
 			if (oldlist.equals(this.activesessionList)) {
-				System.out.println("Controller : active user change fired");
+				//System.out.println("Controller : active session change fired");
 			}
 			pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
 			
 			client.sendTxt(msg);
-			ArrayList<Session> oldlist2 = new ArrayList<Session>(Data.getSessionlist());
+			ArrayList<Session> oldlist2 = new ArrayList<Session>(this.Data.getSessionlist());
 	        MessageChat message = new MessageChat(this.Data.getLocalUser().getUser().getUsername(), new Date(),msg);
-	        Data.addMessage(message,pseudo);
+	        this.Data.addMessage(message,pseudo);
 	        pcs.firePropertyChange("sessionList", oldlist2, Data.getSessionlist());
 	        return true;
-	        
 		}catch(Exception e){
 			//l'utilisateur n'est pas connecté ou la connection a échoué
-			System.out.println("Controller: "+e.toString());
+			//System.out.println("Controller: "+e.toString());
 			return false;
 		}
 	}
