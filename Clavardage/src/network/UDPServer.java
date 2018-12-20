@@ -105,7 +105,7 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 					}
 				} else {
 					//on recupère le pseudo
-					//System.out.println("Server: son pseudo est: "+msg+"");
+					System.out.println("Server: Nouvelle connection de "+msg);
 					ListIterator<User> i= Data.usersConnected().listIterator();
 					User local=i.next();
 					boolean trouve = false;

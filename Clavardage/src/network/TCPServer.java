@@ -55,7 +55,7 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        String data = "";
 		        Socket client = this.socket.accept();
 		        InetAddress clientAddr = client.getInetAddress();
-		        //System.out.println("\r\nServer "+this.localUsername+": New connection from " + clientAddr.toString());
+		        //System.out.println("\r\nServerTCP : New connection from " + clientAddr.toString());
 		        String pseudo = this.Data.getPseudo(clientAddr); //on verifie si il est dans notre liste
 		        if(!this.activesessionList.contains(clientAddr)) {
 		        	ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);

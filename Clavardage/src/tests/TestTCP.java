@@ -64,15 +64,15 @@ public class TestTCP {
 	
 	@Test		
 	public void test() {
-		Cont3 = new Controller();
-		boolean success= Cont3.PerformConnect("Claude",4446,4445,2001);
-		System.out.println("Claude a pu se connecter: "+success);
-		User User1 = Cont1.getModelData().getLocalUser().getUser();
-		User User3 = Cont3.getModelData().getLocalUser().getUser();
-		System.out.println("On a donc: "+ User1.getUsername()+"    Adresse: "+User1.getAddr().toString());
-		System.out.println("           "+ User3.getUsername()+" Adresse: "+User3.getAddr().toString());
+	Cont3 = new Controller();
+	boolean success= Cont3.PerformConnect("Claude",4446,4445,2001);
+	System.out.println("Claude a pu se connecter: "+success);
+	User User1 = Cont1.getModelData().getLocalUser().getUser();
+	User User3 = Cont3.getModelData().getLocalUser().getUser();
+	System.out.println("On a donc: "+ User1.getUsername()+"    Adresse: "+User1.getAddr().toString());
+	System.out.println("           "+ User3.getUsername()+" Adresse: "+User3.getAddr().toString());
 	
-	System.out.println("------------------------------------------------------");
+	System.out.println("-------------------------------------------------------------");
 		//Bob envoit un message à Claude
 	Cont1.sendMessage("Claude", "Hey", 2001);
 
@@ -81,7 +81,7 @@ public class TestTCP {
 		
 	System.out.println("\nHistorique de Claude avec Bob");
 	afficherSession(Cont3.getModelData().getHistoric("Bob"));
-	System.out.println("------------------------------------------------------");
+	System.out.println("--------------------------------------------------------------");
 	//Claude envoi un message à Bob
 	Cont3.sendMessage("Bob", "Hello Back", 2000);
 	
