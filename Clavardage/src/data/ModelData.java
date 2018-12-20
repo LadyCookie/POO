@@ -2,6 +2,7 @@ package data;
 
 
 import java.util.*;
+import java.net.InetAddress;
 
 
 public class ModelData{
@@ -76,5 +77,33 @@ public class ModelData{
 	public LocalUser getLocalUser() {
 		return this.user;
 	}	
+	
+	public String getPseudo(InetAddress addr) throws Exception {
+		if(!this.userList.isEmpty() && !this.userList.equals(null)) {
+			//on cherche si le pseudo est déja dans la liste
+			ListIterator<User> i= this.userList.listIterator();
+			while(i.hasNext()) {
+				User local=i.next();
+				if (local.getAddr().equals(addr) && !local.getUsername().equals(this.user.getUser().getUsername())){
+					return local.getUsername();
+				}
+			}
+		}
+		throw new NullPointerException("La liste est vide OU on ne connait pas cet utilisateur");
+	}
+	
+	public InetAddress getAddresse(String pseudo) throws Exception {
+		if(!this.userList.isEmpty() && !this.userList.equals(null)) {
+			//on cherche si le pseudo est déja dans la liste
+			ListIterator<User> i= this.userList.listIterator();
+			while(i.hasNext()) {
+				User local=i.next();
+				if (local.getUsername().equals(pseudo)){
+					return local.getAddr();
+				}
+			}
+		}
+		throw new NullPointerException("La liste est vide OU on ne connait pas cet utilisateur");		
+	}
 	
 }

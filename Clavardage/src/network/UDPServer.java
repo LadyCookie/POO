@@ -21,18 +21,9 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 	private byte[] buf = new byte[65535];
 	private ModelData Data;
 	
-	public UDPServer(ModelData d,int portsrc) {
-		try {
+	public UDPServer(ModelData d,int portsrc) throws Exception{
 			this.Data=d;
 			this.socket = new DatagramSocket(portsrc);
-		} catch (SocketException e) {
-			//System.out.println("Server: socket 4445 n'est pas disponible");
-			try{
-				this.socket = new DatagramSocket(4446);
-			}catch (SocketException e1){
-				//System.out.println("Server: socket 4446 n'est pas disponible");
-			}
-		}
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {

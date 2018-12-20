@@ -3,8 +3,6 @@ package network;
 import java.net.*;	
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.Socket;
 
 public class TCPClient {
 	    private Socket socket;

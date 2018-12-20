@@ -1,8 +1,11 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.ListIterator;
+import java.util.concurrent.TimeUnit;
 import java.beans.PropertyChangeSupport;
+import java.net.InetAddress;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
@@ -11,9 +14,10 @@ import network.*;
 
 public class Controller implements PropertyChangeListener{
 
-	public volatile ModelData Data;
+	private ModelData Data;
+	private TCPServer TCPserver;
+	private ArrayList<InetAddress> activesessionList;
 	
-	private UDPServer server;
 	
 	//pour tracker les changements faits à ModelData
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -25,8 +29,12 @@ public class Controller implements PropertyChangeListener{
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
 		//System.out.println("Controller : un Listener a été ajouté");
 		pcs.addPropertyChangeListener(listener);
-	 }
+	}
 
+	public ModelData getModelData() {
+		return this.Data;
+	}
+	
 	//on ecoute si des changements sont fait à ModelData
 	public void propertyChange(PropertyChangeEvent evt) {
 		//si on a changé la liste d'utilisateur on met à jour la notre
@@ -35,7 +43,7 @@ public class Controller implements PropertyChangeListener{
 			ArrayList<User> oldlist = new ArrayList<User>(this.Data.usersConnected());
 			this.Data.setUserConnected((ArrayList<User>) evt.getNewValue());
 			if (oldlist.equals((ArrayList<User>) evt.getNewValue())) {
-				//System.out.println("Controller : user change fired");
+				System.out.println("Controller : user change fired");
 			}
 			pcs.firePropertyChange("userList",oldlist , (ArrayList<User>) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("sessionList")) {
@@ -46,15 +54,18 @@ public class Controller implements PropertyChangeListener{
 				System.out.println("Controller : session change fired");
 			}
 			pcs.firePropertyChange("sessionList",oldlist , (ArrayList<Session>) evt.getNewValue());
+		} else if(evt.getPropertyName().equals("activesessionList")) {
+			ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
+			this.activesessionList = ((ArrayList<InetAddress>) evt.getNewValue());
+			if (oldlist.equals((ArrayList<InetAddress>) evt.getNewValue())) {
+				System.out.println("Controller : active user change fired");
+			}
+			pcs.firePropertyChange("activesessionList",oldlist , (ArrayList<InetAddress>) evt.getNewValue());
 		}
 	}
 	
-	public ModelData getModelData() {
-		return this.Data;
-	}
-	
 	//Tente de se connecter avec un pseudo donné, renvoi true ou false selon si ça a reussi
-	public boolean PerformConnect(String pseudo,int portsrc, int portdist) {
+	public boolean PerformConnect(String pseudo,int portsrc, int portdist, int portTCPsrc) {
 		//on verifie si le pseudo est dans la liste des pseudo interdits
 		if(pseudo.equals("ListRQ") || pseudo.equals("end") || pseudo.equals("disconnect")) {
 			return false;
@@ -85,16 +96,23 @@ public class Controller implements PropertyChangeListener{
 			this.Data = new ModelData(lU,list);  //On instancie la ModelData
 			
 			this.Data.getLocalUser().setConnected(true);
-			
-			this.server= new UDPServer(this.Data,portsrc); //on crée un server UDP pour ce client
-			addPropertyChangeListener(this.server); //on l'ajoute à la liste des listeners
-			this.server.addPropertyChangeListener(this); //on s'ajoute aux listerners du server
-			server.start();   //on lance le server UDP
-			return true;
-		} else {
-			return false;
+			try {
+				UDPServer server= new UDPServer(this.Data,portsrc); //on crée un server UDP pour ce client
+				addPropertyChangeListener(server); //on l'ajoute à la liste des listeners
+				server.addPropertyChangeListener(this); //on s'ajoute aux listerners du server
+				server.start();   //on lance le server UDP
+				
+				this.TCPserver = new TCPServer(this.Data,portTCPsrc); //port arbitraire
+				addPropertyChangeListener(this.TCPserver); //on l'ajoute à la liste des listeners
+				this.TCPserver.addPropertyChangeListener(this); //on s'ajoute aux listerners du server
+				this.TCPserver.start();   //on lance le server TCP
+				
+				return true;
+			}catch(Exception e) {
+				System.out.println("Controller: "+e.toString());
+			}
 		} 
-		
+		return false;
 	}
 	
 	//tente de se deconnecter, change LocalUser connected si ça reussit
@@ -110,4 +128,38 @@ public class Controller implements PropertyChangeListener{
 		client.close();
 		return false;
 	}	
+
+	public boolean sendMessage(String pseudo, String msg,int portdst) {
+		try {
+			InetAddress addr = this.Data.getAddresse(pseudo);
+			if(!this.activesessionList.contains(addr)) {
+				ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
+				this.activesessionList.add(addr); //on ajoute à la liste des sessions actives
+				if (oldlist.equals(this.activesessionList)) {
+					System.out.println("Controller : active user change fired");
+				}
+				pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
+			}
+			TCPClient client = new TCPClient(addr,portdst);
+			ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
+			
+			this.activesessionList.add(addr); //on ajoute à la liste des sessions actives
+			if (oldlist.equals(this.activesessionList)) {
+				System.out.println("Controller : active user change fired");
+			}
+			pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
+			
+			client.sendTxt(msg);
+			ArrayList<Session> oldlist2 = new ArrayList<Session>(Data.getSessionlist());
+	        MessageChat message = new MessageChat(this.Data.getLocalUser().getUser().getUsername(), new Date(),msg);
+	        Data.addMessage(message,pseudo);
+	        pcs.firePropertyChange("sessionList", oldlist2, Data.getSessionlist());
+	        return true;
+	        
+		}catch(Exception e){
+			//l'utilisateur n'est pas connecté ou la connection a échoué
+			System.out.println("Controller: "+e.toString());
+			return false;
+		}
+	}
 }
