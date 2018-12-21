@@ -113,7 +113,8 @@ public class Controller implements PropertyChangeListener{
 				//System.out.println("Controller: "+e.toString());
 			}
 			return true;
-		} 
+		}
+		client.close();
 		return false;
 	}
 	
@@ -124,6 +125,7 @@ public class Controller implements PropertyChangeListener{
 		if (client.sendDisconnect(this.Data.usersConnected(),portsrc, portdist)) {
 			this.Data.getLocalUser().setConnected(false);
 			client.close();
+			this.TCPserver.interrupt();;
 			this.TCPserver.stopServer();
 			this.Data.setUserConnected(new ArrayList<User>()) ; //vide notre liste
 			return true;

@@ -50,14 +50,20 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 	}
 	
 	public void stopServer() {
+		System.out.println("running à false");
 		this.running=false;
+		try {
+			this.socket.close();
+		}catch (Exception e) {
+			System.out.println("Socket non fermé");
+		}
 	}
 	
 	public void run() {
 		while(this.running) {
 			try {
-				//System.out.println("Server TCP "+this.localUsername+" :J'écoute");
 		        String data = "";
+		        this.socket.setSoTimeout(1000);
 		        Socket client = this.socket.accept();
 		        InetAddress clientAddr = client.getInetAddress();
 		        //System.out.println("\r\nServerTCP : New connection from " + clientAddr.toString());
@@ -75,7 +81,7 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 			    BufferedReader in = new BufferedReader( new InputStreamReader(client.getInputStream()));  
 			    
 			    //on ajoute le message à la session
-			    while ( (data = in.readLine()) != null ) {
+			   while ( (data = in.readLine()) != null ) {
 			        System.out.println("\r\nServer "+this.localUsername+": Message from " + pseudo + ": " + data);
 			        
 			        ArrayList<Session> oldlist = new ArrayList<Session>(this.Data.getSessionlist());
@@ -85,17 +91,12 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        		//System.out.println("TCP Server "+this.localUsername+" : update de session fired");
 		        	}
 			        pcs.firePropertyChange("sessionList", oldlist, this.Data.getSessionlist());
-			    }
+			   }
 	        }catch (Exception e) {
 	        	//System.out.println(e.toString());
 	        }
 		}
-		
-		try {
-			this.socket.close();
-		} catch(Exception e){
-			System.out.println("Socket du serverTCP non fermé");
-		}
+		System.out.println("Fin de thread");
     }
 	
     public InetAddress getSocketAddress() {

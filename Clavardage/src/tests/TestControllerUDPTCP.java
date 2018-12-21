@@ -75,13 +75,13 @@ public class TestControllerUDPTCP {
 		String pseudo="";
 		boolean pseudo_ok = false;
 		
-	//	while(!pseudo_ok) {
+		while(!pseudo_ok) {
 			Scanner keyboard = new Scanner(System.in);
 			System.out.println("Entrez un pseudo ");
 			pseudo = keyboard.nextLine();
 			
 			pseudo_ok=Cont.PerformConnect(pseudo, 4445, 4445, 2000);
-		//}
+		}
 		
 		System.out.println("Bienvenue "+pseudo);
 		afficherList(Cont.getModelData().usersConnected(),pseudo);
@@ -113,7 +113,7 @@ public class TestControllerUDPTCP {
 		message = keyboard3.nextLine();
 		
 		afficherSession(Cont.getModelData().getHistoric(other_pseudo));
-	
+		Cont.PerformDisconnect(4445, 4445);
 	}
 	
 	@After
