@@ -18,6 +18,7 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 	private ModelData Data;
 	private String localUsername;
 	private ArrayList<InetAddress> activesessionList;
+	private boolean running;
 	
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
@@ -26,6 +27,7 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		this.activesessionList = new ArrayList<InetAddress>();
 		this.socket = new ServerSocket(port,1,this.Data.getLocalUser().getUser().getAddr());
 		this.localUsername = this.Data.getLocalUser().getUser().getUsername();
+		this.running = true;
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -47,9 +49,12 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		}
 	}
 	
+	public void stopServer() {
+		this.running=false;
+	}
+	
 	public void run() {
-		boolean running=true;
-		while(running) {
+		while(this.running) {
 			try {
 				//System.out.println("Server TCP "+this.localUsername+" :J'écoute");
 		        String data = "";
@@ -84,6 +89,12 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 	        }catch (Exception e) {
 	        	//System.out.println(e.toString());
 	        }
+		}
+		
+		try {
+			this.socket.close();
+		} catch(Exception e){
+			System.out.println("Socket du serverTCP non fermé");
 		}
     }
 	

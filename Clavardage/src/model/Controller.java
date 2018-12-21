@@ -78,7 +78,7 @@ public class Controller implements PropertyChangeListener{
 		ArrayList<User> list = client.sendBroadcastListRequest(portsrc,portdist);
 		boolean trouve=false;
 		//si le Client n'a rien reçu il aura reçu la liste vide, donc il peut prendre n'import quel pseudo
-		if (!list.isEmpty()) {
+		if (!list.isEmpty() || !list.equals(null)) {
 			//on cherche si le pseudo est déja dans la liste
 			ListIterator<User> i= list.listIterator();
 			while(i.hasNext() && !trouve) {
@@ -106,13 +106,13 @@ public class Controller implements PropertyChangeListener{
 				
 				this.TCPserver = new TCPServer(this.Data,portTCPsrc); //port arbitraire
 				addPropertyChangeListener(this.TCPserver); //on l'ajoute à la liste des listeners
-				this.TCPserver.addPropertyChangeListener(this); //on s'ajoute aux listerners du server
+				this.TCPserver.addPropertyChangeListener(this); //on s'ajoute aux listeners du server
 				this.TCPserver.start();   //on lance le server TCP
 				
-				return true;
 			}catch(Exception e) {
 				//System.out.println("Controller: "+e.toString());
 			}
+			return true;
 		} 
 		return false;
 	}
@@ -124,6 +124,7 @@ public class Controller implements PropertyChangeListener{
 		if (client.sendDisconnect(this.Data.usersConnected(),portsrc, portdist)) {
 			this.Data.getLocalUser().setConnected(false);
 			client.close();
+			this.TCPserver.stopServer();
 			this.Data.setUserConnected(new ArrayList<User>()) ; //vide notre liste
 			return true;
 		} 
