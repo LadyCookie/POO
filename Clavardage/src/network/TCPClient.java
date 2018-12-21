@@ -15,6 +15,7 @@ public class TCPClient {
 	    	PrintWriter out = new PrintWriter(this.socket.getOutputStream(), true); //PrintWriter --> OutPutStream socket
 	        out.println(message);
 	        out.flush();
+	        this.socket.close();
 	    }
 
 }

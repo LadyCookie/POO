@@ -100,8 +100,10 @@ public class TestControllerUDPTCP {
 		String message;
 		
 		for(int i=0;i<5;i++) {
-
-			message = pseudo+" to "+other_pseudo+" "+i;
+			
+			Scanner keyboard2 = new Scanner(System.in);
+			System.out.println("Entrez un message ");
+			message = keyboard2.nextLine();
 			
 			Cont.sendMessage(other_pseudo, message, 2000);
 		}

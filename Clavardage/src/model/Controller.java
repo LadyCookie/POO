@@ -159,6 +159,7 @@ public class Controller implements PropertyChangeListener{
 	        pcs.firePropertyChange("sessionList", oldlist2, Data.getSessionlist());
 	        return true;
 		}catch(Exception e){
+			System.out.println("Erreur lors de l'envoi du message "+e.toString());
 			//l'utilisateur n'est pas connecté ou la connection a échoué
 			//System.out.println("Controller: "+e.toString());
 			return false;
