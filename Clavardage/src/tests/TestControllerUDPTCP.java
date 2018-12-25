@@ -75,6 +75,7 @@ public class TestControllerUDPTCP {
 		String pseudo="";
 		boolean pseudo_ok = false;
 		
+		//boucle pour choisir un pseudo valide
 		while(!pseudo_ok) {
 			Scanner keyboard = new Scanner(System.in);
 			System.out.println("Entrez un pseudo ");
@@ -86,10 +87,11 @@ public class TestControllerUDPTCP {
 		System.out.println("Bienvenue "+pseudo);
 		afficherList(Cont.getModelData().usersConnected(),pseudo);
 		
-		/*
+		
 		String other_pseudo="";
 		boolean other_pseudo_ok = false;
 		
+		//boucle pour choisir avec qui on veut clavarder
 		while(!other_pseudo_ok) {
 			Scanner keyboard1 = new Scanner(System.in);
 			System.out.println("Entrez un pseudo de personne à qui envoyer un message ");
@@ -97,9 +99,10 @@ public class TestControllerUDPTCP {
 			
 			other_pseudo_ok = isinList(Cont.getModelData().usersConnected(),other_pseudo,pseudo);
 		}
-		*/
+		
 		String message;
-		/*
+		
+		//boucle pour envoyer 5 messages
 		for(int i=0;i<5;i++) {
 			
 			Scanner keyboard2 = new Scanner(System.in);
@@ -108,24 +111,15 @@ public class TestControllerUDPTCP {
 			
 			Cont.sendMessage(other_pseudo, message, 2000);
 		}
-		*/
+		
 		
 		Scanner keyboard3 = new Scanner(System.in);
 		System.out.println("Appuyez sur entrer pour finir ");
 		message = keyboard3.nextLine();
 		
-		//afficherSession(Cont.getModelData().getHistoric(other_pseudo));
+		//on se déconnecte
+		afficherSession(Cont.getModelData().getHistoric(other_pseudo));
 		Cont.PerformDisconnect(4445, 4445);
 	}
 	
-	/*
-	@After
-	public void tearDown() {
-		//on arrête les deux threads ServerUDP
-		UDPClient client = new UDPClient() ;
-		client.sendBroadcastPseudo("end",4445);
-		client.close();
-	}
-	*/
-
 }
