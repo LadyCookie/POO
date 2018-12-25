@@ -86,6 +86,7 @@ public class TestControllerUDPTCP {
 		System.out.println("Bienvenue "+pseudo);
 		afficherList(Cont.getModelData().usersConnected(),pseudo);
 		
+		/*
 		String other_pseudo="";
 		boolean other_pseudo_ok = false;
 		
@@ -96,9 +97,9 @@ public class TestControllerUDPTCP {
 			
 			other_pseudo_ok = isinList(Cont.getModelData().usersConnected(),other_pseudo,pseudo);
 		}
-		
+		*/
 		String message;
-		
+		/*
 		for(int i=0;i<5;i++) {
 			
 			Scanner keyboard2 = new Scanner(System.in);
@@ -107,15 +108,17 @@ public class TestControllerUDPTCP {
 			
 			Cont.sendMessage(other_pseudo, message, 2000);
 		}
+		*/
 		
 		Scanner keyboard3 = new Scanner(System.in);
 		System.out.println("Appuyez sur entrer pour finir ");
 		message = keyboard3.nextLine();
 		
-		afficherSession(Cont.getModelData().getHistoric(other_pseudo));
+		//afficherSession(Cont.getModelData().getHistoric(other_pseudo));
 		Cont.PerformDisconnect(4445, 4445);
 	}
 	
+	/*
 	@After
 	public void tearDown() {
 		//on arrête les deux threads ServerUDP
@@ -123,5 +126,6 @@ public class TestControllerUDPTCP {
 		client.sendBroadcastPseudo("end",4445);
 		client.close();
 	}
+	*/
 
 }

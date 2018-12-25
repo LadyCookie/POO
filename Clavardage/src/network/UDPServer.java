@@ -128,6 +128,7 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 				e1.printStackTrace();
 			}
 		}
+		System.out.println("UDPServer: Je ferme mon socket");
 		this.socket.close();
 	}
 }

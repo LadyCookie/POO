@@ -16,6 +16,7 @@ public class LocalUser {
 			socket.setBroadcast(true);
 			socket.connect(InetAddress.getByName("8.8.8.8"),10002);
 			InetAddress address = socket.getLocalAddress();
+			socket.close();
 			this.Client=new User(pseudo,address);
 			this.connected=true;
 		}catch (UnknownHostException| SocketException e) {

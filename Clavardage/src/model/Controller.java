@@ -123,15 +123,17 @@ public class Controller implements PropertyChangeListener{
 		//on ouvre un nouveau client UDP
 		UDPClient client = new UDPClient();
 		if (client.sendDisconnect(this.Data.usersConnected(),portsrc, portdist)) {
+			System.out.println("J'ai envoyé le message de deconnection");
 			this.Data.getLocalUser().setConnected(false);
 			client.close();
-			this.TCPserver.interrupt();;
+			//this.TCPserver.interrupt();
 			this.TCPserver.stopServer();
-			this.Data.setUserConnected(new ArrayList<User>()) ; //vide notre liste
+			this.Data.setUserConnected(new ArrayList<User>()) ; //On vide notre liste
 			return true;
-		} 
-		client.close();
-		return false;
+		}  else {
+			client.close();
+			return false;
+		}
 	}	
 	
 
