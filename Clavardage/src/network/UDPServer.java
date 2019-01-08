@@ -86,7 +86,6 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 					running=false;
 					//System.out.println("Server: J'ai recu l'ordre de m eteindre");
 				} else if (msg.equals("disconnect")){
-					//System.out.println("Server: message de deconnection");
 					
 					//on cherche cet utilisateur dans la liste
 					ListIterator<User> i= Data.usersConnected().listIterator();
@@ -97,6 +96,7 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 						//System.out.println("Server: Je cherche si son addr est dans ma liste");
 						if(local.getAddr().equals(dstAddress) &&!local.getUsername().equals(Data.getLocalUser().getUser().getUsername())) {
 							//System.out.println("Server: J'ai cette addr dans ma liste, je le retire");
+							System.out.println("Server: message de deconnection de "+local.getUsername());
 							ArrayList<User> oldlist = new ArrayList<User>(this.Data.usersConnected()); 
 							Data.removeUser(local);
 							pcs.firePropertyChange("userList", oldlist, Data.usersConnected());		

@@ -46,11 +46,8 @@ public class LoginButtonListener implements ActionListener {
             errorLoginDialog.showMessageDialog(null, "Vous devez choisir un mode de connexion", "Erreur", JOptionPane.ERROR_MESSAGE);
         }
         else {            
-            
             loginFenetre.setVisible(false);
             chatFenetre.setVisible(true);
-
         }
-
     }
 }

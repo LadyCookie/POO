@@ -17,7 +17,7 @@ public class Test {
 	    Controller Cont = new Controller();
 	    LoginButtonListener logListener = new LoginButtonListener(mafenetre.loginTextField, mafenetre.selectConnectButtonGroup, fenetre2, mafenetre);
 	    mafenetre.loginButton.addActionListener(logListener);
-	
+	    
 	    }
 
 

@@ -9,7 +9,10 @@ import java.util.ListIterator;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeEvent;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class TCPServer extends Thread implements PropertyChangeListener{
@@ -66,8 +69,8 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        this.socket.setSoTimeout(1000);
 		        Socket client = this.socket.accept();
 		        InetAddress clientAddr = client.getInetAddress();
-		        //System.out.println("\r\nServerTCP : New connection from " + clientAddr.toString());
 		        String pseudo = this.Data.getPseudo(clientAddr); //on verifie si il est dans notre liste
+		        
 		        if(!this.activesessionList.contains(clientAddr)) {
 		        	ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
 		        	this.activesessionList.add(clientAddr);
@@ -76,6 +79,21 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        	}
 		        	pcs.firePropertyChange("activesessionList", oldlist, this.activesessionList);
 		        }
+		         /*
+		        byte[] contents = new byte[10000];
+		        
+		        //Initialize the FileOutputStream to the output file's full path.
+		        FileOutputStream fos = new FileOutputStream("C:\\data.txt");
+		        BufferedOutputStream bos = new BufferedOutputStream(fos);
+		        InputStream is = client.getInputStream();
+		        
+		        //No of bytes read in one read() call
+		        int bytesRead = 0; 
+		        
+		        while((bytesRead=is.read(contents))!=-1)
+		            bos.write(contents, 0, bytesRead); 
+		        
+		        bos.flush(); */
 		        
 			    //Read the data coming into the socket
 			    BufferedReader in = new BufferedReader( new InputStreamReader(client.getInputStream()));  

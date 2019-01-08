@@ -170,4 +170,38 @@ public class Controller implements PropertyChangeListener{
 			return false;
 		}
 	}
+	
+	public boolean sendFile(String pseudo, String path,int portdst) {
+		try {
+			InetAddress addr = this.Data.getAddresse(pseudo);
+			if(!this.activesessionList.contains(addr)) {
+				ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
+				this.activesessionList.add(addr); //on ajoute à la liste des sessions actives
+				if (oldlist.equals(this.activesessionList)) {
+					//System.out.println("Controller : active user change fired");
+				}
+				pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
+			}
+			TCPClient client = new TCPClient(addr,portdst);
+			ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
+			
+			this.activesessionList.add(addr); //on ajoute à la liste des sessions actives
+			if (oldlist.equals(this.activesessionList)) {
+				//System.out.println("Controller : active session change fired");
+			}
+			pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
+			
+			client.sendTxt(msg);
+			ArrayList<Session> oldlist2 = new ArrayList<Session>(this.Data.getSessionlist());
+	        MessageChat message = new MessageChat(this.Data.getLocalUser().getUser().getUsername(), new Date(),msg);
+	        this.Data.addMessage(message,pseudo);
+	        pcs.firePropertyChange("sessionList", oldlist2, Data.getSessionlist());
+	        return true;
+		}catch(Exception e){
+			System.out.println("Erreur lors de l'envoi du message "+e.toString());
+			//l'utilisateur n'est pas connecté ou la connection a échoué
+			//System.out.println("Controller: "+e.toString());
+			return false;
+		}
+	}
 }
