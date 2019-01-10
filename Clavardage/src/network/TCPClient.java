@@ -1,12 +1,20 @@
 package network;
 
 import java.net.*;
+import java.util.ArrayList;
 
+import model.PacketFile;
+import model.PacketMessage;
+import model.PacketUserList;
 import java.io.OutputStream;
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 
 public class TCPClient {
@@ -16,44 +24,50 @@ public class TCPClient {
 	        this.socket = new Socket(serverAddr, serverPort);
 	    }
 	    
+	  //permet de convertir un objet java en byte[] pour l'envoi
+		public static byte[] serialize(Object pack) throws IOException {
+		    ByteArrayOutputStream out = new ByteArrayOutputStream();
+		    ObjectOutputStream os = new ObjectOutputStream(out);
+		    os.writeObject(pack);
+		    byte [] data = out.toByteArray();
+		    return data;
+		}
+	    
 	    public void sendTxt(String message) throws IOException {
+	    	PacketMessage packet = new PacketMessage(message);
+	    	byte[] serialized_msg = serialize(packet);
+	    	
 	    	PrintWriter out = new PrintWriter(this.socket.getOutputStream(), true);
-	        out.println(message);
-	        out.flush();
+	    	
+	    	OutputStream os = this.socket.getOutputStream();
+	        os.write(serialized_msg,0,serialized_msg.length);
+	        os.flush();
+	        os.close();	        
 	        this.socket.close();
 	    }
 	    
 	    public void sendFile(String path) throws IOException {
-	    	File file = new File(path);
-	        FileInputStream fis = new FileInputStream(file);
-	        BufferedInputStream bis = new BufferedInputStream(fis);
+	    	//on recup l'extension du fichier
+	    	String extension = "";
+	    	int i = path.lastIndexOf('.');
+	    	if (i > 0) {
+	    	    extension = path.substring(i+1);
+	    	}
 	    	
-	        //Get socket's output stream
+	        File myFile = new File (path);
+	        byte [] byte_file  = new byte [(int)myFile.length()];
+	        FileInputStream fis = new FileInputStream(myFile);
+	        BufferedInputStream bis = new BufferedInputStream(fis);
+	        bis.read(byte_file,0,byte_file.length);
+	        
+	        PacketFile packet = new PacketFile(byte_file,extension);
+	        byte[] serialized_file = serialize(packet);
+	        
 	        OutputStream os = this.socket.getOutputStream();
-	                
-	        //Read File Contents into contents array 
-	        byte[] contents;
-	        long fileLength = file.length(); 
-	        long current = 0;
-	         
-	        long start = System.nanoTime();
-	        
-	        while(current!=fileLength){ 
-	            int size = 10000;
-	            if(fileLength - current >= size)
-	                current += size;    
-	            else{ 
-	                size = (int)(fileLength - current); 
-	                current = fileLength;
-	            } 
-	            contents = new byte[size]; 
-	            bis.read(contents, 0, size); 
-	            os.write(contents);
-	            System.out.print("TCPClient: Sending file ... "+(	current*100)/fileLength+"% complete!");
-	        }   
-	        
-	        os.flush(); 
+	        os.write(serialized_file,0,serialized_file.length);
+	        os.flush();
+	        bis.close();
+	        os.close();	        
 	        this.socket.close();
 	    }
-
 }

@@ -11,9 +11,12 @@ import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeEvent;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 
 public class TCPServer extends Thread implements PropertyChangeListener{
 		
@@ -62,10 +65,16 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		}
 	}
 	
+	//permet d'extraire un UserListPacket d'une série de byte
+	private Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
+		ByteArrayInputStream in = new ByteArrayInputStream(data);
+	    ObjectInputStream is = new ObjectInputStream(in);
+		return (Object) is.readObject();
+	}
+	
 	public void run() {
 		while(this.running) {
 			try {
-		        String data = "";
 		        this.socket.setSoTimeout(1000);
 		        Socket client = this.socket.accept();
 		        InetAddress clientAddr = client.getInetAddress();
@@ -79,37 +88,48 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        	}
 		        	pcs.firePropertyChange("activesessionList", oldlist, this.activesessionList);
 		        }
-		         /*
-		        byte[] contents = new byte[10000];
-		        
-		        //Initialize the FileOutputStream to the output file's full path.
-		        FileOutputStream fos = new FileOutputStream("C:\\data.txt");
-		        BufferedOutputStream bos = new BufferedOutputStream(fos);
+				
+		        int bytesRead;
+		        int current = 0;
+		        // receive data
+		        byte [] byte_data = new byte [6022386];
 		        InputStream is = client.getInputStream();
+		          
+		        bytesRead = is.read(byte_data,0,byte_data.length);
+		        current = bytesRead;
+
+		        do {
+		           bytesRead = is.read(byte_data, current, (byte_data.length-current));
+		           if(bytesRead >= 0) current += bytesRead;
+		        } while(bytesRead > -1);
+
+		        Object data = deserialize(byte_data);
+		        Class c = data.getClass();
 		        
-		        //No of bytes read in one read() call
-		        int bytesRead = 0; 
-		        
-		        while((bytesRead=is.read(contents))!=-1)
-		            bos.write(contents, 0, bytesRead); 
-		        
-		        bos.flush(); */
-		        
-			    //Read the data coming into the socket
-			    BufferedReader in = new BufferedReader( new InputStreamReader(client.getInputStream()));  
-			    
-			    //on ajoute le message à la session
-			   while ( (data = in.readLine()) != null ) {
-			        System.out.println("\r\nServer "+this.localUsername+": Message from " + pseudo + ": " + data);
-			        
-			        ArrayList<Session> oldlist = new ArrayList<Session>(this.Data.getSessionlist());
-			        MessageChat message = new MessageChat(pseudo, new Date(),data);
+		        //si c'est un message
+		        if (c.getCanonicalName().equals(PacketMessage.class.getCanonicalName())) {
+		        	PacketMessage packet_msg = (PacketMessage) data;
+		        	String msg = packet_msg.getMessage();
+		        	System.out.println("\r\nServer "+this.localUsername+": Message from " + pseudo + ": " + msg);
+		        	
+		        	ArrayList<Session> oldlist = new ArrayList<Session>(this.Data.getSessionlist());
+			        MessageChat message = new MessageChat(pseudo, new Date(),msg);
 			        this.Data.addMessage(message,pseudo);
 			        if(!oldlist.equals(this.Data.getSessionlist())) {
 		        		//System.out.println("TCP Server "+this.localUsername+" : update de session fired");
 		        	}
 			        pcs.firePropertyChange("sessionList", oldlist, this.Data.getSessionlist());
-			   }
+		        } else if(c.getCanonicalName().equals(PacketFile.class.getCanonicalName())) {
+		        
+			        FileOutputStream fos = new FileOutputStream("c:/temp/");
+			        BufferedOutputStream bos = new BufferedOutputStream(fos);
+			        bos.write(byte_data, 0 , current);
+			        bos.flush();
+			        fos.close();
+			        bos.close();
+		        
+		        }
+		        
 	        }catch (Exception e) {
 	        	//System.out.println(e.toString());
 	        }
