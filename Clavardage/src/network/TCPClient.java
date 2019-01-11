@@ -54,9 +54,12 @@ public class TCPClient {
 	        FileInputStream fis = new FileInputStream(myFile);
 	        BufferedInputStream bis = new BufferedInputStream(fis);
 	        bis.read(byte_file,0,byte_file.length);
+	        System.out.println("TCPClient : j'envoi fichier de taille "+byte_file.length);
 	        
 	        PacketFile packet = new PacketFile(byte_file,name);
 	        byte[] serialized_file = serialize(packet);
+	        
+	        System.out.println("TCPClient : le packet est taille "+serialized_file.length);
 	        
 	        OutputStream os = this.socket.getOutputStream();
 	        os.write(serialized_file,0,serialized_file.length);

@@ -47,8 +47,8 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 	    ObjectOutputStream os = new ObjectOutputStream(out);
 	    os.writeObject(ListUser);
 	    byte [] data = out.toByteArray();
-	//   os.close();
-	 //   out.close();
+	    os.close();
+	    out.close();
 	    return data;
 	}
 	
@@ -60,14 +60,14 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 				//System.out.println("Serveur : J'ecoute "+Thread.currentThread().getName());
 				//on attend de recevoir un message
 				this.socket.receive(incomingPacket);
-				System.out.println("Serveur : J'ai recu un msg ");
+				//System.out.println("Serveur : J'ai recu un msg ");
 				
 				//on extrait l'adresse et le msg
 				InetAddress dstAddress = incomingPacket.getAddress();
 				String msg = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
 				
 				if(msg.equals("ListRQ")) {
-					System.out.println("Server : Il me demande ma liste ");
+					//System.out.println("Server : Il me demande ma liste ");
 					//On recupere le port distant
 					int port= incomingPacket.getPort();
 					
@@ -81,7 +81,7 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 					DatagramPacket outgoingPacket = new DatagramPacket(data,data.length,dstAddress,port);
 					//System.out.println("Server : j'envoi un paquet de "+ outgoingPacket.getLength());
 					this.socket.send(outgoingPacket);
-					System.out.println("Server : J'ai envoyé ma liste");
+					//System.out.println("Server : J'ai envoyé ma liste");
 				} else if(msg.equals("end")) {
 					running=false;
 					//System.out.println("Server: J'ai recu l'ordre de m eteindre");

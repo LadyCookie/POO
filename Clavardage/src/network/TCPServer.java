@@ -127,7 +127,7 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        	System.out.println("\r\nServer "+this.localUsername+": File from " + pseudo + ": "+name);
 			        FileOutputStream fos = new FileOutputStream("C:\\Users\\Const\\Desktop\\"+name);
 			        BufferedOutputStream bos = new BufferedOutputStream(fos);
-			        bos.write(byte_file, 0 , current);
+			        bos.write(byte_file, 0 , byte_file.length);
 			        bos.flush();
 			        fos.close();
 			        bos.close();
