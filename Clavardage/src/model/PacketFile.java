@@ -1,27 +1,24 @@
 package model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.io.File;
-import data.User;
 
 public class PacketFile implements Serializable{
 	
 private static final long serialVersionUID = 1L;
 	
 	private byte[] bytes;
-	private String extension;
+	private String name;
 	
-	public PacketFile(byte[] b, String ext) {
+	public PacketFile(byte[] b, String n) {
 		this.bytes=b;
-		this.extension=ext;
+		this.name=n;
 	}
 	
-	public byte[] getList(){
+	public byte[] getBytes(){
 		return this.bytes;
 	}	
 	
-	public String getExtension(){
-		return this.extension;
+	public String getName(){
+		return this.name;
 	}
 }

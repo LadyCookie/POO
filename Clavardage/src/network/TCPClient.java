@@ -47,20 +47,15 @@ public class TCPClient {
 	    }
 	    
 	    public void sendFile(String path) throws IOException {
-	    	//on recup l'extension du fichier
-	    	String extension = "";
-	    	int i = path.lastIndexOf('.');
-	    	if (i > 0) {
-	    	    extension = path.substring(i+1);
-	    	}
 	    	
 	        File myFile = new File (path);
+	        String name = myFile.getName();
 	        byte [] byte_file  = new byte [(int)myFile.length()];
 	        FileInputStream fis = new FileInputStream(myFile);
 	        BufferedInputStream bis = new BufferedInputStream(fis);
 	        bis.read(byte_file,0,byte_file.length);
 	        
-	        PacketFile packet = new PacketFile(byte_file,extension);
+	        PacketFile packet = new PacketFile(byte_file,name);
 	        byte[] serialized_file = serialize(packet);
 	        
 	        OutputStream os = this.socket.getOutputStream();

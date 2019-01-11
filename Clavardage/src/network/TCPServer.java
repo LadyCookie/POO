@@ -120,10 +120,14 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        	}
 			        pcs.firePropertyChange("sessionList", oldlist, this.Data.getSessionlist());
 		        } else if(c.getCanonicalName().equals(PacketFile.class.getCanonicalName())) {
-		        
-			        FileOutputStream fos = new FileOutputStream("c:/temp/");
+		        	PacketFile packet_file = (PacketFile) data;
+		        	String name = packet_file.getName();
+		        	byte[] byte_file = packet_file.getBytes();
+
+		        	System.out.println("\r\nServer "+this.localUsername+": File from " + pseudo + ": "+name);
+			        FileOutputStream fos = new FileOutputStream("c:/temp/"+name);
 			        BufferedOutputStream bos = new BufferedOutputStream(fos);
-			        bos.write(byte_data, 0 , current);
+			        bos.write(byte_file, 0 , current);
 			        bos.flush();
 			        fos.close();
 			        bos.close();
