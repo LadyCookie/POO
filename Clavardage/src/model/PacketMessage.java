@@ -2,8 +2,6 @@ package model;
 
 import java.io.Serializable;
 
-import data.User;
-
 public class PacketMessage implements Serializable{
 
 private static final long serialVersionUID = 1L;

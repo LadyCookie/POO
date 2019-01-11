@@ -3,7 +3,6 @@ package network;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeEvent;
@@ -35,14 +34,13 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 	public void propertyChange(PropertyChangeEvent evt) {
 		//si on a changé la liste d'utilisateur on met à jour la notre
 		if(evt.getPropertyName().equals("userList")) { 
-			//System.out.println("Server: la liste de session a changé");
 			this.Data.setUserConnected((ArrayList<User>) evt.getNewValue());
 		}
 	}
 
 	
 	//permet de convertir un objet java en byte[] pour l'envoi
-	public static byte[] serialize(PacketUserList ListUser) throws IOException {
+	private static byte[] serialize(PacketUserList ListUser) throws IOException {
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    ObjectOutputStream os = new ObjectOutputStream(out);
 	    os.writeObject(ListUser);
@@ -50,6 +48,21 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 	    os.close();
 	    out.close();
 	    return data;
+	}
+	
+	private boolean isLastConnected () {
+		Date localUserDate = Data.getLocalUser().getUser().getDate();
+		ListIterator<User> i= Data.usersConnected().listIterator();
+		
+		while(i.hasNext()) {
+			User local=i.next();
+			Date localDate = local.getDate();
+			
+			if(localUserDate.before(localDate)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	public void run() {
@@ -66,7 +79,7 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 				InetAddress dstAddress = incomingPacket.getAddress();
 				String msg = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
 				
-				if(msg.equals("ListRQ")) {
+				if(msg.equals("ListRQ") && isLastConnected() ) {
 					//System.out.println("Server : Il me demande ma liste ");
 					//On recupere le port distant
 					int port= incomingPacket.getPort();

@@ -1,6 +1,5 @@
 package model;
 
-import model.*;
 import data.*;
 import java.io.Serializable;
 import java.util.*;

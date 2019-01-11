@@ -1,21 +1,15 @@
 package network;
 
 import java.net.*;
-import java.util.ArrayList;
-
 import model.PacketFile;
 import model.PacketMessage;
-import model.PacketUserList;
 import java.io.OutputStream;
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 
 public class TCPClient {
 	    private Socket socket;
@@ -37,8 +31,6 @@ public class TCPClient {
 	    	PacketMessage packet = new PacketMessage(message);
 	    	byte[] serialized_msg = serialize(packet);
 	    	
-	    	PrintWriter out = new PrintWriter(this.socket.getOutputStream(), true);
-	    	
 	    	OutputStream os = this.socket.getOutputStream();
 	        os.write(serialized_msg,0,serialized_msg.length);
 	        os.flush();
@@ -54,12 +46,9 @@ public class TCPClient {
 	        FileInputStream fis = new FileInputStream(myFile);
 	        BufferedInputStream bis = new BufferedInputStream(fis);
 	        bis.read(byte_file,0,byte_file.length);
-	        System.out.println("TCPClient : j'envoi fichier de taille "+byte_file.length);
 	        
 	        PacketFile packet = new PacketFile(byte_file,name);
 	        byte[] serialized_file = serialize(packet);
-	        
-	        System.out.println("TCPClient : le packet est taille "+serialized_file.length);
 	        
 	        OutputStream os = this.socket.getOutputStream();
 	        os.write(serialized_file,0,serialized_file.length);

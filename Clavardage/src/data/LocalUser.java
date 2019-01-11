@@ -4,7 +4,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.net.InetAddress;
 
 public class LocalUser {
 	private User Client;
@@ -20,7 +19,7 @@ public class LocalUser {
 			this.Client=new User(pseudo,address);
 			this.connected=true;
 		}catch (UnknownHostException| SocketException e) {
-			System.out.println("No internet");
+			System.out.println("No Internet");
 		}
 	}
 	
