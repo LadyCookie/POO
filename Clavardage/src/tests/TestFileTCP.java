@@ -93,11 +93,6 @@ public class TestFileTCP {
 			
 		}
 		
-		Scanner keyboard3 = new Scanner(System.in);
-		System.out.println("Appuyez sur entrer pour finir ");
-		path = keyboard3.nextLine();
-		keyboard3.close();
-		
 		//on se déconnecte
 		Cont.PerformDisconnect(4445, 4445);
 	}
