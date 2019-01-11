@@ -80,7 +80,6 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 				String msg = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
 				
 				if(msg.equals("ListRQ") && isLastConnected() ) {
-					//System.out.println("Server : Il me demande ma liste ");
 					//On recupere le port distant
 					int port= incomingPacket.getPort();
 					
@@ -92,12 +91,9 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 				  			
 					//on renvoi à l'envoyeur
 					DatagramPacket outgoingPacket = new DatagramPacket(data,data.length,dstAddress,port);
-					//System.out.println("Server : j'envoi un paquet de "+ outgoingPacket.getLength());
 					this.socket.send(outgoingPacket);
-					//System.out.println("Server : J'ai envoyé ma liste");
 				} else if(msg.equals("end")) {
 					running=false;
-					//System.out.println("Server: J'ai recu l'ordre de m eteindre");
 				} else if (msg.equals("disconnect")){
 					
 					//on cherche cet utilisateur dans la liste
@@ -107,7 +103,7 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 					while(i.hasNext() && !trouve) {
 						User local=i.next();
 						//System.out.println("Server: Je cherche si son addr est dans ma liste");
-						if(local.getAddr().equals(dstAddress) &&!local.getUsername().equals(Data.getLocalUser().getUser().getUsername())) {
+						if(local.getAddr().equals(dstAddress)) {
 							//System.out.println("Server: J'ai cette addr dans ma liste, je le retire");
 							System.out.println("Server: message de deconnection de "+local.getUsername());
 							ArrayList<User> oldlist = new ArrayList<User>(this.Data.usersConnected()); 
@@ -122,26 +118,32 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 					ListIterator<User> i= Data.usersConnected().listIterator();
 					User local=i.next();
 					boolean trouve = false;
+					Date date = new Date();
 					ArrayList<User> oldlist = new ArrayList<User>(this.Data.usersConnected());
 					while(i.hasNext() && !trouve) {
-						//System.out.println("Server: Je cherche si son addr/pseudo est dans ma liste");
 						if(local.getAddr().equals(dstAddress)) {
-							//System.out.println("Server: J'ai deja cette addr dans ma liste, je le retire");
 							Data.removeUser(local);
+							System.out.println("Server: "+msg+" est le nouveau pseudo de "+local.getUsername());
 							trouve=true;
+							date = local.getDate(); //on stocke sa date
 						}
 						local = i.next();
 					}
+					
 					User newUser = new User(msg,dstAddress);
+					
+					if(trouve) {
+						newUser.setDate(date); 
+					}
+					
 					this.Data.addUser(newUser);
 					pcs.firePropertyChange("userList", oldlist, this.Data.usersConnected());
-					//System.out.println("Server: J'ai ajouté "+msg+" a ma liste");
 				}	
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 		}
-		System.out.println("UDPServer: Je ferme mon socket");
+		//System.out.println("UDPServer: Je ferme mon socket");
 		this.socket.close();
 	}
 }

@@ -18,6 +18,12 @@ public class User implements Serializable{
 		this.date = new Date();
 	}
 	
+	public User(User user) {
+		this.Username= user.getUsername();
+		this.address= user.getAddr();
+		this.date = user.getDate();
+	}
+	
 	public String getUsername(){
 		return this.Username;
 	}
@@ -28,6 +34,14 @@ public class User implements Serializable{
 	
 	public Date getDate() {
 		return this.date;
+	}
+	
+	public void setUsername (String pseudo) {
+		this.Username = pseudo;
+	}
+	
+	public void setDate (Date date) {
+		this.date = date;
 	}
 	
 }

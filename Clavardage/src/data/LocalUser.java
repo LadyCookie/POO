@@ -7,7 +7,6 @@ import java.net.UnknownHostException;
 
 public class LocalUser {
 	private User Client;
-	private boolean connected;
 	
 	public LocalUser(String pseudo) {
 		//on cherche l'adresse IP locale
@@ -17,7 +16,6 @@ public class LocalUser {
 			InetAddress address = socket.getLocalAddress();
 			socket.close();
 			this.Client=new User(pseudo,address);
-			this.connected=true;
 		}catch (UnknownHostException| SocketException e) {
 			System.out.println("No Internet");
 		}
@@ -26,16 +24,9 @@ public class LocalUser {
 	public User getUser() {
 		return this.Client;
 	}
-	
-	public boolean getConnected() {
-		return this.connected;
-	}
-	
+		
 	public void setUser(User user) {
 		this.Client = user;
 	}
-	
-	public void setConnected(boolean B) {
-		this.connected = B;
-	}
 }
+	

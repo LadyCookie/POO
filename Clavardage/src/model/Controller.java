@@ -63,7 +63,7 @@ public class Controller implements PropertyChangeListener{
 				//System.out.println("Controller : active user change fired");
 			}
 			pcs.firePropertyChange("activesessionList",oldlist , (ArrayList<InetAddress>) evt.getNewValue());
-		}
+		} 
 	}
 	
 	//Tente de se connecter avec un pseudo donné, renvoi true ou false selon si ça a reussi
@@ -77,7 +77,7 @@ public class Controller implements PropertyChangeListener{
 		UDPClient client = new UDPClient();
 		ArrayList<User> list = client.sendBroadcastListRequest(portsrc,portdist);
 		boolean trouve=false;
-		//si le Client n'a rien reçu il aura reçu la liste vide, donc il peut prendre n'import quel pseudo
+		//si le Client n'a rien reçu il aura reçu la liste vide, donc il peut prendre n'importe quel pseudo
 		if (!list.isEmpty() || !list.equals(null)) {
 			//on cherche si le pseudo est déja dans la liste
 			ListIterator<User> i= list.listIterator();
@@ -97,11 +97,10 @@ public class Controller implements PropertyChangeListener{
 			list.add(lU.getUser());		//on l'ajoute dans sa propre liste
 			this.Data = new ModelData(lU,list);  //On instancie la ModelData
 			
-			this.Data.getLocalUser().setConnected(true);
 			try {
 				UDPServer server= new UDPServer(this.Data,portsrc); //on crée un server UDP pour ce client
 				addPropertyChangeListener(server); //on l'ajoute à la liste des listeners
-				server.addPropertyChangeListener(this); //on s'ajoute aux listerners du server
+				server.addPropertyChangeListener(this); //on s'ajoute aux listeners du server
 				server.start();   //on lance le server UDP
 				
 				this.TCPserver = new TCPServer(this.Data,portTCPsrc); //port arbitraire
@@ -118,13 +117,12 @@ public class Controller implements PropertyChangeListener{
 		return false;
 	}
 	
-	//tente de se deconnecter, change LocalUser connected si ça reussit
+	//tente de se deconnecter
 	public boolean PerformDisconnect(int portsrc,int portdist) {
 		//on ouvre un nouveau client UDP
 		UDPClient client = new UDPClient();
 		if (client.sendDisconnect(this.Data.usersConnected(),portsrc, portdist)) {
-			System.out.println("J'ai envoyé le message de deconnection");
-			this.Data.getLocalUser().setConnected(false);
+			//System.out.println("J'ai envoyé le message de deconnection");
 			client.close();
 			//this.TCPserver.interrupt();
 			this.TCPserver.stopServer();
@@ -136,6 +134,39 @@ public class Controller implements PropertyChangeListener{
 		}
 	}	
 	
+	public boolean ChangePseudo (String pseudo) {
+		
+		boolean trouve=false;
+		ArrayList<User> list = this.Data.usersConnected();
+		
+		if (!list.isEmpty() || !list.equals(null)) {
+			//on cherche si le pseudo est déja dans la liste
+			ListIterator<User> i= list.listIterator();
+			while(i.hasNext() && !trouve) {
+				User local=i.next();
+				if(local.getUsername().equals(pseudo)) {
+					trouve=true;
+				}
+			}
+		}
+		
+		if(!trouve) {
+			ArrayList<User> oldlist = new ArrayList<User>(this.Data.usersConnected());
+			this.Data.removeUser(this.Data.getLocalUser().getUser()); //on se retire de la liste
+			this.Data.getLocalUser().getUser().setUsername(pseudo); //on change notre pseudo en local
+			this.Data.addUser(this.Data.getLocalUser().getUser()); //on se rajoute à la liste
+			
+			pcs.firePropertyChange("userList",oldlist , this.Data.usersConnected());
+			
+			//on informe les autres du changement
+			UDPClient client = new UDPClient();
+			client.sendBroadcastPseudo(pseudo, 4445);
+			client.close();
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	public boolean sendMessage(String pseudo, String msg,int portdst) {
 		try {
@@ -143,9 +174,6 @@ public class Controller implements PropertyChangeListener{
 			if(!this.activesessionList.contains(addr)) {
 				ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
 				this.activesessionList.add(addr); //on ajoute à la liste des sessions actives
-				if (oldlist.equals(this.activesessionList)) {
-					//System.out.println("Controller : active user change fired");
-				}
 				pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
 			}
 			TCPClient client = new TCPClient(addr,portdst);

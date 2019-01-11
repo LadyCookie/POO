@@ -1,22 +1,13 @@
 package tests;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.ListIterator;
-import java.util.concurrent.TimeUnit;
 import java.util.Scanner;
-import java.io.IOException;
-
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-
 import data.*;
-import network.*;
 import model.*;
 
-public class TestControllerUDPTCP {
+public class TestChangePseudo {
 	Controller Cont;
 	
 	public static void afficherSession(ArrayList<MessageChat> list) {
@@ -106,7 +97,10 @@ public class TestControllerUDPTCP {
 		}
 		
 		String message;
-		while (run) {	
+		int i = 0;
+		
+		while (i<2 && run) {
+			
 			Scanner keyboard2 = new Scanner(System.in);
 			System.out.println("Entrez un message (DISCONNECT pour finir la session) : ");
 			message = keyboard2.nextLine();
@@ -115,20 +109,36 @@ public class TestControllerUDPTCP {
 			} else {
 				Cont.sendMessage(other_pseudo, message, 2000);
 			}
+			i++;
 		}
 		
-		String pseudo ="";
-		boolean pseudo_ok = false;
+		System.out.println("Changement de pseudo");
+		pseudo ="";
+		pseudo_ok = false;
 		
 		//boucle pour choisir un pseudo valide
 		while(!pseudo_ok) {
 			Scanner keyboard = new Scanner(System.in);
-			System.out.println("Entrez un pseudo ");
+			System.out.println("Entrez un nouveau pseudo ");
 			pseudo = keyboard.nextLine();
 			
-			pseudo_ok=Cont.PerformConnect(pseudo, 4445, 4445, 2000);
+			pseudo_ok=Cont.ChangePseudo(pseudo);
 		}
 		
+		i = 0;
+		run = true;
+		while (i<2 && run) {
+			
+			Scanner keyboard2 = new Scanner(System.in);
+			System.out.println("Entrez un message (DISCONNECT pour finir la session) : ");
+			message = keyboard2.nextLine();
+			if(message.equals("DISCONNECT")) {
+				run = false;
+			} else {
+				Cont.sendMessage(other_pseudo, message, 2000);
+			}
+			i++;
+		}
 		
 		Scanner keyboard3 = new Scanner(System.in);
 		System.out.println("Appuyez sur entrer pour finir ");
