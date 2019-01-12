@@ -78,17 +78,26 @@ public class UDPClient{
 	}
 	
 	//fonction d'envoi du pseudo en broadcast
-	public boolean sendBroadcastPseudo(String pseudo, int portdist) {
+	public boolean sendPseudo(ArrayList<User> list, String pseudo, int portdist) {
 		buf= pseudo.getBytes();
 		try {
 			//on fabrique le packet UDP à envoyer
-			DatagramPacket packet = new DatagramPacket(buf,buf.length,broadcastAddr,portdist);
-			//System.out.println("Client : Paquet pseudo fabriqué ("+pseudo+")"+"");
-			this.socket.send(packet);
-			//System.out.println("Client : J'ai envoye mon pseudo en broadcast");
+			DatagramPacket packet = new DatagramPacket(buf,buf.length);
+			packet.setPort(portdist);
+			
+			//on parcourt la liste et on envoi à chaque utilisateur
+			ListIterator<User> i= list.listIterator();
+			while(i.hasNext()) {
+				User local=i.next();
+				if(!local.getAddr().equals(localAddr)) {
+					packet.setAddress(local.getAddr());
+					this.socket.send(packet);
+				}
+			}	
+			
 			return true;
 		}catch (IOException e) {
-			//System.out.println("Client: IOException");
+			System.out.println("ClientUDP: IOException");
 			return false;
 		} 
 	}

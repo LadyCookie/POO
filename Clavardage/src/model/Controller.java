@@ -90,7 +90,7 @@ public class Controller implements PropertyChangeListener{
 		}
 		
 		if (!trouve) {
-			client.sendBroadcastPseudo(pseudo,portdist);
+			client.sendPseudo(this.Data.usersConnected(),pseudo,portdist);
 			client.close();
 			
 			LocalUser lU = new LocalUser(pseudo);
@@ -160,7 +160,7 @@ public class Controller implements PropertyChangeListener{
 			
 			//on informe les autres du changement
 			UDPClient client = new UDPClient();
-			client.sendBroadcastPseudo(pseudo, 4445);
+			client.sendPseudo(this.Data.usersConnected(),pseudo, 4445);
 			client.close();
 			return true;
 		} else {
@@ -176,13 +176,11 @@ public class Controller implements PropertyChangeListener{
 				this.activesessionList.add(addr); //on ajoute à la liste des sessions actives
 				pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
 			}
+			
 			TCPClient client = new TCPClient(addr,portdst);
 			ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
 			
 			this.activesessionList.add(addr); //on ajoute à la liste des sessions actives
-			if (oldlist.equals(this.activesessionList)) {
-				//System.out.println("Controller : active session change fired");
-			}
 			pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
 			
 			client.sendTxt(msg);

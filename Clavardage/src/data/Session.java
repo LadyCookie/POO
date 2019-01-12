@@ -1,13 +1,14 @@
 package data;
 
+import java.net.InetAddress;
 import java.util.*;
 
 public class Session {
-	private String OtherUser;
+	private InetAddress otherUserAddress;
 	private ArrayList<MessageChat> ConvList;
 	
-	public Session(String OtherUser) {
-		this.OtherUser=OtherUser;
+	public Session(InetAddress OUA) {
+		this.otherUserAddress=OUA;
 		this.ConvList=new ArrayList<MessageChat>();
 	}
 	
@@ -15,8 +16,8 @@ public class Session {
 		return this.ConvList;
 	}
 	
-	public String getOtherUser() {
-		return this.OtherUser;
+	public InetAddress getOtherUserAddress() {
+		return this.otherUserAddress;
 	}
 	
 	public void addMessage(MessageChat message) {

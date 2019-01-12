@@ -23,21 +23,27 @@ public class ModelData{
 	public void addMessage(MessageChat message,String OtherUser){
 		
 		ListIterator<Session> i= this.sessionList.listIterator();
-		boolean trouve=false;
-		while(i.hasNext() && !trouve) {
-			Session local=i.next();
-			if(local.getOtherUser().equals(OtherUser)) {
-				
-				local.addMessage(message);
-				trouve=true;
+		try {
+			InetAddress address = getAddresse(OtherUser);
+			boolean trouve=false;
+			while(i.hasNext() && !trouve) {
+				Session local=i.next();
+				if(local.getOtherUserAddress().equals(address)) {
+					
+					local.addMessage(message);
+					trouve=true;
+				}
 			}
+			if(!trouve) { 
+				//local est une session
+				Session local=new Session(address);
+				local.addMessage(message);
+				this.sessionList.add(local);
+			}
+		} catch (Exception e) {
+			System.out.println("Cet utilisateur n'est pas connecté");
 		}
-		if(!trouve) { 
-			//local est une session
-			Session local=new Session(OtherUser);
-			local.addMessage(message);
-			this.sessionList.add(local);
-		}
+		
 	}
 	
 	public void addUser(User U) {
@@ -59,13 +65,18 @@ public class ModelData{
 	public ArrayList<MessageChat> getHistoric(String Username){
 		ListIterator<Session> i= this.sessionList.listIterator();
 		ArrayList<MessageChat> result=new ArrayList<MessageChat>();
-		while(i.hasNext()) {
-			Session local=i.next();
-			if(local.getOtherUser().equals(Username)) {
-				result=local.getMessageChat();
-			}
-		}		
-		return result;
+		try {
+			InetAddress address = getAddresse(Username);
+			while(i.hasNext()) {
+				Session local=i.next();
+				if(local.getOtherUserAddress().equals(address)) {
+					result=local.getMessageChat();
+				}
+			}		
+			return result;
+		}catch (Exception e){
+			return result;
+		}
 	}
 	
 	public ArrayList<Session> getSessionlist() {
