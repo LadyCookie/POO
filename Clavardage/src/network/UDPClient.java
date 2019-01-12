@@ -105,10 +105,10 @@ public class UDPClient{
 			ListIterator<User> i= list.listIterator();
 			while(i.hasNext()) {
 				User local=i.next();
-				packet.setAddress(local.getAddr());
-				//System.out.println("Client : Paquet disconnect pour "+local.getUsername()+" fabriqué");
-				this.socket.send(packet);
-				//System.out.println("Client : Paquet disconnect envoyé");
+				if(!local.getAddr().equals(localAddr)) {
+					packet.setAddress(local.getAddr());
+					this.socket.send(packet);
+				}
 			}		
 			
 			//on envoi au server l'ordre de s'eteindre

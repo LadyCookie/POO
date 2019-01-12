@@ -112,28 +112,29 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 							trouve=true;
 						}
 					}
-				} else {
+				} else if(!msg.equals("ListRQ")){
 					//on recupère le pseudo
-					System.out.println("Server: Nouvelle connection de "+msg);
 					ListIterator<User> i= Data.usersConnected().listIterator();
-					User local=i.next();
 					boolean trouve = false;
 					Date date = new Date();
 					ArrayList<User> oldlist = new ArrayList<User>(this.Data.usersConnected());
 					while(i.hasNext() && !trouve) {
+						User local = i.next();
 						if(local.getAddr().equals(dstAddress)) {
-							Data.removeUser(local);
+							this.Data.removeUser(local);
 							System.out.println("Server: "+msg+" est le nouveau pseudo de "+local.getUsername());
 							trouve=true;
 							date = local.getDate(); //on stocke sa date
 						}
-						local = i.next();
+						
 					}
 					
 					User newUser = new User(msg,dstAddress);
 					
 					if(trouve) {
 						newUser.setDate(date); 
+					}else {
+						System.out.println("Server: Nouvelle connection de "+msg);
 					}
 					
 					this.Data.addUser(newUser);

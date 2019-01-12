@@ -117,19 +117,6 @@ public class TestControllerUDPTCP {
 			}
 		}
 		
-		String pseudo ="";
-		boolean pseudo_ok = false;
-		
-		//boucle pour choisir un pseudo valide
-		while(!pseudo_ok) {
-			Scanner keyboard = new Scanner(System.in);
-			System.out.println("Entrez un pseudo ");
-			pseudo = keyboard.nextLine();
-			
-			pseudo_ok=Cont.PerformConnect(pseudo, 4445, 4445, 2000);
-		}
-		
-		
 		Scanner keyboard3 = new Scanner(System.in);
 		System.out.println("Appuyez sur entrer pour finir ");
 		message = keyboard3.nextLine();
