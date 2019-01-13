@@ -1,7 +1,12 @@
 package Interface;
 
 import javax.swing.*;
+
+import data.User;
+
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.ListIterator;
 
 
 public class ChatWindow extends Window {
@@ -19,12 +24,14 @@ public class ChatWindow extends Window {
     private JTextArea chatTypeTextArea;
 
 
-    public ChatWindow() {
+    public ChatWindow(ArrayList<User> list) {
 
-        //TODO ici la méthode pour remplir la JList des contacts
         DefaultListModel listModel = new DefaultListModel();
-        listModel.addElement("Bob");
-        listModel.addElement("Alice1");
+        ListIterator<User> i= list.listIterator();
+		while(i.hasNext()) {
+			User local=i.next();
+			listModel.addElement(local.getUsername());
+		}
         chatContactList.setModel(listModel);
         add(chatWindowPanel);
     }

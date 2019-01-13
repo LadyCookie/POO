@@ -1,7 +1,5 @@
 package tests;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
@@ -78,7 +76,8 @@ public class TestUDP {
 	public void tearDown() {
 		//on arrête les deux threads
 		UDPClient client = new UDPClient() ;
-		client.sendBroadcastPseudo("end",4445);
+		client.sendPseudo(Cont2.getModelData().usersConnected(),"end",4445);
+		client.close();
 	}
 
 }

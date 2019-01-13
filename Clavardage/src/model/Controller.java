@@ -90,12 +90,13 @@ public class Controller implements PropertyChangeListener{
 		}
 		
 		if (!trouve) {
-			client.sendPseudo(this.Data.usersConnected(),pseudo,portdist);
-			client.close();
-			
+						
 			LocalUser lU = new LocalUser(pseudo);
 			list.add(lU.getUser());		//on l'ajoute dans sa propre liste
 			this.Data = new ModelData(lU,list);  //On instancie la ModelData
+			
+			client.sendPseudo(this.Data.usersConnected(),pseudo,portdist);
+			client.close();
 			
 			try {
 				UDPServer server= new UDPServer(this.Data,portsrc); //on crée un server UDP pour ce client

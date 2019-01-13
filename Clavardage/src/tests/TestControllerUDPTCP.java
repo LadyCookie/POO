@@ -82,7 +82,7 @@ public class TestControllerUDPTCP {
 			System.out.println("Entrez un pseudo ");
 			pseudo = keyboard.nextLine();
 			
-			pseudo_ok=Cont.PerformConnect(pseudo, 4445, 4445, 2000);
+			pseudo_ok= Cont.PerformConnect(pseudo, 4445, 4445, 2000);
 		}
 		
 		System.out.println("Bienvenue "+pseudo);

@@ -1,11 +1,7 @@
 package tests;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.ListIterator;
-import java.util.concurrent.TimeUnit;
-import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -97,8 +93,8 @@ public class TestTCP {
 	public void tearDown() {
 		//on arrête les deux threads ServerUDP
 		UDPClient client = new UDPClient() ;
-		client.sendBroadcastPseudo("end",4445);
-		client.sendBroadcastPseudo("end",4446);
+		client.sendPseudo(Cont1.getModelData().usersConnected(),"end",4445);
+		client.sendPseudo(Cont3.getModelData().usersConnected(),"end",4446);
 		client.close();
 	}
 
