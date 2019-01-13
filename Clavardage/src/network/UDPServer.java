@@ -104,12 +104,12 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 						User local=i.next();
 						//System.out.println("Server: Je cherche si son addr est dans ma liste");
 						if(local.getAddr().equals(dstAddress)) {
-							System.out.println("Server: J'ai cette addr dans ma liste, je le retire");
-							System.out.println("Server: message de deconnection de "+local.getUsername());
+							//System.out.println("Server: J'ai cette addr dans ma liste, je le retire");
+							//System.out.println("Server: message de deconnection de "+local.getUsername());
 							ArrayList<User> oldlist = new ArrayList<User>(this.Data.usersConnected()); 
 							Data.removeUser(local);
 							if(!oldlist.equals(Data.usersConnected())) {
-								System.out.println("Server: je fire un changement de liste");
+								//System.out.println("Server: je fire un changement de liste");
 							}
 							pcs.firePropertyChange("userList", oldlist, Data.usersConnected());		
 							trouve=true;
@@ -125,7 +125,7 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 						User local = i.next();
 						if(local.getAddr().equals(dstAddress)) {
 							this.Data.removeUser(local);
-							System.out.println("Server: "+msg+" est le nouveau pseudo de "+local.getUsername());
+							//System.out.println("Server: "+msg+" est le nouveau pseudo de "+local.getUsername());
 							trouve=true;
 							date = local.getDate(); //on stocke sa date
 						}
@@ -137,7 +137,7 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 					if(trouve) {
 						newUser.setDate(date); 
 					}else {
-						System.out.println("Server: Nouvelle connection de "+msg);
+						//System.out.println("Server: Nouvelle connection de "+msg);
 					}
 					
 					this.Data.addUser(newUser);

@@ -36,10 +36,10 @@ public class InterfaceController implements PropertyChangeListener{
 		//si on a changé la liste d'utilisateur/session on met à jour la notre
 		if(evt.getPropertyName().equals("userList")) {
 			fenetre2.UpdateConnectedUsers(Cont.getModelData().usersConnected(),Cont.getModelData().getLocalUser().getUser().getUsername());
-			System.out.println("ControllerInterface: la liste d'utilisateurs a changé");
+			//System.out.println("ControllerInterface: la liste d'utilisateurs a changé");
 		} else if(evt.getPropertyName().equals("sessionList")) {
 			fenetre2.UpdateHistorique(Cont.getModelData().getHistoric(SelectedContact));
-			System.out.println("ControllerInterface: la liste de session a changé");
+			//System.out.println("ControllerInterface: la liste de session a changé");
 		} else if(evt.getPropertyName().equals("activesessionList")) {
 			//this.activesessionList = ((ArrayList<InetAddress>) evt.getNewValue());
 		} 
@@ -84,9 +84,7 @@ public class InterfaceController implements PropertyChangeListener{
 	    
 	    //deconnection à la fermeture de la fenetre
 	    fenetre2.addWindowListener(new WindowAdapter(){
-            public void windowClosing(WindowEvent e)
-            {
-                System.out.println(Cont.getModelData().usersConnected().size());
+            public void windowClosing(WindowEvent e){
                 Cont.PerformDisconnect(4445, 4445);
                 e.getWindow().dispose();
             }
@@ -123,7 +121,9 @@ public class InterfaceController implements PropertyChangeListener{
 	    	    int result = fileChooser.showOpenDialog(fenetre2);
 	    	    if (result == JFileChooser.APPROVE_OPTION) {
 	    	        File selectedFile = fileChooser.getSelectedFile();
-	    	        Cont.sendFile(SelectedContact, selectedFile.getAbsolutePath(), 2000);
+	    	        if(!Cont.sendFile(SelectedContact, selectedFile.getAbsolutePath(), 2000)){
+		    			errorLoginDialog.showMessageDialog(null, "Il faut selectionner un contact connecté", "Erreur", JOptionPane.ERROR_MESSAGE);
+		    		}
 	    	    }
 			}
 	    

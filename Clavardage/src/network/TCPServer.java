@@ -10,6 +10,7 @@ import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeEvent;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -111,14 +112,16 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        	byte[] byte_file = packet_file.getBytes();
 		        	
 		        	//System.out.println("\r\nServer : File from " + pseudo + ": "+name);
-			        FileOutputStream fos = new FileOutputStream("..\\..\\..\\files\\"+name);
+		        	String filePath = new File("").getAbsolutePath();
+		        	
+			        FileOutputStream fos = new FileOutputStream(filePath+"\\file_reception\\"+name);
 			        BufferedOutputStream bos = new BufferedOutputStream(fos);
 			        bos.write(byte_file, 0 , byte_file.length);
 			        bos.flush();
 			        fos.close();
 			        bos.close();
 			        
-			        MessageChat message = new MessageChat(pseudo, new Date(),"Envoi du fichier "+name);
+			        MessageChat message = new MessageChat(pseudo, new Date(),"Envoi du fichier "+name+" (Clavardage/file_reception");
 			        this.Data.addMessage(message,pseudo);
 			        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), this.Data.getSessionlist());
 		        }
