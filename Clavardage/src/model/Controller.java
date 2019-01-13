@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.ListIterator;
 import java.util.concurrent.TimeUnit;
 import java.beans.PropertyChangeSupport;
+import java.io.File;
 import java.net.InetAddress;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
@@ -207,6 +208,11 @@ public class Controller implements PropertyChangeListener{
 			pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
 			
 			client.sendFile(path);
+			File myFile = new File (path);
+		    String name = myFile.getName();
+			MessageChat message = new MessageChat(this.Data.getLocalUser().getUser().getUsername(), new Date(),"Envoi du fichier "+name);
+	        this.Data.addMessage(message,pseudo);
+	        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), Data.getSessionlist());
 			return true;
 		}catch(Exception e){
 			System.out.println("Erreur lors de l'envoi du message "+e.toString());

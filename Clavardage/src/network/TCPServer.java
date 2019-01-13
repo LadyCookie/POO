@@ -111,13 +111,16 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        	byte[] byte_file = packet_file.getBytes();
 		        	
 		        	//System.out.println("\r\nServer : File from " + pseudo + ": "+name);
-			        FileOutputStream fos = new FileOutputStream("C:\\Users\\Const\\Desktop\\"+name);
+			        FileOutputStream fos = new FileOutputStream("..\\..\\..\\files\\"+name);
 			        BufferedOutputStream bos = new BufferedOutputStream(fos);
 			        bos.write(byte_file, 0 , byte_file.length);
 			        bos.flush();
 			        fos.close();
 			        bos.close();
-		        
+			        
+			        MessageChat message = new MessageChat(pseudo, new Date(),"Envoi du fichier "+name);
+			        this.Data.addMessage(message,pseudo);
+			        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), this.Data.getSessionlist());
 		        }
 		        
 	        }catch (Exception e) {

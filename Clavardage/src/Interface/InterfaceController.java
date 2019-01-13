@@ -7,8 +7,10 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.File;
 import java.util.ArrayList;
 
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -111,6 +113,23 @@ public class InterfaceController implements PropertyChangeListener{
 			}
 	    
 	    });
+	    
+	    //envoyer unfichier
+	    fenetre2.chatFileButton.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent event) {
+	    		JOptionPane errorLoginDialog = new JOptionPane();
+	    		JFileChooser fileChooser = new JFileChooser();
+	    	    
+	    	    int result = fileChooser.showOpenDialog(fenetre2);
+	    	    if (result == JFileChooser.APPROVE_OPTION) {
+	    	        File selectedFile = fileChooser.getSelectedFile();
+	    	        Cont.sendFile(SelectedContact, selectedFile.getAbsolutePath(), 2000);
+	    	    }
+			}
+	    
+	    });
+	    
+	    
     }
     
     
