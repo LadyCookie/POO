@@ -12,15 +12,15 @@ import data.*;
 
 public class database {
 	private String driverName = "com.mysql.jdbc.Driver";
-	private String url = "jdbc:mysql://localhost.dbessai";
+	private String url = "jdbc:mysql://localhost/dbessai";
 	private String user = "bduser";
 	private String password = "SECRET";
 	
-	void loadDriver() throws ClassNotFoundException {
+	public void loadDriver() throws ClassNotFoundException {
 		Class.forName(driverName);
 	}
 	
-	Connection newConnection() throws SQLException {
+	public Connection newConnection() throws SQLException {
 		Connection conn = DriverManager.getConnection(url,user,password);
 		return conn;
 	}
