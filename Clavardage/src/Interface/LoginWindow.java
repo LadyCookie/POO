@@ -7,9 +7,10 @@ public class LoginWindow extends Window {
     protected JPanel loginPanel;
     protected JTextArea welcomeTextArea;
     protected JTextArea loginTextArea;
-    protected JTextField loginTextField;
-    protected JButton loginButton;
     protected JTextArea SelectConnectTextArea;
+    
+    protected JTextField loginTextField; //là où on entre le login
+    protected JButton loginButton;
     protected JRadioButton lanRadioButton;
     protected JRadioButton wanRadioButton;
     protected ButtonGroup selectConnectButtonGroup; //groupe de radiobuttons, homemade
@@ -17,6 +18,7 @@ public class LoginWindow extends Window {
 
     public LoginWindow() {
         selectConnectButtonGroup = new ButtonGroup();
+        
         selectConnectButtonGroup.add(lanRadioButton);
         selectConnectButtonGroup.add(wanRadioButton);
         add(loginPanel);
@@ -37,6 +39,9 @@ public class LoginWindow extends Window {
      * @noinspection ALL
      */
     private void $$$setupUI$$$() {
+    	setSize(500, 500);
+    	setLocationRelativeTo(null);
+    	
         loginPanel = new JPanel();
         loginPanel.setLayout(new GridBagLayout());
         final JPanel spacer1 = new JPanel();
@@ -46,32 +51,38 @@ public class LoginWindow extends Window {
         gbc.gridy = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         loginPanel.add(spacer1, gbc);
+        
         final JPanel spacer2 = new JPanel();
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         loginPanel.add(spacer2, gbc);
+        
         final JPanel spacer3 = new JPanel();
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.fill = GridBagConstraints.VERTICAL;
         loginPanel.add(spacer3, gbc);
+        
         welcomeTextArea = new JTextArea();
         welcomeTextArea.setEditable(false);
+        welcomeTextArea.setBackground(getBackground());
         Font welcomeTextAreaFont = this.$$$getFont$$$("Eras Demi ITC", -1, 24, welcomeTextArea.getFont());
         if (welcomeTextAreaFont != null) welcomeTextArea.setFont(welcomeTextAreaFont);
         welcomeTextArea.setForeground(new Color(-12236470));
-        welcomeTextArea.setText("Bienvenue sur le meilleur chatsystem de l'univers");
+        welcomeTextArea.setText("ChatSystem");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 1;
         gbc.gridwidth = 4;
         loginPanel.add(welcomeTextArea, gbc);
+        
         loginTextArea = new JTextArea();
         loginTextArea.setEditable(false);
         loginTextArea.setText("Veuillez entrer votre login :");
+        loginTextArea.setBackground(getBackground());
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 3;
@@ -86,6 +97,7 @@ public class LoginWindow extends Window {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         loginPanel.add(loginTextField, gbc);
+        
         final JPanel spacer4 = new JPanel();
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
@@ -93,8 +105,10 @@ public class LoginWindow extends Window {
         gbc.fill = GridBagConstraints.VERTICAL;
         gbc.insets = new Insets(90, 0, 0, 0);
         loginPanel.add(spacer4, gbc);
+        
         SelectConnectTextArea = new JTextArea();
         SelectConnectTextArea.setEditable(false);
+        SelectConnectTextArea.setBackground(getBackground());
         SelectConnectTextArea.setText("Sélectionnez un mode de connexion :");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
@@ -102,6 +116,7 @@ public class LoginWindow extends Window {
         gbc.gridwidth = 4;
         gbc.fill = GridBagConstraints.BOTH;
         loginPanel.add(SelectConnectTextArea, gbc);
+        
         lanRadioButton = new JRadioButton();
         lanRadioButton.setText("LAN - UDP Connexion");
         gbc = new GridBagConstraints();
@@ -109,6 +124,7 @@ public class LoginWindow extends Window {
         gbc.gridy = 9;
         gbc.anchor = GridBagConstraints.WEST;
         loginPanel.add(lanRadioButton, gbc);
+        
         wanRadioButton = new JRadioButton();
         wanRadioButton.setText(" WAN - Presence Server");
         gbc = new GridBagConstraints();
@@ -117,6 +133,7 @@ public class LoginWindow extends Window {
         gbc.anchor = GridBagConstraints.WEST;
         loginPanel.add(wanRadioButton, gbc);
         final JPanel spacer5 = new JPanel();
+        
         gbc = new GridBagConstraints();
         gbc.gridx = 4;
         gbc.gridy = 6;
@@ -125,6 +142,7 @@ public class LoginWindow extends Window {
         loginPanel.add(spacer5, gbc);
         loginButton = new JButton();
         loginButton.setText("Entrer");
+        
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 11;

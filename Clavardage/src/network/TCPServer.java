@@ -101,18 +101,16 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        if (c.getCanonicalName().equals(PacketMessage.class.getCanonicalName())) {
 		        	PacketMessage packet_msg = (PacketMessage) data;
 		        	String msg = packet_msg.getMessage();
-		        	System.out.println("\r\nServer : Message from " + pseudo + ": " + msg);
-		        	
-		        	ArrayList<Session> oldlist = new ArrayList<Session>(this.Data.getSessionlist());
+		        	//System.out.println("\r\nServerTCP : Message from " + pseudo + ": " + msg);
 			        MessageChat message = new MessageChat(pseudo, new Date(),msg);
 			        this.Data.addMessage(message,pseudo);
-			        pcs.firePropertyChange("sessionList", oldlist, this.Data.getSessionlist());
+			        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), this.Data.getSessionlist());
 		        } else if(c.getCanonicalName().equals(PacketFile.class.getCanonicalName())) {
 		        	PacketFile packet_file = (PacketFile) data;
 		        	String name = packet_file.getName();
 		        	byte[] byte_file = packet_file.getBytes();
 		        	
-		        	System.out.println("\r\nServer : File from " + pseudo + ": "+name);
+		        	//System.out.println("\r\nServer : File from " + pseudo + ": "+name);
 			        FileOutputStream fos = new FileOutputStream("C:\\Users\\Const\\Desktop\\"+name);
 			        BufferedOutputStream bos = new BufferedOutputStream(fos);
 			        bos.write(byte_file, 0 , byte_file.length);

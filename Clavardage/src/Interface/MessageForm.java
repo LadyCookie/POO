@@ -28,7 +28,6 @@ public class MessageForm {
         messageFormPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(new Color(-4512984)), null));
         messageTextArea = new JTextArea();
         messageTextArea.setLineWrap(true);
-        messageTextArea.setText("messagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessagemessage7");
         messageTextArea.setWrapStyleWord(false);
         GridBagConstraints gbc;
         gbc = new GridBagConstraints();

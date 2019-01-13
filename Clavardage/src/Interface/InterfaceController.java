@@ -1,32 +1,56 @@
 package Interface;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.net.InetAddress;
-import java.awt.event.*;
 import java.util.ArrayList;
-import javax.swing.*;
+
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import data.Session;
 import data.User;
 import model.Controller;
 
-public class Test{
+public class InterfaceController implements PropertyChangeListener{
+
+	static String SelectedContact;
+	static Controller Cont = new Controller();
+	static LoginWindow mafenetre;
+    static ChatWindow fenetre2;
 	
-	public static void main (String arg[]){
-		InterfaceController Controller = new InterfaceController();
-		
-		/*
-	    Cont.addPropertyChangeListener(this);
+    private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+		////System.out.println("Controller : un Listener a été ajouté");
+		pcs.addPropertyChangeListener(listener);
+	}
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+		//si on a changé la liste d'utilisateur/session on met à jour la notre
+		if(evt.getPropertyName().equals("userList")) {
+			fenetre2.UpdateConnectedUsers(Cont.getModelData().usersConnected(),Cont.getModelData().getLocalUser().getUser().getUsername());
+			System.out.println("ControllerInterface: la liste d'utilisateurs a changé");
+		} else if(evt.getPropertyName().equals("sessionList")) {
+			fenetre2.UpdateHistorique(Cont.getModelData().getHistoric(SelectedContact));
+			System.out.println("ControllerInterface: la liste de session a changé");
+		} else if(evt.getPropertyName().equals("activesessionList")) {
+			//this.activesessionList = ((ArrayList<InetAddress>) evt.getNewValue());
+		} 
+	}
+    
+    public InterfaceController() {
+    	mafenetre = new LoginWindow();
+    	fenetre2 = new ChatWindow();
+    	Cont.addPropertyChangeListener(this);
 	    mafenetre.setVisible(true);
 	    fenetre2.setVisible(false);
 	    
-	    //on définit le listener du bouton
+	  //on définit le listener du bouton
 	    mafenetre.loginButton.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent event) {
 	        	
@@ -45,7 +69,7 @@ public class Test{
 	            else {  
 	            	
 	            	if(Cont.PerformConnect(login, 4445, 4445, 2000)) {
-	            		fenetre2.UpdateConnectedUsers(Cont.getModelData().usersConnected());
+	            		fenetre2.UpdateConnectedUsers(Cont.getModelData().usersConnected(),Cont.getModelData().getLocalUser().getUser().getUsername());
 		            	mafenetre.setVisible(false);
 		            	fenetre2.setVisible(true);
 	            	} else {
@@ -60,7 +84,7 @@ public class Test{
 	    fenetre2.addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e)
             {
-                System.out.println("Closed");
+                System.out.println(Cont.getModelData().usersConnected().size());
                 Cont.PerformDisconnect(4445, 4445);
                 e.getWindow().dispose();
             }
@@ -70,6 +94,7 @@ public class Test{
 	    fenetre2.chatContactList.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent event) {
 	    		SelectedContact = fenetre2.chatContactList.getSelectedValue();
+	    		fenetre2.UpdateHistorique(Cont.getModelData().getHistoric(SelectedContact));
 			}
 	    
 	    });
@@ -77,11 +102,17 @@ public class Test{
 	    //envoi le message
 	    fenetre2.chatSendButton.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent event) {
+	    		JOptionPane errorLoginDialog = new JOptionPane();
 	    		String message = fenetre2.chatTypeTextArea.getText();
-	    		Cont.sendMessage(SelectedContact, message, 2000);
+	    		fenetre2.chatTypeTextArea.setText(null);
+	    		if(!Cont.sendMessage(SelectedContact, message, 2000)){
+	    			errorLoginDialog.showMessageDialog(null, "Il faut selectionner un contact connecté", "Erreur", JOptionPane.ERROR_MESSAGE);
+	    		}
 			}
 	    
-	    });     */
-	    
-	}
+	    });
+    }
+    
+    
+    
 }
