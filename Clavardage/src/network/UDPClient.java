@@ -54,7 +54,7 @@ public class UDPClient{
 			byte[] data = new byte [65535];
 			DatagramPacket incomingPacket = new DatagramPacket(data,data.length);
 			incomingPacket.setPort(portdist);
-			this.socket.setSoTimeout(5000); //on laisse le socket ouvert 30s sinon il lance une exception
+			this.socket.setSoTimeout(3000); //on laisse le socket ouvert 3s sinon il lance une exception
 			this.socket.receive(incomingPacket);
 			//System.out.println("Client : J'ai reçu ma liste "+incomingPacket.getLength());
 			

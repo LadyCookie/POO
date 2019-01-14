@@ -4,7 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 
 public class LoginWindow extends Window {
-    protected JPanel loginPanel;
+	
+	private static final long serialVersionUID = 1L;
+	protected JPanel loginPanel;
     protected JTextArea welcomeTextArea;
     protected JTextArea loginTextArea;
     protected JTextArea SelectConnectTextArea;
@@ -39,7 +41,19 @@ public class LoginWindow extends Window {
      * @noinspection ALL
      */
     private void $$$setupUI$$$() {
-    	setSize(500, 500);
+    	/*
+    	GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+    	int width = gd.getDisplayMode().getWidth();
+    	int height = gd.getDisplayMode().getHeight();
+    	
+    	int new_width = (int) (gd.getDisplayMode().getWidth() * 0.17);
+    	int new_height = (int) (gd.getDisplayMode().getHeight() * 0.2);
+    	
+    	System.out.println(width +" "+ height+"\n");
+    	System.out.println(new_width +" "+ new_height);
+    	
+    	setSize(new_height,new_width);*/
+    	setSize(500,500);
     	setLocationRelativeTo(null);
     	
         loginPanel = new JPanel();
@@ -89,6 +103,7 @@ public class LoginWindow extends Window {
         gbc.gridwidth = 4;
         gbc.fill = GridBagConstraints.BOTH;
         loginPanel.add(loginTextArea, gbc);
+        
         loginTextField = new JTextField();
         gbc = new GridBagConstraints();
         gbc.gridx = 1;

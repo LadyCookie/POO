@@ -97,7 +97,7 @@ public class ModelData{
 			ListIterator<User> i= this.userList.listIterator();
 			while(i.hasNext()) {
 				User local=i.next();
-				if (local.getAddr().equals(addr) && !local.getUsername().equals(this.user.getUser().getUsername())){
+				if (local.getAddr().equals(addr)){
 					return local.getUsername();
 				}
 			}
