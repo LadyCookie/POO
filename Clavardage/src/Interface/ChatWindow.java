@@ -4,9 +4,13 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
 import data.MessageChat;
+import data.Session;
 import data.User;
 
 import java.awt.*;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -27,43 +31,88 @@ public class ChatWindow extends Window {
     private JPanel chatTypeAreaPanel;	//panel pour entrer du text
     private JPanel changePseudoPanel; */
     
-    protected JList<String> chatContactList;	//list de contacts
+    protected JList<String> OnlineUserList;	//list de contacts
+    protected JList<String> OfflineUserList;	//list de contacts
+    
     protected JButton chatFileButton;	//bouton pour envoyer un fichier
     protected JButton chatSendButton; //bouton pour envoyer message
     protected JButton ChangePseudoButton; //bouton pour changer de pseudo
-    protected JScrollPane chatTypeScrollPane; 
+    //protected JScrollPane chatTypeScrollPane; 
     protected JTextField changePseudoArea;
     protected JTextField chatTypeTextArea;
+    
     protected JTextArea affichageHistorique; 
-
+    private JScrollPane HistoriqueScroll;
+    private JScrollPane OnlineUserScroll;
+    private JScrollPane OfflineUserScroll;
+    
     public ChatWindow() {
-        chatContactList.setModel(new DefaultListModel<String>());
+        OnlineUserList.setModel(new DefaultListModel<String>());
+        OfflineUserList.setModel(new DefaultListModel<String>());
         add(chatWindowPanel);
     }
     
-    public void UpdateConnectedUsers (ArrayList<User> list, String localpseudo){
-    	DefaultListModel<String> listModel = new DefaultListModel<String>();
-    	ListIterator<User> i= list.listIterator();
+    public void UpdateConnectedUsers (ArrayList<User> Onlinelist, String localpseudo,ArrayList<Session> listSession){
+    	DefaultListModel<String> listModelOnline = new DefaultListModel<String>();
+    	DefaultListModel<String> listModelOffline = new DefaultListModel<String>();
+    	ArrayList<InetAddress> listOnlineAddr = new ArrayList<InetAddress>();
+    	ListIterator<User> i= Onlinelist.listIterator();
  		while(i.hasNext()) {
  			User local=i.next();
+ 			listOnlineAddr.add(local.getAddr());
  			if(local.getUsername().equals(localpseudo)) {
- 				listModel.addElement(local.getUsername()+" (Moi)");
+ 				listModelOnline.addElement(local.getUsername()+" (Moi)");
  			}else {
- 				listModel.addElement(local.getUsername());
+ 				listModelOnline.addElement(local.getUsername());
  			}
  			
  		}
-        chatContactList.setModel(listModel);
+        OnlineUserList.setModel(listModelOnline);
+        OnlineUserScroll.setViewportView(OnlineUserList);
+        JScrollBar vertical = OnlineUserScroll.getVerticalScrollBar();
+ 		vertical.setValue( vertical.getMinimum());
+ 		
+ 		ListIterator<Session> j= listSession.listIterator();
+ 		while(j.hasNext()) {
+ 			Session local=j.next();
+ 			if(!listOnlineAddr.contains(local.getOtherUserAddress())) {
+ 				listModelOffline.addElement(local.getOtherUserAddress().toString()); 			
+ 			}
+ 		}
+ 		OfflineUserList.setModel(listModelOffline);
+        OfflineUserScroll.setViewportView(OfflineUserList);
+        JScrollBar vertical2 = OfflineUserScroll.getVerticalScrollBar();
+  		vertical2.setValue( vertical2.getMinimum());
     }
     
     public void UpdateHistorique(ArrayList<MessageChat> messageList){
-    	affichageHistorique.setText(null);
+    	affichageHistorique.setText("");
+    	JTextArea n = new JTextArea();
+        TitledBorder titleblanc = BorderFactory.createTitledBorder("Messages");
+        titleblanc.setTitleColor(Color.WHITE);
+        n.setBorder(titleblanc);
+        n.setLineWrap(true);
+        n.setWrapStyleWord(true);
+        n.setEditable(false);
+        n.setBackground(new Color(-12236470));
+        n.setSelectedTextColor(Color.white);
+        n.setForeground(Color.white);
+    	System.out.println("Je mets à jour l'historique, il y a "+messageList.size()+" messages");
     	SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
     	ListIterator<MessageChat> i= messageList.listIterator();
  		while(i.hasNext()) {
  			MessageChat local=i.next();
- 			affichageHistorique.append(local.getAuthor()+" ("+sdf.format(local.getDate())+") : "+local.getContent()+"\n");
+ 			System.out.println("Message de "+local.getAuthor());
+ 		//affichageHistorique.append(local.getAuthor()+" ("+sdf.format(local.getDate())+") : "+local.getContent()+"\n");
+ 			n.append(local.getAuthor()+" ("+sdf.format(local.getDate())+") : "+local.getContent()+"\n");
+ 			System.out.println("Append a fonctionné");
  		}
+ 		System.out.println("J'ai recup les messages");
+ 		HistoriqueScroll.add(n);
+ 		HistoriqueScroll.setViewportView(n);
+ 		JScrollBar vertical = HistoriqueScroll.getVerticalScrollBar();
+ 		vertical.setValue( vertical.getMaximum() );
+ 		System.out.println("Done");
     }
 
 
@@ -86,103 +135,59 @@ public class ChatWindow extends Window {
     	GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
     	int width = (int) (gd.getDisplayMode().getWidth() * 0.7);
     	int height = (int) (gd.getDisplayMode().getHeight() * 0.2);
-    	
-    	setSize(height, width); */
-    	int height = 350;
-    	int width = 500;
+    	*/
+    
+    	int width = 700;
+    	int height =(int)(width * 0.7);
     	setSize(width,height);
     	setLocationRelativeTo(null);
     	
         chatWindowPanel = new JPanel();
         chatWindowPanel.setLayout(new GridBagLayout());
-        
-      /*  
-        chatTypeScrollPane = new JScrollPane();
-        chatTypeScrollPane.setHorizontalScrollBarPolicy(31);
-        chatTypeScrollPane.setMinimumSize(new Dimension(15, 17));
-        chatTypeScrollPane.setPreferredSize(new Dimension(200, 50));
-        chatTypeScrollPane.setVerticalScrollBarPolicy(20);
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.ipadx = 220;
-        gbc.ipady = 100;
-        chatConversationPanel.add(chatTypeScrollPane, gbc);
-        */      
-        
+                
         GridBagConstraints gbc;
-        /*
-        //panel de gauche
-        chatContactPanel = new JPanel();
-        chatContactPanel.setLayout(new GridBagLayout());
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridheight = 1;
-        gbc.fill = GridBagConstraints.BOTH;
-        chatWindowPanel.add(chatContactPanel, gbc);
-        //panel de droite
-        chatConversationPanel = new JPanel();
-        chatConversationPanel.setLayout(new GridBagLayout());
-        chatConversationPanel.setBackground(new Color(-12236470));
-        chatConversationPanel.setForeground(new Color(-7477010));
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.BOTH;
-        chatWindowPanel.add(chatConversationPanel, gbc);
-        //panel en bas à gauche
-        changePseudoPanel = new JPanel();
-        changePseudoPanel.setLayout(new GridBagLayout());
-        gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.BOTH;
-        chatWindowPanel.add(changePseudoPanel, gbc);
-        //panel en haut à droite
-        chatConversationPanel = new JPanel();
-        chatConversationPanel.setLayout(new GridBagLayout());
-        chatConversationPanel.setBackground(new Color(-12236470));
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.BOTH;
-        chatWindowPanel.add(chatConversationPanel, gbc);
-        //panel en bas à droite
-        chatTypeAreaPanel = new JPanel();
-        chatTypeAreaPanel.setLayout(new GridBagLayout());
-        gbc = new GridBagConstraints();
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.BOTH;
-        //gbc.ipady = 50;
-        chatWindowPanel.add(chatTypeAreaPanel, gbc);  */
-        
+             
         //PANEL EN HAUT A GAUCHE
-        TitledBorder title = BorderFactory.createTitledBorder("Utilisateurs connectés");
-        title.setTitleColor(Color.RED);
-        chatContactList = new JList<String>();
-        chatContactList.setPreferredSize(new Dimension(200,200));
-        chatContactList.setBorder(title);
+        TitledBorder title = BorderFactory.createTitledBorder("Online Users");
+        title.setTitleColor(Color.GREEN);
+        OnlineUserList = new JList<String>();
+       // chatContactList.setPreferredSize(new Dimension((int)(width*0.4),(int)(height*0.57)));
+        OnlineUserList.setBorder(title);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 4;
-        gbc.gridheight = 4;
-      //  gbc.fill = GridBagConstraints.BOTH;
-     //   gbc.ipadx = 200;
-      //  gbc.ipady = 200;
-        chatWindowPanel.add(chatContactList, gbc);
+        gbc.gridheight = 2;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        gbc.anchor = GridBagConstraints.WEST;
+        OnlineUserScroll = new JScrollPane(OnlineUserList,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        OnlineUserScroll.setPreferredSize(new Dimension((int)(width*0.4),(int)((height*0.57)/2)));
+        chatWindowPanel.add(OnlineUserScroll, gbc);
+        
+      //PANEL EN HAUT A GAUCHE
+        TitledBorder title2 = BorderFactory.createTitledBorder("Offline Users");
+        title2.setTitleColor(Color.RED);
+        OfflineUserList = new JList<String>();
+       // chatContactList.setPreferredSize(new Dimension((int)(width*0.4),(int)(height*0.57)));
+        OfflineUserList.setBorder(title2);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 4;
+        gbc.gridheight = 2;
+        gbc.anchor = GridBagConstraints.NORTH;
+        OfflineUserScroll = new JScrollPane(OfflineUserList,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        OfflineUserScroll.setPreferredSize(new Dimension((int)(width*0.4),(int)((height*0.57)/2)));
+        chatWindowPanel.add(OfflineUserScroll, gbc);
             
         //PANEL EN BAS A GAUCHE
         changePseudoArea = new JTextField();
         gbc = new GridBagConstraints();
-        gbc.gridx = 0;
+        gbc.gridx = 1;
         gbc.gridy = 4;
-        gbc.gridwidth = 3;
-        gbc.ipadx =150;
-    //    gbc.anchor = GridBagConstraints.CENTER;
+        gbc.gridwidth = 2;
+        gbc.ipadx =(int)(width*0.187);
+        gbc.anchor = GridBagConstraints.NORTH;
       //  gbc.fill = GridBagConstraints.BOTH;
         chatWindowPanel.add(changePseudoArea, gbc);
         
@@ -191,31 +196,30 @@ public class ChatWindow extends Window {
         gbc = new GridBagConstraints();
         gbc.gridx = 3;
         gbc.gridy = 4;
-     //   gbc.anchor = GridBagConstraints.CENTER;
+        gbc.anchor = GridBagConstraints.NORTH;
         //gbc.fill = GridBagConstraints.BOTH;
         chatWindowPanel.add(ChangePseudoButton, gbc);
         
         //PANEL EN HAUT A DROITE       
         affichageHistorique = new JTextArea();
         TitledBorder titleblanc = BorderFactory.createTitledBorder("Messages");
-        affichageHistorique.setLineWrap(true);
         titleblanc.setTitleColor(Color.WHITE);
         affichageHistorique.setBorder(titleblanc);
+        affichageHistorique.setLineWrap(true);
+        affichageHistorique.setWrapStyleWord(true);
         affichageHistorique.setEditable(false);
         affichageHistorique.setBackground(new Color(-12236470));
         affichageHistorique.setSelectedTextColor(Color.white);
         affichageHistorique.setForeground(Color.white);
-        affichageHistorique.setPreferredSize(new Dimension(200,200));
         gbc = new GridBagConstraints();
         gbc.gridx = 4;
         gbc.gridy = 0;
         gbc.gridwidth = 4;
         gbc.gridheight = 3;
-      //  gbc.fill = GridBagConstraints.BOTH;
-    //    gbc.ipadx = 200;
-       // gbc.fill = GridBagConstraints.HORIZONTAL;
-      //  gbc.ipady = 200;
-        chatWindowPanel.add(affichageHistorique, gbc);
+        gbc.fill = GridBagConstraints.BOTH;
+        HistoriqueScroll = new JScrollPane(affichageHistorique,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        HistoriqueScroll.setPreferredSize(new Dimension((int)(width*0.4),(int)(height*0.57)));
+        chatWindowPanel.add(HistoriqueScroll, gbc);
         
         chatTypeTextArea = new JTextField();
         gbc = new GridBagConstraints();
@@ -223,10 +227,10 @@ public class ChatWindow extends Window {
         gbc.gridy = 3;
         gbc.gridwidth = 4;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-       // gbc.anchor = GridBagConstraints.CENTER;
+        gbc.anchor = GridBagConstraints.NORTH;
         chatWindowPanel.add(chatTypeTextArea, gbc);
         
-        
+        /*
         //PANEL EN BAS A DROITE
         chatSendButton = new JButton();
         chatSendButton.setText("Send");
@@ -236,7 +240,7 @@ public class ChatWindow extends Window {
         gbc.gridwidth = 3;
      //   gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.LINE_END;
-        chatWindowPanel.add(chatSendButton, gbc);
+        chatWindowPanel.add(chatSendButton, gbc); */
         
         chatFileButton = new JButton();
         chatFileButton.setText("File");
@@ -245,7 +249,7 @@ public class ChatWindow extends Window {
         gbc.gridy = 4;
         gbc.gridwidth = 2;
       //  gbc.fill = GridBagConstraints.HORIZONTAL;
-     //   gbc.anchor = GridBagConstraints.WEST;
+        gbc.anchor = GridBagConstraints.NORTH;
         chatWindowPanel.add(chatFileButton, gbc);    
     }
 
