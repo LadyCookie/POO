@@ -13,33 +13,31 @@ import java.util.Date;
 import data.*;
 
 public class database {
-	private String driverName = "com.mysql.jdbc.Driver";
-	private String url = "jdbc:mysql://localhost/dbClavardage";
-	private String user = "bduser";
-	private String password = "SECRET";
+	private static String driverName = "org.postgresql.Driver";
+	private static String url = "jdbc:postgresql://localhost:5432/Clavardage";
+	private static String user = "ClavardageUser";
+	private static String password = "SECRET";
 	
-	public void loadDriver() throws ClassNotFoundException {
+	public static void loadDriver() throws ClassNotFoundException {
 		Class.forName(driverName);
 	}
 	
-	public Connection newConnection() throws SQLException {
+	public static Connection newConnection() throws SQLException {
 		Connection conn = DriverManager.getConnection(url,user,password);
 		return conn;
 	}
 
-	
-	
 	//GETTER
-	public ArrayList<InetAddress> getAllUserIP() throws SQLException{
+	public static ArrayList<String> getAllUserIP() throws SQLException{
 		Connection conn=null;
-		ArrayList<InetAddress> result = new ArrayList<InetAddress>();;
+		ArrayList<String> result = new ArrayList<String>();;
 		try {
 			conn = newConnection();
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT IP FROM User");
+			ResultSet rs = st.executeQuery("SELECT \"IP\" FROM public.\"Session\"; ");
 			
 			while (rs.next()) {
-				result.add( (InetAddress) rs.getObject("IP"));
+				result.add( rs.getString("IP"));
 			}
 			return result;
 		}finally {
@@ -48,13 +46,13 @@ public class database {
 	}
 	
 	
-	public ArrayList<String> getAllUserName() throws SQLException{
+	public static ArrayList<String> getAllUserName() throws SQLException{
 		Connection conn=null;
 		ArrayList<String> result = new ArrayList<String>();;
 		try {
 			conn = newConnection();
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT nickname FROM User");
+			ResultSet rs = st.executeQuery("SELECT nickname FROM public.\"Session\";");
 			
 			while (rs.next()) {
 				result.add( rs.getString("nickname"));
@@ -66,16 +64,16 @@ public class database {
 	}
 	
 	
-	public ArrayList<MessageChat> getHistoric(InetAddress addrIP) throws SQLException{
+	public static ArrayList<MessageChat> getHistoric(InetAddress addrIP) throws SQLException{
 		Connection conn=null;
 		ArrayList<MessageChat> result = new ArrayList<MessageChat>();;
 		try {
 			conn = newConnection();
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT author,date,content FROM MessageChat WHERE IP=" + addrIP);
-			
+			ResultSet rs = st.executeQuery("SELECT author,date,content FROM public.\"MessageChat\" WHERE \"IP\"='" + addrIP.toString()+"';");
+
 			while (rs.next()) {
-				result.add( new MessageChat(  rs.getString(1) , (Date) rs.getObject(2) , rs.getString(3) ));
+				result.add(new MessageChat(  rs.getString("author") ,new Date(rs.getTimestamp("date").getTime()) , rs.getString("content") ));
 			}
 			return result;
 		}finally {
@@ -83,18 +81,47 @@ public class database {
 		}
 	}
 	
+	public static String getNickname(String addrIP) throws SQLException{
+		Connection conn=null;
+		try {
+			conn= newConnection();
+			Statement st = conn.createStatement();
+			
+			ResultSet rs = st.executeQuery("SELECT nickname FROM public.\"Session\" WHERE \"IP\" ='" + addrIP + "';");			
+			rs.next();
+			
+			String result =  rs.getString("nickname");
+			
+			rs.close();
+			st.close();
+			return result;
+		}finally {
+			if (conn!= null) conn.close();
+		}
+	}
+	
 	//ADDER
 	
-	//penser à regarder les types possible de la BDD, notamment pour le type de IP
-	public void addUser (User user) throws SQLException{
+
+	public static void addSession (User user) throws SQLException{
 		Connection conn=null;
 		try {
 			conn = newConnection();
 			Statement st = conn.createStatement();
-			st.executeUpdate(
-					"INSERT INTO User(IP,nickname) " +
-					"VALUES (" + user.getAddr() + ", '" + user.getUsername() + "')"
-					);
+			
+			ResultSet rs = st.executeQuery("SELECT Count(*) FROM public.\"Session\" WHERE \"IP\"='" + user.getAddr().toString() + "';");
+			rs.next();
+			
+			if(rs.getInt("count") == 0) {
+				st.executeUpdate(
+						"INSERT INTO public.\"Session\"(\"IP\",nickname) " +
+						"VALUES ('" + user.getAddr().toString() + "', '" + user.getUsername() + "');"
+						);
+			}
+			else {
+				updateNickname(user.getAddr(),user.getUsername());
+			}
+			rs.close();
 			st.close();
 		}finally {
 			if (conn!=null) conn.close();
@@ -102,32 +129,43 @@ public class database {
 	}
 	
 	
-	public void addUser (InetAddress addrIP,String name) throws SQLException{
+	public static void addSession (InetAddress addrIP,String name) throws SQLException{
 		Connection conn=null;
 		try {
 			conn = newConnection();
 			Statement st = conn.createStatement();
-			st.executeUpdate(
-					"INSERT INTO User(IP,nickname) " +
-					"VALUES (" + addrIP + ", '" + name + "')"
-					);
+			
+			ResultSet rs = st.executeQuery("SELECT Count(*) FROM public.\"Session\" WHERE \"IP\"='" + addrIP.toString() + "';");
+			rs.next();
+			
+			if(rs.getInt("count") == 0) {
+				st.executeUpdate(
+						"INSERT INTO public.\"Session\"(\"IP\",nickname) " +
+						"VALUES ('" + addrIP.toString() + "', '" + name + "')"
+						);
+			}
+			else {
+				updateNickname(addrIP,name);
+			}
+			rs.close();
 			st.close();
 		}finally {
 			if (conn!=null) conn.close();
 		}		
 	}
 	
-	
-	public void addMessage(InetAddress addrIP,java.sql.Timestamp date,String content,String author) throws SQLException{
+
+	public static void addMessage(InetAddress addrIP,Date date,String content,String author) throws SQLException{
 		Connection conn=null;
 		try {
 			conn = newConnection();
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT max(id) as MAX FROM MessageChat");
-			int id=rs.getInt("MAX") +1;
+			ResultSet rs = st.executeQuery("SELECT Count(*) FROM public.\"MessageChat\";");
+			rs.next();
+			int id=rs.getInt("count")+1;
 			st.executeUpdate(
-					"INSERT INTO MessageChat(id,IP,date,content,author) " +
-					"VALUES (" + id + "," + addrIP + "," + date + ",'"+ content + ","+ author +"')"
+					"INSERT INTO public.\"MessageChat\"(id,date,content,author,\"IP\") " +
+					"VALUES (" + id + ",'" + new Timestamp(date.getTime()) + "','"+ content + "','"+ author +"','" + addrIP.toString() + "');"
 					);
 			rs.close();
 			st.close();
@@ -136,16 +174,17 @@ public class database {
 		}		
 	}
 	
-	public void addMessage(MessageChat msg,InetAddress addrIP) throws SQLException{
+	public static void addMessage(MessageChat msg,InetAddress addrIP) throws SQLException{
 		Connection conn=null;
 		try {
 			conn = newConnection();
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT max(id) as MAX FROM MessageChat");
-			int id=rs.getInt("MAX") +1;
+			ResultSet rs = st.executeQuery("SELECT Count(*) FROM public.\"MessageChat\"");
+			rs.next();
+			int id=rs.getInt("count") +1;
 			st.executeUpdate(
-					"INSERT INTO MessageChat(id,IP,date,content,author) " +
-					"VALUES (" + id + "," + addrIP + "," + (Timestamp) msg.getDate() + ",'"+ msg.getContent() + "," + msg.getAuthor() + "')"
+					"INSERT INTO public.\"MessageChat\"(id,date,content,author,\"IP\") " +
+					"VALUES (" + id + ",'" + new Timestamp(msg.getDate().getTime()) + "','"+ msg.getContent() + "','" + msg.getAuthor() + "','"+ addrIP.toString() + "');"
 					);
 			rs.close();
 			st.close();
@@ -156,15 +195,15 @@ public class database {
 	
 	//SETTER
 	
-	public void updateNickname(InetAddress addrIP, String newName) throws SQLException{
+	public static void updateNickname(InetAddress addrIP, String newName) throws SQLException{
 		Connection conn=null;
 		try {
 			conn = newConnection();
 			Statement st = conn.createStatement();
 			st.executeUpdate(
-					"UPDATE User" +
+					"UPDATE public.\"Session\"" +
 					"SET nickname = '" + newName + "'" +
-					"WHERE IP =" + addrIP
+					"WHERE \"IP\" ='" + addrIP.toString() +"';"
 					);
 			st.close();
 		}finally {
