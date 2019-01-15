@@ -55,7 +55,7 @@ public class Controller implements PropertyChangeListener{
 			pcs.firePropertyChange("activesessionList",oldlist , (ArrayList<InetAddress>) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("NewMessageFrom")) {
 			//System.out.println("Controller : j'ai reçu un evenement de changement de session active");
-			pcs.firePropertyChange("NewMessage",new String() , (String) evt.getNewValue());
+			pcs.firePropertyChange("NewMessageFrom",new String() , (String) evt.getNewValue());
 		} 
 	}
 	
