@@ -17,14 +17,12 @@ public class Controller implements PropertyChangeListener{
 
 	private ModelData Data;
 	private TCPServer TCPserver;
-	private ArrayList<InetAddress> activesessionList;
 	
 	
 	//pour tracker les changements faits à ModelData
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
 	public Controller(){
-		this.activesessionList = new ArrayList<InetAddress>();
 		//appel de la fenetre de login, pour tenter de donner le pseudo, d'instancier Data
 	}
 	
@@ -48,14 +46,14 @@ public class Controller implements PropertyChangeListener{
 			//System.out.println("Controller : la liste de session a changé");
 			this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
 			pcs.firePropertyChange("sessionList",new ArrayList<Session>() , (ArrayList<Session>) evt.getNewValue());
-		} else if(evt.getPropertyName().equals("activesessionList")) {
-			//System.out.println("Controller : j'ai reçu un evenement de changement de session active");
-			ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
-			this.activesessionList = ((ArrayList<InetAddress>) evt.getNewValue());
-			pcs.firePropertyChange("activesessionList",oldlist , (ArrayList<InetAddress>) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("NewMessageFrom")) {
-			//System.out.println("Controller : j'ai reçu un evenement de changement de session active");
-			//pcs.firePropertyChange("NewMessageFrom",new String() , (String) evt.getNewValue());
+			pcs.firePropertyChange("NewMessageFrom",new String() , (String) evt.getNewValue());
+		} else if(evt.getPropertyName().equals("NewFileFrom")) {
+			pcs.firePropertyChange("NewFileFrom",new String() , (String) evt.getNewValue());
+		} else if(evt.getPropertyName().equals("Pseudo")) {
+			pcs.firePropertyChange("Pseudo",new String() , (String) evt.getNewValue());
+		} else if(evt.getPropertyName().equals("ConnectionStatus")) {
+			pcs.firePropertyChange("ConnectionStatus",new String() , (String) evt.getNewValue());
 		} 
 	}
 	
@@ -163,18 +161,7 @@ public class Controller implements PropertyChangeListener{
 	public boolean sendMessage(String pseudo, String msg,int portdst) {
 		try {
 			InetAddress addr = this.Data.getAddresse(pseudo);
-			
-			if(!this.activesessionList.contains(addr)) {
-				ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
-				this.activesessionList.add(addr); //on ajoute à la liste des sessions actives
-				pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
-			}
-			
 			TCPClient client = new TCPClient(addr,portdst);
-			ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
-			
-			this.activesessionList.add(addr); //on ajoute à la liste des sessions actives
-			pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
 			
 			client.sendTxt(msg);
 			if(!pseudo.equals(this.getModelData().getLocalUser().getUser().getUsername())) {			
@@ -194,22 +181,8 @@ public class Controller implements PropertyChangeListener{
 	public boolean sendFile(String pseudo, String path,int portdst) {
 		try {
 			InetAddress addr = this.Data.getAddresse(pseudo);
-			if(!this.activesessionList.contains(addr)) {
-				ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
-				this.activesessionList.add(addr); //on ajoute à la liste des sessions actives
-				if (oldlist.equals(this.activesessionList)) {
-					//System.out.println("Controller : active user change fired");
-				}
-				pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
-			}
-			TCPClient client = new TCPClient(addr,portdst);
-			ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
 			
-			this.activesessionList.add(addr); //on ajoute à la liste des sessions actives
-			if (oldlist.equals(this.activesessionList)) {
-				//System.out.println("Controller : active session change fired");
-			}
-			pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
+			TCPClient client = new TCPClient(addr,portdst);
 			
 			client.sendFile(path);
 			File myFile = new File (path);

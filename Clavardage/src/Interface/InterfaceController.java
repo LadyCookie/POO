@@ -42,7 +42,13 @@ public class InterfaceController implements PropertyChangeListener{
 			//System.out.println("ControllerInterface: la liste de session a changé");
 		} else if(evt.getPropertyName().equals("NewMessageFrom")) {
 		//	fenetre2.CreatePopup("Vous avez un nouveau message de :",(String) evt.getNewValue());
-			//this.activesessionList = ((ArrayList<InetAddress>) evt.getNewValue());
+			String notif = "New Message from "+(String) evt.getNewValue();
+			fenetre2.UpdateNotificationList(notif,(String) evt.getNewValue(),this.Cont.getModelData().getLocalUser().getUser().getUsername());
+		} else if(evt.getPropertyName().equals("NewFileFrom")) {
+			String notif = "New File from "+(String) evt.getNewValue();
+			fenetre2.UpdateNotificationList(notif,(String) evt.getNewValue(),this.Cont.getModelData().getLocalUser().getUser().getUsername());
+		} else if(evt.getPropertyName().equals("Pseudo") || evt.getPropertyName().equals("ConnectionStatus")) {
+			fenetre2.UpdateNotificationList( (String) evt.getNewValue(),"",this.Cont.getModelData().getLocalUser().getUser().getUsername());
 		} 
 	}
     
@@ -113,7 +119,7 @@ public class InterfaceController implements PropertyChangeListener{
 		    		address = address.substring(1);
 		    		fenetre2.UpdateHistorique(Cont.getModelData().getHistoricFromAddress(InetAddress.getByName(address)));
 				} catch (Exception e) {
-					System.out.println("InterfaceController : EXCEPTION "+e.toString());
+					//System.out.println("InterfaceController : EXCEPTION "+e.toString());
 				}
 			}
 	    });

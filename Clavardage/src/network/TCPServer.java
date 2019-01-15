@@ -20,14 +20,12 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		
 	private ServerSocket socket;
 	private ModelData Data;
-	private ArrayList<InetAddress> activesessionList;
 	private boolean running;
 	
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
 	public TCPServer(ModelData Data,int port) throws Exception{
 		this.Data=Data;
-		this.activesessionList = new ArrayList<InetAddress>();
 		this.socket = new ServerSocket(port,1,this.Data.getLocalUser().getUser().getAddr());
 		this.running = true;
 	}
@@ -45,9 +43,6 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		} else if(evt.getPropertyName().equals("sessionList")) {
 			this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
 			//System.out.println("TCP Server: la liste de session a changé");
-		} else if(evt.getPropertyName().equals("activesessionList")) {
-			this.activesessionList = ((ArrayList<InetAddress>) evt.getNewValue());
-			//System.out.println("TCP Server: la liste de active session a changé");
 		} 
 	}
 	
@@ -74,13 +69,7 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        Socket client = this.socket.accept();
 		        InetAddress clientAddr = client.getInetAddress();
 		        String pseudo = this.Data.getPseudo(clientAddr); //on verifie si il est dans notre liste
-		        
-		        if(!this.activesessionList.contains(clientAddr)) {
-		        	ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
-		        	this.activesessionList.add(clientAddr);
-		        	pcs.firePropertyChange("activesessionList", oldlist, this.activesessionList);
-		        }
-				
+		        				
 		        int bytesRead;
 		        int current = 0;
 		        // receive data
@@ -102,11 +91,11 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        if (c.getCanonicalName().equals(PacketMessage.class.getCanonicalName())) {
 		        	PacketMessage packet_msg = (PacketMessage) data;
 		        	String msg = packet_msg.getMessage();
-		        	System.out.println("\r\nServerTCP : Message from " + pseudo + ": " + msg);
+		        	//System.out.println("\r\nServerTCP : Message from " + pseudo + ": " + msg);
 			        MessageChat message = new MessageChat(pseudo, new Date(),msg);
 			        this.Data.addMessage(message,pseudo);
 			        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), this.Data.getSessionlist());
-			       // pcs.firePropertyChange("NewMessageFrom", new String(), pseudo);
+			        pcs.firePropertyChange("NewMessageFrom", new String(), pseudo);
 		        } else if(c.getCanonicalName().equals(PacketFile.class.getCanonicalName())) {
 		        	PacketFile packet_file = (PacketFile) data;
 		        	String name = packet_file.getName();
@@ -125,7 +114,7 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 			        MessageChat message = new MessageChat(pseudo, new Date(),"Envoi du fichier "+name+" (Clavardage/file_reception)");
 			        this.Data.addMessage(message,pseudo);
 			        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), this.Data.getSessionlist());
-			       // pcs.firePropertyChange("NewMessageFrom", new String(), pseudo);
+			        pcs.firePropertyChange("NewFileFrom", new String(), pseudo);
 		        }
 		        
 	        }catch (Exception e) {

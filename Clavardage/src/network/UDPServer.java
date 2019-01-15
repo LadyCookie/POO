@@ -108,9 +108,8 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 							//System.out.println("Server: message de deconnection de "+local.getUsername());
 							ArrayList<User> oldlist = new ArrayList<User>(this.Data.usersConnected()); 
 							Data.removeUser(local);
-							if(!oldlist.equals(Data.usersConnected())) {
-								//System.out.println("Server: je fire un changement de liste");
-							}
+							String notif = local.getUsername()+" has logged off";
+							pcs.firePropertyChange("ConnectionStatus",new String() , notif);
 							pcs.firePropertyChange("userList", oldlist, Data.usersConnected());		
 							trouve=true;
 						}
@@ -120,24 +119,22 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 					ListIterator<User> i= Data.usersConnected().listIterator();
 					boolean trouve = false;
 					Date date = new Date();
+					User newUser = new User(msg,dstAddress);
 					ArrayList<User> oldlist = new ArrayList<User>(this.Data.usersConnected());
 					while(i.hasNext() && !trouve) {
 						User local = i.next();
 						if(local.getAddr().equals(dstAddress)) {
 							this.Data.removeUser(local);
-							//System.out.println("Server: "+msg+" est le nouveau pseudo de "+local.getUsername());
+							String notif = local.getUsername()+" changed his username to "+msg;
+							pcs.firePropertyChange("Pseudo",new String() , notif);
 							trouve=true;
-							date = local.getDate(); //on stocke sa date
+							newUser.setDate(local.getDate()); 
 						}
-						
 					}
 					
-					User newUser = new User(msg,dstAddress);
-					
-					if(trouve) {
-						newUser.setDate(date); 
-					}else {
-						//System.out.println("Server: Nouvelle connection de "+msg);
+					if(!trouve) {
+						String notif = msg + " has logged on";
+						pcs.firePropertyChange("ConnectionStatus",new String() , notif);
 					}
 					
 					this.Data.addUser(newUser);
@@ -147,7 +144,6 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 				e1.printStackTrace();
 			}
 		}
-		//System.out.println("UDPServer: Je ferme mon socket");
 		this.socket.close();
 	}
 }
