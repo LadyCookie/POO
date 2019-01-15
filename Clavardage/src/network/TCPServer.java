@@ -102,7 +102,7 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        if (c.getCanonicalName().equals(PacketMessage.class.getCanonicalName())) {
 		        	PacketMessage packet_msg = (PacketMessage) data;
 		        	String msg = packet_msg.getMessage();
-		        	//System.out.println("\r\nServerTCP : Message from " + pseudo + ": " + msg);
+		        	System.out.println("\r\nServerTCP : Message from " + pseudo + ": " + msg);
 			        MessageChat message = new MessageChat(pseudo, new Date(),msg);
 			        this.Data.addMessage(message,pseudo);
 			        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), this.Data.getSessionlist());

@@ -142,12 +142,11 @@ public class Controller implements PropertyChangeListener{
 		}
 		
 		if(!trouve) {
-			ArrayList<User> oldlist = new ArrayList<User>(this.Data.usersConnected());
 			this.Data.removeUser(this.Data.getLocalUser().getUser()); //on se retire de la liste
 			this.Data.getLocalUser().getUser().setUsername(pseudo); //on change notre pseudo en local
 			this.Data.addUser(this.Data.getLocalUser().getUser()); //on se rajoute à la liste
 			
-			pcs.firePropertyChange("userList",oldlist , this.Data.usersConnected());
+			pcs.firePropertyChange("userList",new ArrayList<User>() , this.Data.usersConnected());
 			
 			//on informe les autres du changement
 			UDPClient client = new UDPClient();
@@ -162,6 +161,7 @@ public class Controller implements PropertyChangeListener{
 	public boolean sendMessage(String pseudo, String msg,int portdst) {
 		try {
 			InetAddress addr = this.Data.getAddresse(pseudo);
+			
 			if(!this.activesessionList.contains(addr)) {
 				ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
 				this.activesessionList.add(addr); //on ajoute à la liste des sessions actives
@@ -175,12 +175,14 @@ public class Controller implements PropertyChangeListener{
 			pcs.firePropertyChange("activesessionList",oldlist , this.activesessionList);
 			
 			client.sendTxt(msg);
-	        MessageChat message = new MessageChat(this.Data.getLocalUser().getUser().getUsername(), new Date(),msg);
-	        this.Data.addMessage(message,pseudo);
-	        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), Data.getSessionlist());
+			if(!pseudo.equals(this.getModelData().getLocalUser().getUser().getUsername())) {			
+		        MessageChat message = new MessageChat(this.Data.getLocalUser().getUser().getUsername(), new Date(),msg);
+		        this.Data.addMessage(message,pseudo);
+		        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), Data.getSessionlist());
+			}
 	        return true;
 		}catch(Exception e){
-			//System.out.println("Erreur lors de l'envoi du message "+e.toString());
+			System.out.println("Erreur lors de l'envoi du message "+e.toString());
 			//l'utilisateur n'est pas connecté ou la connection a échoué
 			//System.out.println("Controller: "+e.toString());
 			return false;

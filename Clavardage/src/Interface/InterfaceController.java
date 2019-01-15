@@ -8,7 +8,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
-import java.util.ArrayList;
+import java.net.InetAddress;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -35,7 +35,7 @@ public class InterfaceController implements PropertyChangeListener{
     public void propertyChange(PropertyChangeEvent evt) {
 		//si on a changé la liste d'utilisateur/session on met à jour la notre
 		if(evt.getPropertyName().equals("userList")) {
-			fenetre2.UpdateConnectedUsers(Cont.getModelData().usersConnected(),Cont.getModelData().getLocalUser().getUser().getUsername());
+			fenetre2.UpdateConnectedUsers(Cont.getModelData().usersConnected(),Cont.getModelData().getLocalUser().getUser().getUsername(),Cont.getModelData().getSessionlist());
 			//System.out.println("ControllerInterface: la liste d'utilisateurs a changé");
 		} else if(evt.getPropertyName().equals("sessionList")) {
 			fenetre2.UpdateHistorique(Cont.getModelData().getHistoric(SelectedContact));
@@ -46,6 +46,7 @@ public class InterfaceController implements PropertyChangeListener{
 	}
     
     public InterfaceController() {
+    	SelectedContact="";
     	mafenetre = new LoginWindow();
     	fenetre2 = new ChatWindow();
     	Cont.addPropertyChangeListener(this);
@@ -71,7 +72,7 @@ public class InterfaceController implements PropertyChangeListener{
 	            else {  
 	            	
 	            	if(Cont.PerformConnect(login, 4445, 4445, 2000)) {
-	            		fenetre2.UpdateConnectedUsers(Cont.getModelData().usersConnected(),Cont.getModelData().getLocalUser().getUser().getUsername());
+	            		fenetre2.UpdateConnectedUsers(Cont.getModelData().usersConnected(),Cont.getModelData().getLocalUser().getUser().getUsername(),Cont.getModelData().getSessionlist());
 		            	mafenetre.setVisible(false);
 		            	fenetre2.setVisible(true);
 	            	} else {
@@ -91,27 +92,53 @@ public class InterfaceController implements PropertyChangeListener{
         });
 	    
 	    //change la valeur du contact selectionné quand on clique sur la liste
-	    fenetre2.chatContactList.addListSelectionListener(new ListSelectionListener() {
+	    fenetre2.OnlineUserList.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent event) {
-	    		SelectedContact = fenetre2.chatContactList.getSelectedValue();
+				fenetre2.OfflineUserList.clearSelection();
+	    		SelectedContact = fenetre2.OnlineUserList.getSelectedValue();
+	    		if (SelectedContact==null) {
+	    			SelectedContact="";
+	    		}else if(SelectedContact.equals(Cont.getModelData().getLocalUser().getUser().getUsername()+" (Moi)")){
+	    			SelectedContact = Cont.getModelData().getLocalUser().getUser().getUsername();
+	    		}
 	    		fenetre2.UpdateHistorique(Cont.getModelData().getHistoric(SelectedContact));
 			}
-	    
 	    });
 	    
+	  //change la valeur du contact selectionné quand on clique sur la liste
+	    fenetre2.OfflineUserList.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent event) {
+				try {
+					fenetre2.OnlineUserList.clearSelection();
+		    		String address = fenetre2.OfflineUserList.getSelectedValue();
+		    		SelectedContact="";
+		    		address = address.substring(1);
+		    		fenetre2.UpdateHistorique(Cont.getModelData().getHistoricFromAddress(InetAddress.getByName(address)));
+				} catch (Exception e) {
+					System.out.println("InterfaceController : EXCEPTION "+e.toString());
+				}
+			}
+	    });
+	    /*
 	    //envoi le message
 	    fenetre2.chatSendButton.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent event) {
 	    		JOptionPane errorLoginDialog = new JOptionPane();
 	    		String message = fenetre2.chatTypeTextArea.getText();
 	    		fenetre2.chatTypeTextArea.setText(null);
-	    		if(!Cont.sendMessage(SelectedContact, message, 2000)){
+	    		if(SelectedContact.equals("")){
+	    			errorLoginDialog.showMessageDialog(null, "Veuillez selectionner un contact", "Erreur", JOptionPane.ERROR_MESSAGE);
+	    	//	}else if(SelectedContact.equals(Cont.getModelData().getLocalUser().getUser().getUsername())) {
+	    	//		errorLoginDialog.showMessageDialog(null, "Vous ne pouvez pas vous parlez à vous-même", "Erreur", JOptionPane.ERROR_MESSAGE);
+	    		} else if(message.length()<1){
+	    			errorLoginDialog.showMessageDialog(null, "Il faut écrire un message", "Erreur", JOptionPane.ERROR_MESSAGE);
+	    		}else if(!Cont.sendMessage(SelectedContact, message, 2000)){
 	    			errorLoginDialog.showMessageDialog(null, "Il faut selectionner un contact connecté", "Erreur", JOptionPane.ERROR_MESSAGE);
-	    		}
+	    		} 
 			}
 	    
-	    });
-	    
+	    });    */
+	        
 	    //envoyer unfichier
 	    fenetre2.chatFileButton.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent event) {
@@ -128,6 +155,50 @@ public class InterfaceController implements PropertyChangeListener{
 			}
 	    
 	    });
+	    
+	    //quand on fait entrer sur la boite des messages
+	    fenetre2.chatTypeTextArea.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent event) {
+	    		JOptionPane errorLoginDialog = new JOptionPane();
+	    		String message = fenetre2.chatTypeTextArea.getText();
+	    		fenetre2.chatTypeTextArea.setText(null);
+	    		if(SelectedContact.equals("")){
+	    			errorLoginDialog.showMessageDialog(null, "Veuillez selectionner un contact", "Erreur", JOptionPane.ERROR_MESSAGE);
+	    	//	}else if(SelectedContact.equals(Cont.getModelData().getLocalUser().getUser().getUsername())) {
+	    	//		errorLoginDialog.showMessageDialog(null, "Vous ne pouvez pas vous parlez à vous-même", "Erreur", JOptionPane.ERROR_MESSAGE);
+	    		} else if(message.length()<1){
+	    			errorLoginDialog.showMessageDialog(null, "Il faut écrire un message", "Erreur", JOptionPane.ERROR_MESSAGE);
+	    		}else if(!Cont.sendMessage(SelectedContact, message, 2000)){
+	    			errorLoginDialog.showMessageDialog(null, "Il faut selectionner un contact connecté", "Erreur", JOptionPane.ERROR_MESSAGE);
+	    		} 
+			}
+	    
+	    });
+	    
+	  //envoyer unfichier
+	    fenetre2.ChangePseudoButton.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent event) {
+	    		JOptionPane errorLoginDialog = new JOptionPane();
+	    	    String new_pseudo = fenetre2.changePseudoArea.getText();
+	    	    fenetre2.changePseudoArea.setText(null);
+	    	    if (new_pseudo.length() < 1) {
+	                errorLoginDialog.showMessageDialog(null, "Vous avez oublié d'entrer un pseudo !", "Erreur", JOptionPane.ERROR_MESSAGE);
+	            } else if (new_pseudo.length() > 15) {
+	                errorLoginDialog.showMessageDialog(null, "Votre pseudo ne doit pas faire plus de 15 caractères !", "Erreur", JOptionPane.ERROR_MESSAGE);
+	            } else if (new_pseudo.contains(" ")==true){
+	            	errorLoginDialog.showMessageDialog(null, "Votre pseudo ne peut pas contenir d'espaces", "Erreur", JOptionPane.ERROR_MESSAGE);
+	            }else if (new_pseudo.equals("ListRQ") || new_pseudo.equals("end") || new_pseudo.equals("disconnect")){
+	            	errorLoginDialog.showMessageDialog(null, "Les logins : ListRQ, end, disconnect sont interdits", "Erreur", JOptionPane.ERROR_MESSAGE);
+	            }else {  
+	            	if(!Cont.ChangePseudo(new_pseudo)) {
+	            		errorLoginDialog.showMessageDialog(null, "Ce pseudo n'est pas disponible", "Erreur", JOptionPane.ERROR_MESSAGE);
+	            	}	            	
+	            }
+			}
+	    
+	    });
+	    
+	    
 	    
 	    
     }

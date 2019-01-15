@@ -79,6 +79,22 @@ public class ModelData{
 		}
 	}
 	
+	public ArrayList<MessageChat> getHistoricFromAddress(InetAddress address){
+		System.out.println("Je cherche dans ma liste de session ayant une taille de "+this.sessionList.size()+"\n");
+		ListIterator<Session> i= this.sessionList.listIterator();
+		ArrayList<MessageChat> result=new ArrayList<MessageChat>();
+		while(i.hasNext()) {
+			System.out.println("Je rentre dans la boucle");
+			Session local=i.next();
+			System.out.println("Je compare "+local.getOtherUserAddress().toString()+" et "+address.toString());
+			if(local.getOtherUserAddress().equals(address)) {
+				System.out.println("Je compare "+local.getOtherUserAddress().toString()+" et "+address.toString());
+				result=local.getMessageChat();
+			}
+		}		
+		return result;
+	}
+	
 	public ArrayList<Session> getSessionlist() {
 		return this.sessionList;
 	}
@@ -97,7 +113,7 @@ public class ModelData{
 			ListIterator<User> i= this.userList.listIterator();
 			while(i.hasNext()) {
 				User local=i.next();
-				if (local.getAddr().equals(addr) && !local.getUsername().equals(this.user.getUser().getUsername())){
+				if (local.getAddr().equals(addr)){
 					return local.getUsername();
 				}
 			}
