@@ -80,15 +80,11 @@ public class ModelData{
 	}
 	
 	public ArrayList<MessageChat> getHistoricFromAddress(InetAddress address){
-		System.out.println("Je cherche dans ma liste de session ayant une taille de "+this.sessionList.size()+"\n");
 		ListIterator<Session> i= this.sessionList.listIterator();
 		ArrayList<MessageChat> result=new ArrayList<MessageChat>();
 		while(i.hasNext()) {
-			System.out.println("Je rentre dans la boucle");
 			Session local=i.next();
-			System.out.println("Je compare "+local.getOtherUserAddress().toString()+" et "+address.toString());
 			if(local.getOtherUserAddress().equals(address)) {
-				System.out.println("Je compare "+local.getOtherUserAddress().toString()+" et "+address.toString());
 				result=local.getMessageChat();
 			}
 		}		

@@ -106,6 +106,7 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 			        MessageChat message = new MessageChat(pseudo, new Date(),msg);
 			        this.Data.addMessage(message,pseudo);
 			        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), this.Data.getSessionlist());
+			        pcs.firePropertyChange("NewMessageFrom", new String(), pseudo);
 		        } else if(c.getCanonicalName().equals(PacketFile.class.getCanonicalName())) {
 		        	PacketFile packet_file = (PacketFile) data;
 		        	String name = packet_file.getName();
@@ -121,9 +122,10 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 			        fos.close();
 			        bos.close();
 			        
-			        MessageChat message = new MessageChat(pseudo, new Date(),"Envoi du fichier "+name+" (Clavardage/file_reception");
+			        MessageChat message = new MessageChat(pseudo, new Date(),"Envoi du fichier "+name+" (Clavardage/file_reception)");
 			        this.Data.addMessage(message,pseudo);
 			        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), this.Data.getSessionlist());
+			        pcs.firePropertyChange("NewMessageFrom", new String(), pseudo);
 		        }
 		        
 	        }catch (Exception e) {

@@ -8,6 +8,8 @@ import data.Session;
 import data.User;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.net.InetAddress;
@@ -25,11 +27,7 @@ public class ChatWindow extends Window {
 	*/
 	
     private JPanel chatWindowPanel; //panel global
-    /*
-    private JPanel chatConversationPanel; //panel de conversation
-    private JPanel chatContactPanel;	//panel d'affichage de contacts
-    private JPanel chatTypeAreaPanel;	//panel pour entrer du text
-    private JPanel changePseudoPanel; */
+    private JFrame frame ;
     
     protected JList<String> OnlineUserList;	//list de contacts
     protected JList<String> OfflineUserList;	//list de contacts
@@ -40,6 +38,7 @@ public class ChatWindow extends Window {
     //protected JScrollPane chatTypeScrollPane; 
     protected JTextField changePseudoArea;
     protected JTextField chatTypeTextArea;
+    
     
     protected JTextArea affichageHistorique; 
     private JScrollPane HistoriqueScroll;
@@ -52,6 +51,46 @@ public class ChatWindow extends Window {
         add(chatWindowPanel);
     }
     
+    public void CreatePopup(String header, String message) {
+           frame = new JFrame();
+           frame.setSize(200,125);
+           frame.setLayout(new GridBagLayout());
+           GridBagConstraints constraints = new GridBagConstraints();
+           constraints.gridx = 0;
+           constraints.gridy = 0;
+           constraints.weightx = 1.0f;
+           constraints.weighty = 1.0f;
+           constraints.insets = new Insets(5, 5, 5, 5);
+           constraints.fill = GridBagConstraints.BOTH;
+           JLabel headingLabel = new JLabel(header);
+           headingLabel.setOpaque(false);
+           frame.add(headingLabel, constraints);
+           constraints.gridx++;
+           constraints.weightx = 0f;
+           constraints.weighty = 0f;
+           constraints.fill = GridBagConstraints.NONE;
+           constraints.anchor = GridBagConstraints.NORTH;
+           constraints.gridx = 0;
+           constraints.gridy++;
+           constraints.weightx = 1.0f;
+           constraints.weighty = 1.0f;
+           constraints.insets = new Insets(5, 5, 5, 5);
+           constraints.fill = GridBagConstraints.BOTH;
+           JLabel messageLabel = new JLabel("<HtMl>"+message);
+           frame.add(messageLabel, constraints);
+           
+           Timer timer = new Timer(2000, new ActionListener() {
+                   public void actionPerformed(ActionEvent e) {
+                	   frame.setVisible(false);
+                       frame	.dispose();
+                   }
+               });
+               timer.setRepeats(false);
+               timer.start();
+           
+           frame.setVisible(true);
+    }
+        
     public void UpdateConnectedUsers (ArrayList<User> Onlinelist, String localpseudo,ArrayList<Session> listSession){
     	DefaultListModel<String> listModelOnline = new DefaultListModel<String>();
     	DefaultListModel<String> listModelOffline = new DefaultListModel<String>();
@@ -64,6 +103,7 @@ public class ChatWindow extends Window {
  				listModelOnline.addElement(local.getUsername()+" (Moi)");
  			}else {
  				listModelOnline.addElement(local.getUsername());
+ 				
  			}
  			
  		}
@@ -97,22 +137,18 @@ public class ChatWindow extends Window {
         n.setBackground(new Color(-12236470));
         n.setSelectedTextColor(Color.white);
         n.setForeground(Color.white);
-    	System.out.println("Je mets à jour l'historique, il y a "+messageList.size()+" messages");
     	SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
     	ListIterator<MessageChat> i= messageList.listIterator();
  		while(i.hasNext()) {
  			MessageChat local=i.next();
- 			System.out.println("Message de "+local.getAuthor());
  		//affichageHistorique.append(local.getAuthor()+" ("+sdf.format(local.getDate())+") : "+local.getContent()+"\n");
  			n.append(local.getAuthor()+" ("+sdf.format(local.getDate())+") : "+local.getContent()+"\n");
- 			System.out.println("Append a fonctionné");
  		}
  		System.out.println("J'ai recup les messages");
  		HistoriqueScroll.add(n);
  		HistoriqueScroll.setViewportView(n);
  		JScrollBar vertical = HistoriqueScroll.getVerticalScrollBar();
  		vertical.setValue( vertical.getMaximum() );
- 		System.out.println("Done");
     }
 
 
@@ -136,7 +172,6 @@ public class ChatWindow extends Window {
     	int width = (int) (gd.getDisplayMode().getWidth() * 0.7);
     	int height = (int) (gd.getDisplayMode().getHeight() * 0.2);
     	*/
-    
     	int width = 700;
     	int height =(int)(width * 0.7);
     	setSize(width,height);
@@ -144,7 +179,6 @@ public class ChatWindow extends Window {
     	
         chatWindowPanel = new JPanel();
         chatWindowPanel.setLayout(new GridBagLayout());
-                
         GridBagConstraints gbc;
              
         //PANEL EN HAUT A GAUCHE
@@ -251,6 +285,7 @@ public class ChatWindow extends Window {
       //  gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.NORTH;
         chatWindowPanel.add(chatFileButton, gbc);    
+        
     }
 
     public JComponent $$$getRootComponent$$$() {

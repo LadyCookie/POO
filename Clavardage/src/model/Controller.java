@@ -53,6 +53,9 @@ public class Controller implements PropertyChangeListener{
 			ArrayList<InetAddress> oldlist = new ArrayList<InetAddress>(this.activesessionList);
 			this.activesessionList = ((ArrayList<InetAddress>) evt.getNewValue());
 			pcs.firePropertyChange("activesessionList",oldlist , (ArrayList<InetAddress>) evt.getNewValue());
+		} else if(evt.getPropertyName().equals("NewMessageFrom")) {
+			//System.out.println("Controller : j'ai reçu un evenement de changement de session active");
+			pcs.firePropertyChange("NewMessage",new String() , (String) evt.getNewValue());
 		} 
 	}
 	
@@ -147,7 +150,6 @@ public class Controller implements PropertyChangeListener{
 			this.Data.addUser(this.Data.getLocalUser().getUser()); //on se rajoute à la liste
 			
 			pcs.firePropertyChange("userList",new ArrayList<User>() , this.Data.usersConnected());
-			
 			//on informe les autres du changement
 			UDPClient client = new UDPClient();
 			client.sendPseudo(this.Data.usersConnected(),pseudo, 4445);
@@ -179,6 +181,7 @@ public class Controller implements PropertyChangeListener{
 		        MessageChat message = new MessageChat(this.Data.getLocalUser().getUser().getUsername(), new Date(),msg);
 		        this.Data.addMessage(message,pseudo);
 		        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), Data.getSessionlist());
+		        pcs.firePropertyChange("NewMessageFrom", new String(), pseudo);
 			}
 	        return true;
 		}catch(Exception e){
@@ -215,6 +218,7 @@ public class Controller implements PropertyChangeListener{
 			MessageChat message = new MessageChat(this.Data.getLocalUser().getUser().getUsername(), new Date(),"Envoi du fichier "+name);
 	        this.Data.addMessage(message,pseudo);
 	        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), Data.getSessionlist());
+	        pcs.firePropertyChange("NewMessageFrom", new String(), pseudo);
 			return true;
 		}catch(Exception e){
 			//System.out.println("Erreur lors de l'envoi du message "+e.toString());
