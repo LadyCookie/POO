@@ -87,6 +87,34 @@ public class InterfaceController implements PropertyChangeListener{
 	        }
 	    });
 	    
+	  //quand on fait entrer sur la boite des messages
+	   mafenetre.loginTextField.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent event) {
+	    		JOptionPane errorLoginDialog = new JOptionPane();
+	            String login = mafenetre.loginTextField.getText();
+	            if (login.length() < 1) {
+	                errorLoginDialog.showMessageDialog(null, "You forgot to enter a username", "Error", JOptionPane.ERROR_MESSAGE);
+	            } else if (login.length() > 15) {
+	                errorLoginDialog.showMessageDialog(null, "Your username can't contain more than 15 characters", "Error", JOptionPane.ERROR_MESSAGE);
+	            } else if (login.contains(" ")==true){
+	            	errorLoginDialog.showMessageDialog(null, "Your username can't contain spaces", "Error", JOptionPane.ERROR_MESSAGE);
+	            }else if (login.equals("ListRQ") || login.equals("end") || login.equals("disconnect")){
+	            	errorLoginDialog.showMessageDialog(null, "The Usernames : ListRQ, end, disconnect are forbidden", "Error", JOptionPane.ERROR_MESSAGE);
+	            }
+	            else {  
+	            	
+	            	if(Cont.PerformConnect(login, 4445, 4445, 2000)) {
+	            		fenetre2.UpdateConnectedUsers(Cont.getModelData().usersConnected(),Cont.getModelData().getLocalUser().getUser().getUsername(),Cont.getModelData().getSessionlist());
+		            	mafenetre.setVisible(false);
+		            	fenetre2.setVisible(true);
+	            	} else {
+	            		errorLoginDialog.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+	            	}
+	            }
+			}
+	    
+	    });
+	    
 	    //deconnection à la fermeture de la fenetre
 	    fenetre2.addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e){
@@ -165,7 +193,7 @@ public class InterfaceController implements PropertyChangeListener{
 	    
 	    });
 	    
-	  //envoyer unfichier
+	  //envoyer un fichier
 	    fenetre2.ChangePseudoButton.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent event) {
 	    		JOptionPane errorLoginDialog = new JOptionPane();
@@ -184,7 +212,27 @@ public class InterfaceController implements PropertyChangeListener{
 	            		errorLoginDialog.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
 	            	}	            	
 	            }
-	    });	    
+	    });	 
+	  //quand on fait entrer sur la boite des messages
+		   fenetre2.changePseudoArea.addActionListener(new ActionListener() {
+		    	public void actionPerformed(ActionEvent event) {
+		    		JOptionPane errorLoginDialog = new JOptionPane();
+		    	    String new_pseudo = fenetre2.changePseudoArea.getText();
+		    	    fenetre2.changePseudoArea.setText(null);
+		    	    if (new_pseudo.length() < 1) {
+		                errorLoginDialog.showMessageDialog(null, "You forgot to enter a username", "Error", JOptionPane.ERROR_MESSAGE);
+		            } else if (new_pseudo.length() > 15) {
+		                errorLoginDialog.showMessageDialog(null, "Your username can't contain more than 15 characters", "Error", JOptionPane.ERROR_MESSAGE);
+		            } else if (new_pseudo.contains(" ")==true){
+		            	errorLoginDialog.showMessageDialog(null, "Your username can't contain spaces", "Error", JOptionPane.ERROR_MESSAGE);
+		            }else if (new_pseudo.equals("ListRQ") || new_pseudo.equals("end") || new_pseudo.equals("disconnect")){
+		            	errorLoginDialog.showMessageDialog(null, "The Usernames : ListRQ, end, disconnect are forbidden", "Error", JOptionPane.ERROR_MESSAGE);
+		            }
+		            	if(!Cont.ChangePseudo(new_pseudo)) {
+		            		errorLoginDialog.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+		            	}	            	
+		            }
+		    });
     }
     
     

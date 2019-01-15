@@ -133,8 +133,8 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 					}
 					
 					if(!trouve) {
-						String notif = msg + " has logged on";
-						pcs.firePropertyChange("ConnectionStatus",new String() , notif);
+						String notif2 = msg + " has logged on";
+						pcs.firePropertyChange("ConnectionStatus",new String() , notif2);
 					}
 					
 					this.Data.addUser(newUser);
