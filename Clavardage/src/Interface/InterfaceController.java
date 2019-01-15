@@ -41,7 +41,7 @@ public class InterfaceController implements PropertyChangeListener{
 			fenetre2.UpdateHistorique(Cont.getModelData().getHistoric(SelectedContact));
 			//System.out.println("ControllerInterface: la liste de session a changé");
 		} else if(evt.getPropertyName().equals("NewMessageFrom")) {
-			fenetre2.CreatePopup("Vous avez un nouveau message de :",(String) evt.getNewValue());
+		//	fenetre2.CreatePopup("Vous avez un nouveau message de :",(String) evt.getNewValue());
 			//this.activesessionList = ((ArrayList<InetAddress>) evt.getNewValue());
 		} 
 	}

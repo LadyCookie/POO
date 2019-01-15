@@ -87,6 +87,8 @@ public class ChatWindow extends Window {
                });
                timer.setRepeats(false);
                timer.start();
+           setUndecorated (true);
+           setResizable(false);
            
            frame.setVisible(true);
     }
