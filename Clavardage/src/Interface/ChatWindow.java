@@ -8,10 +8,6 @@ import data.Session;
 import data.User;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -20,22 +16,16 @@ import java.util.ListIterator;
 
 public class ChatWindow extends Window {
 	private static final long serialVersionUID = 1L;
-	/*
-	Font normal =new Font(affichageHistorique.getFont().getName(),Font.PLAIN,affichageHistorique.getFont().getSize());
-	Font italicsmallFont= new Font(affichageHistorique.getFont().getName(),Font.ITALIC,affichageHistorique.getFont().getSize()-2);
-	Font boldFont= new Font(affichageHistorique.getFont().getName(),Font.BOLD,affichageHistorique.getFont().getSize());
-	*/
 	
     private JPanel chatWindowPanel; //panel global
-    private JFrame frame ;
     
     protected JList<String> OnlineUserList;	//list de contacts
     protected JList<String> OfflineUserList;	//list de contacts
+    protected JList<String> NotificationList;	//list de contacts
     
     protected JButton chatFileButton;	//bouton pour envoyer un fichier
     protected JButton chatSendButton; //bouton pour envoyer message
-    protected JButton ChangePseudoButton; //bouton pour changer de pseudo
-    //protected JScrollPane chatTypeScrollPane; 
+    protected JButton ChangePseudoButton; //bouton pour changer de pseudo 
     protected JTextField changePseudoArea;
     protected JTextField chatTypeTextArea;
     
@@ -44,55 +34,34 @@ public class ChatWindow extends Window {
     private JScrollPane HistoriqueScroll;
     private JScrollPane OnlineUserScroll;
     private JScrollPane OfflineUserScroll;
+    private JScrollPane NotificationScroll;
     
     public ChatWindow() {
         OnlineUserList.setModel(new DefaultListModel<String>());
         OfflineUserList.setModel(new DefaultListModel<String>());
+        NotificationList.setModel(new DefaultListModel<String>());
         add(chatWindowPanel);
     }
     
-    public void CreatePopup(String header, String message) {
-           frame = new JFrame();
-           frame.setSize(200,125);
-           frame.setLayout(new GridBagLayout());
-           GridBagConstraints constraints = new GridBagConstraints();
-           constraints.gridx = 0;
-           constraints.gridy = 0;
-           constraints.weightx = 1.0f;
-           constraints.weighty = 1.0f;
-           constraints.insets = new Insets(5, 5, 5, 5);
-           constraints.fill = GridBagConstraints.BOTH;
-           JLabel headingLabel = new JLabel(header);
-           headingLabel.setOpaque(false);
-           frame.add(headingLabel, constraints);
-           constraints.gridx++;
-           constraints.weightx = 0f;
-           constraints.weighty = 0f;
-           constraints.fill = GridBagConstraints.NONE;
-           constraints.anchor = GridBagConstraints.NORTH;
-           constraints.gridx = 0;
-           constraints.gridy++;
-           constraints.weightx = 1.0f;
-           constraints.weighty = 1.0f;
-           constraints.insets = new Insets(5, 5, 5, 5);
-           constraints.fill = GridBagConstraints.BOTH;
-           JLabel messageLabel = new JLabel("<HtMl>"+message);
-           frame.add(messageLabel, constraints);
-           
-           Timer timer = new Timer(2000, new ActionListener() {
-                   public void actionPerformed(ActionEvent e) {
-                	   frame.setVisible(false);
-                       frame	.dispose();
-                   }
-               });
-               timer.setRepeats(false);
-               timer.start();
-           setUndecorated (true);
-           setResizable(false);
-           
-           frame.setVisible(true);
+    //adds a notification to the list
+    public void UpdateNotificationList(String notif,String pseudo,String localpseudo) {
+    	DefaultListModel<String> notifModel = (DefaultListModel<String>) NotificationList.getModel();
+    	String selectedValue = OnlineUserList.getSelectedValue();
+    	if(!(selectedValue==null)) {
+	    	if (selectedValue.equals(localpseudo+" (Moi)")) { //checks if the person selected is the localuser
+	    		selectedValue = localpseudo;
+	    	}
+	    	if(!selectedValue.equals(pseudo)){ //checks if the notification isn't from the person we're already chatting with
+	    		notifModel.addElement(notif);		//adds the notification to the list
+	        	NotificationList.setModel(notifModel);
+	        	NotificationScroll.setViewportView(NotificationList);
+	            JScrollBar vertical = NotificationScroll.getVerticalScrollBar();
+	     		vertical.setValue( vertical.getMaximum());
+	    	}
+    	}
     }
-        
+   
+    //Updates the list views of online/offline users
     public void UpdateConnectedUsers (ArrayList<User> Onlinelist, String localpseudo,ArrayList<Session> listSession){
     	DefaultListModel<String> listModelOnline = new DefaultListModel<String>();
     	DefaultListModel<String> listModelOffline = new DefaultListModel<String>();
@@ -127,6 +96,7 @@ public class ChatWindow extends Window {
   		vertical2.setValue( vertical2.getMinimum());
     }
     
+    //Updates the conversation with the new messages
     public void UpdateHistorique(ArrayList<MessageChat> messageList){
     	affichageHistorique.setText("");
     	JTextArea n = new JTextArea();
@@ -146,7 +116,7 @@ public class ChatWindow extends Window {
  		//affichageHistorique.append(local.getAuthor()+" ("+sdf.format(local.getDate())+") : "+local.getContent()+"\n");
  			n.append(local.getAuthor()+" ("+sdf.format(local.getDate())+") : "+local.getContent()+"\n");
  		}
- 		System.out.println("J'ai recup les messages");
+ 		//System.out.println("J'ai recup les messages");
  		HistoriqueScroll.add(n);
  		HistoriqueScroll.setViewportView(n);
  		JScrollBar vertical = HistoriqueScroll.getVerticalScrollBar();
@@ -161,13 +131,6 @@ public class ChatWindow extends Window {
         $$$setupUI$$$();
     }
 
-    /**
-     * Method generated by IntelliJ IDEA GUI Designer
-     * >>> IMPORTANT!! <<<
-     * DO NOT edit this method OR call it in your code!
-     *
-     * @noinspection ALL
-     */
     private void $$$setupUI$$$() {
     	/*
     	GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -187,7 +150,6 @@ public class ChatWindow extends Window {
         TitledBorder title = BorderFactory.createTitledBorder("Online Users");
         title.setTitleColor(Color.GREEN);
         OnlineUserList = new JList<String>();
-       // chatContactList.setPreferredSize(new Dimension((int)(width*0.4),(int)(height*0.57)));
         OnlineUserList.setBorder(title);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -197,14 +159,13 @@ public class ChatWindow extends Window {
         gbc.fill = GridBagConstraints.VERTICAL;
         gbc.anchor = GridBagConstraints.WEST;
         OnlineUserScroll = new JScrollPane(OnlineUserList,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        OnlineUserScroll.setPreferredSize(new Dimension((int)(width*0.4),(int)((height*0.57)/2)));
+        OnlineUserScroll.setPreferredSize(new Dimension((int)(width*0.4),(int)((height*0.57)/3)));
         chatWindowPanel.add(OnlineUserScroll, gbc);
         
       //PANEL EN HAUT A GAUCHE
         TitledBorder title2 = BorderFactory.createTitledBorder("Offline Users");
         title2.setTitleColor(Color.RED);
         OfflineUserList = new JList<String>();
-       // chatContactList.setPreferredSize(new Dimension((int)(width*0.4),(int)(height*0.57)));
         OfflineUserList.setBorder(title2);
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -213,9 +174,24 @@ public class ChatWindow extends Window {
         gbc.gridheight = 2;
         gbc.anchor = GridBagConstraints.NORTH;
         OfflineUserScroll = new JScrollPane(OfflineUserList,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        OfflineUserScroll.setPreferredSize(new Dimension((int)(width*0.4),(int)((height*0.57)/2)));
+        OfflineUserScroll.setPreferredSize(new Dimension((int)(width*0.4),(int)((height*0.57)/3)));
         chatWindowPanel.add(OfflineUserScroll, gbc);
-            
+        
+        TitledBorder title3 = BorderFactory.createTitledBorder("Notification");
+        title3.setTitleColor(Color.blue);
+        NotificationList = new JList<String>();
+        NotificationList.setBorder(title3);
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 4;
+        gbc.gridheight = 2;
+        gbc.anchor = GridBagConstraints.NORTH;
+        NotificationScroll = new JScrollPane(NotificationList,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        NotificationScroll.setPreferredSize(new Dimension((int)(width*0.4),(int)((height*0.57)/3)));
+        chatWindowPanel.add(NotificationScroll, gbc);
+        
+        
         //PANEL EN BAS A GAUCHE
         changePseudoArea = new JTextField();
         gbc = new GridBagConstraints();
@@ -223,8 +199,7 @@ public class ChatWindow extends Window {
         gbc.gridy = 4;
         gbc.gridwidth = 2;
         gbc.ipadx =(int)(width*0.187);
-        gbc.anchor = GridBagConstraints.NORTH;
-      //  gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.BELOW_BASELINE_LEADING;
         chatWindowPanel.add(changePseudoArea, gbc);
         
         ChangePseudoButton = new JButton();
@@ -232,8 +207,7 @@ public class ChatWindow extends Window {
         gbc = new GridBagConstraints();
         gbc.gridx = 3;
         gbc.gridy = 4;
-        gbc.anchor = GridBagConstraints.NORTH;
-        //gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.BELOW_BASELINE_LEADING;
         chatWindowPanel.add(ChangePseudoButton, gbc);
         
         //PANEL EN HAUT A DROITE       
@@ -266,25 +240,12 @@ public class ChatWindow extends Window {
         gbc.anchor = GridBagConstraints.NORTH;
         chatWindowPanel.add(chatTypeTextArea, gbc);
         
-        /*
-        //PANEL EN BAS A DROITE
-        chatSendButton = new JButton();
-        chatSendButton.setText("Send");
-        gbc = new GridBagConstraints();
-        gbc.gridx = 4;
-        gbc.gridy = 4;
-        gbc.gridwidth = 3;
-     //   gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.LINE_END;
-        chatWindowPanel.add(chatSendButton, gbc); */
-        
         chatFileButton = new JButton();
         chatFileButton.setText("File");
         gbc = new GridBagConstraints();
         gbc.gridx = 6;
         gbc.gridy = 4;
         gbc.gridwidth = 2;
-      //  gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.NORTH;
         chatWindowPanel.add(chatFileButton, gbc);    
         
