@@ -15,6 +15,8 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.ListIterator;
+import java.util.Scanner;
+
 import data.User;
 import model.PacketUserList;
 
@@ -23,6 +25,9 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 	
 	static ArrayList<User> OnlineUserList = new ArrayList<User>(); 	//list of online users
 	static final int PORT = 8080;		// port to listen connection
+	
+	private ServerSocket serverConnect;
+	private boolean running = true;
 	
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
@@ -80,25 +85,36 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 			socket.close();
 			System.out.println("HTTPServer: my local address is "+localAddress.toString());
 			
-			ServerSocket serverConnect = new ServerSocket(PORT,1,localAddress);
+			serverConnect = new ServerSocket(PORT,1,localAddress);
+			serverConnect.setSoTimeout(60000);
 			System.out.println("Server started.\nListening for connections on port : " + PORT + " ...\n");
 			
 			// we listen until user halts server execution
-			while (true) {
+			while (running) {
 				ThreadClientConnection newThread = new ThreadClientConnection(serverConnect.accept(),OnlineUserList);
 				System.out.println("new Connection");
 				Thread thread = new Thread(newThread);		// create dedicated thread to manage the client connection
 				addPropertyChangeListener(newThread);
 				thread.start();
+				Scanner keyboard;
+				keyboard = new Scanner(System.in);
+				System.out.println("Enter STOP to close server");
+				String msg = keyboard.nextLine();
+				if(msg.equals("STOP")) {
+					running = false;
+				}
+				keyboard.close();
 			}
 			
-		} catch (IOException|UnknownHostException| SocketException e) {
+		} catch (IOException e) {
 			System.err.println("Server Connection error : " + e.getMessage());
 		}
 	}
 	
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		LaunchHTTPServer HTTPServer = new LaunchHTTPServer();		
+		LaunchHTTPServer HTTPServer = new LaunchHTTPServer();	
+
+		
 	}
 }

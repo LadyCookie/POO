@@ -171,7 +171,7 @@ public class InterfaceController implements PropertyChangeListener{
 		    		address = address.substring(1); //takes the / away from the InetAddress
 		    		chatWindow.UpdateHistorique(NetworkController.getModelData().getSessionFromAddress((InetAddress.getByName(address))));
 				} catch (Exception e) {
-					System.out.println("InterfaceController : "+e.toString());
+					//System.out.println("InterfaceController : "+e.toString());
 				}
 			}
 	    });

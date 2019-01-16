@@ -58,7 +58,7 @@ public class ThreadClientConnection implements Runnable,PropertyChangeListener{
 			
 			// get first line of the request from the client
 			String input = in.readLine();
-			
+			System.out.println("thread : Message from client is "+input);
 			if (input.equals("ListRQ")) {	//if the person is asking for the list of online users, he sends it
 				PacketUserList packetlist = new PacketUserList(copyList);				//make a packet containing the list
 				byte[] fileData = serialize(packetlist);								//serialize the packet					

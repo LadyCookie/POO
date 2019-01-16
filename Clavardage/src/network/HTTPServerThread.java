@@ -79,7 +79,7 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	        	return new ArrayList<User>();
 	        }
 		} catch (Exception e) {
-			System.out.println("HTTPServerThread : problem retrieving list");
+			System.out.println("HTTPServerThread : problem retrieving list "+e.toString());
 			return new ArrayList<User>();
 		}
 	}
@@ -94,7 +94,7 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	        this.ClientSocket.close();								//close the socket
 	        return true;
 		} catch (Exception e) {
-			System.out.println("HTTPServerThread : problem sending username");
+			System.out.println("HTTPServerThread : problem sending username "+e.toString());
 			return false;
 		}
 	}
@@ -105,7 +105,7 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 		try {
 			this.Serversocket.close();					//closes the socket
 		}catch (Exception e) {
-			System.out.println("HTTPServerThread : Socket non fermé");
+			System.out.println("HTTPServerThread : Socket non fermé "+e.toString());
 		}
 	}
 	
