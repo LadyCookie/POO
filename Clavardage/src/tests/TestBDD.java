@@ -4,10 +4,12 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.concurrent.TimeUnit;
 import java.util.Scanner;
+import java.util.Date;
 import java.io.IOException;
 
 import org.junit.After;
@@ -25,42 +27,118 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class TestBDD {
-	database BDD;
 	
 	@Test
-	public void test() {
+	public void testBDD() {		
 		Connection conn;
 	
 	try {
-		System.out.println("begin");
-		conn = BDD.newConnection();
-		System.out.println("conn créé");
-		BDD.loadDriver();
-		System.out.println("driver chargé");
-		Statement st = conn.createStatement();
+		System.out.println("Begin");
 		
+		//Chargement du driver
+		database.loadDriver();
+		System.out.println("Driver OK");
+		
+		//Connection à la BDD
+		conn = database.newConnection();
 		System.out.println("Connexion à la base établie");
-		//on crée une table
-		st.executeUpdate("CREATE TABLE User (idPers INTEGER NOT NULL, nom VARCHAR(255) NOT NULL);");
-		System.out.println("Table User créée");
 		
+		//Création du statement
+		Statement st = conn.createStatement();
+		System.out.println("Statement OK");
 		
+		System.out.println();
 		
-		ResultSet rs=st.executeQuery("SELECT * FROM User");
-		System.out.println("requête executée");
-		while (rs.next()) {
-			System.out.printf("User : %s\n", rs.getString("nom"));
+		//TestAddSession(User)
+		System.out.println("Test addSession(user)");
+		InetAddress addrBatman=InetAddress.getLoopbackAddress();
+		User batman=new User("Batman",addrBatman);
+		database.addSession(batman);
+		System.out.println("Insertion du user réussie");
+		
+		System.out.println();
+		
+		//TestAddSession(addrIP,nickname)
+		System.out.println("Test addSession(addrIP,nickname)");
+		database.addSession(InetAddress.getLocalHost(),"Superman");
+		System.out.println("Insertion du user réussie");
+		
+		System.out.println();
+		
+		//TestAffichage
+		System.out.println("Dans la BDD il y a:");
+		ArrayList<String> addrIP=database.getAllUserIP();
+		ArrayList<String> usernames=database.getAllUserName();
+		
+		int i;
+		for(i=0;i<addrIP.size();i++) {
+			System.out.println(usernames.get(i) + " : " + addrIP.get(i));
 		}
 		
-		rs.close();
-		System.out.println("fermeture du resultset");
+		System.out.println();
+		
+		//Test getNickname
+		System.out.println("Test getNickname(IP)");
+		System.out.println(database.getNickname(addrBatman.toString()) + " : Batman?");
+		
+		System.out.println();
+		
+		//Test updateNickName
+		System.out.println("Test UpdateNickname");
+		database.updateNickname(addrBatman, "I am");
+		System.out.println("update effectuée");
+		//System.out.println(database.getNickname(addrBatman.toString() + " Batman"));
+		System.out.println();
+		
+		//Test ajout doublon
+		System.out.println("On tente de réajouter Batman");
+		database.addSession(addrBatman, "Le Joker");
+		System.out.println(database.getNickname(addrBatman.toString()) + " vs Batman");
+		
+		System.out.println();
+		
+		//Test addMessage
+		System.out.println("Ajout de deux messages venant de Batman..., enfin Le Joker");
+		MessageChat msg=new MessageChat("Le Joker",new Date(),"je ne porte que du noir");
+		database.addMessage(msg, addrBatman);
+		System.out.println("Message1 reçu");
+		
+		database.addMessage(InetAddress.getLocalHost(), new Date(), "ou du gris très très foncé", "Superman");
+		System.out.println("Message2 reçu");
+		
+		System.out.println();
+		
+		//Test getHistoric
+		System.out.println("Les messages reçus sont : ");
+		ArrayList<MessageChat> msglist = database.getHistoric(addrBatman);
+		for(i=0;i<msglist.size();i++) {
+			System.out.println(msglist.get(i).getAuthor() + " : " + msglist.get(i).getContent() + " reçu à " + msglist.get(i).getDate().toString());
+		}
+		
+		System.out.println();
+		
+		//Test Update nickname
+		System.out.println("Renommons Batman Batman");
+		database.updateNickname(addrBatman, "Batman");
+		System.out.println(database.getNickname(addrBatman.toString()));
+		msglist = database.getHistoric(addrBatman);
+		for(i=0;i<msglist.size();i++) {
+			System.out.println(msglist.get(i).getAuthor() + " : " + msglist.get(i).getContent() + " reçu à " + msglist.get(i).getDate().toString());
+		}
+		
+		System.out.println();
+		
+		//Fin des tests
+		System.out.println("Fins des tests");
+		System.out.println();
 		st.close();
-		System.out.println("fermeture su statement");
+		System.out.println("fermeture du statement");
 		
 		if (conn!=null) conn.close();
 		System.out.println("fermeture de la connexion");
 	}catch(Exception e){
-		System.out.println(e);	
+		System.out.println(e);
+		//e.printStackTrace();	
 	}
 	}
 }
