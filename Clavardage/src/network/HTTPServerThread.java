@@ -19,7 +19,7 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	private boolean running;
 	private InetAddress localAddress;
 	private Socket ClientSocket;
-	static final String SERVERADDRESS = "";           //THIS ADDRESS IS ESSENTIAL TO THE CONNECTION TO THE SERVER
+	static final String SERVERADDRESS = "172.20.10.11";           //THIS ADDRESS IS ESSENTIAL TO THE CONNECTION TO THE SERVER
 	
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
@@ -46,7 +46,7 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	
 	public ArrayList<User> sendListRequest() {
 		try {
-			String strAddrServerHTTP=SERVERADDRESS;					//INSERT SERVER ADDRESS
+			String strAddrServerHTTP=SERVERADDRESS;					
 			InetAddress serverAddr = InetAddress.getByName(strAddrServerHTTP);
 			this.ClientSocket = new Socket(serverAddr,8080);
 			byte[] byte_rq = "ListRQ".getBytes();
@@ -54,7 +54,7 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	        os.write(byte_rq,0,byte_rq.length);						//writes the bytes into the stream
 	        os.flush();												//flushes the stream
 	        os.close();	        									//closes the stream
-	        //this.ClientSocket.close();								//close the socket
+	        this.ClientSocket.close();								//close the socket
 	        
 	        this.Serversocket.setSoTimeout(3000);					//set the socket to timeout after 3 second
 	        Socket client = this.Serversocket.accept();				//accept connections to the socket
@@ -79,8 +79,8 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	        	return new ArrayList<User>();
 	        }
 		} catch (Exception e) {
-			System.out.println("HTTPServerThread : problem retrieving list "+e.toString());
-			return new ArrayList<User>();
+			//System.out.println("HTTPServerThread : problem retrieving list "+e.toString());
+			return null;
 		}
 	}
 	
@@ -106,7 +106,7 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	public void stopServer() {
 		this.running=false;							//the loop of the thread fails
 		try {
-			this.Serversocket.close();					//closes the socket
+			this.Serversocket.close();				//closes the socket
 		}catch (Exception e) {
 			System.out.println("HTTPServerThread : Socket non fermé "+e.toString());
 		}

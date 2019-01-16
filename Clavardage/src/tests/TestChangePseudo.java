@@ -76,7 +76,7 @@ public class TestChangePseudo {
 			System.out.println("Entrez un pseudo ");
 			pseudo = keyboard.nextLine();
 			
-			pseudo_ok=Cont.PerformConnect(pseudo, 4445, 4445, 2000);
+			pseudo_ok=Cont.PerformConnectUDP(pseudo, 4445, 4445, 2000);
 		}
 		
 		System.out.println("Bienvenue "+pseudo);
@@ -115,19 +115,17 @@ public class TestChangePseudo {
 		System.out.println("Changement de pseudo");
 		pseudo ="";
 		pseudo_ok = false;
-		Scanner keyboard4;
 		
 		//loop to choose valid username
 		while(!pseudo_ok) {
 			System.out.println("Entrez un nouveau pseudo ");
 			pseudo = keyboard.nextLine();
 			
-			pseudo_ok=Cont.ChangePseudo(pseudo);
+			pseudo_ok=Cont.ChangePseudoUDP(pseudo);
 		}
 		
 		i = 0;
 		run = true;
-		Scanner keyboard2;
 		while (i<2 && run) {
 			System.out.println("Entrez un message (DISCONNECT pour finir la session) : ");
 			message = keyboard.nextLine();
@@ -145,7 +143,7 @@ public class TestChangePseudo {
 		
 		//Sign off
 		afficherSession(Cont.getModelData().getSession(other_pseudo));
-		Cont.PerformDisconnect(4445, 4445);
+		Cont.PerformDisconnectUDP(4445, 4445);
 	}
 	
 }

@@ -76,6 +76,7 @@ public class ThreadClientConnection implements Runnable,PropertyChangeListener{
 					User local=i.next();
 					if(local.getAddr().equals(clientAddr)) {
 						this.OnlineUserList.remove(local);										//remove him from the list	
+						System.out.println(local.getUsername()+" has logged off");
 						trouve=true;
 					}
 				}
@@ -90,10 +91,14 @@ public class ThreadClientConnection implements Runnable,PropertyChangeListener{
 					if(local.getAddr().equals(clientAddr)) {
 						this.OnlineUserList.remove(local);	//remove him from the list
 						newUser.setDate(local.getDate());
-						System.out.println(local.getUsername()+" has changed username to "+input);		
+						System.out.println(local.getUsername()+" has changed their username to "+input);		
 						trouve=true;
 					}
-				}		
+				}	
+				if(!trouve) {
+					System.out.println(input+" has logged on");
+				}
+				
 				this.OnlineUserList.add(newUser);
 				connect.close(); // we close socket connection
 				pcs.firePropertyChange("changementListeConnectés", new ArrayList<User>(), this.OnlineUserList );

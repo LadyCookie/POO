@@ -36,9 +36,8 @@ public class NetworkControler implements PropertyChangeListener{
 	@SuppressWarnings("unchecked")
 	public void propertyChange(PropertyChangeEvent evt) {
 		if(evt.getPropertyName().equals("userList")) { 										//If the online users list has changed
-			ArrayList<User> oldlist = new ArrayList<User>();
 			this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue()); //updates local list
-			pcs.firePropertyChange("userList",oldlist , (ArrayList<User>) evt.getNewValue());
+			pcs.firePropertyChange("userList",new ArrayList<User>() , (ArrayList<User>) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("sessionList")) {							//if new messages came in
 			this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
 			pcs.firePropertyChange("sessionList",new ArrayList<Session>() , (ArrayList<Session>) evt.getNewValue());
@@ -51,7 +50,8 @@ public class NetworkControler implements PropertyChangeListener{
 		} else if(evt.getPropertyName().equals("ConnectionStatus")) {						//new connection/disconection
 			pcs.firePropertyChange("ConnectionStatus",new String() , (String) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("OnlineUserListHTTP")) {
-			this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue()); //updates local list
+			analyzeListforNotif(this.Data.getConnectedUsers(),(ArrayList<User>) evt.getNewValue());			//makes notifications
+			this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue()); 								//updates local list
 			pcs.firePropertyChange("userList",new ArrayList<User>() , (ArrayList<User>) evt.getNewValue());
 		}
 	}
@@ -63,8 +63,12 @@ public class NetworkControler implements PropertyChangeListener{
 			ArrayList<User> list = servertoHTTP.sendListRequest(); //ask server for list of connected users
 			boolean trouve=false;
 			
+			if(list.equals(null)) { //si le server n'a pas été trouvé
+				return false;
+			}
+			
 			//if the list returned isn't empty
-			if (!list.isEmpty() || !list.equals(null)) {
+			if (!list.isEmpty()) {
 				//checks if the username isn't already in the list
 				ListIterator<User> i= list.listIterator();
 				while(i.hasNext() && !trouve) {
@@ -95,7 +99,7 @@ public class NetworkControler implements PropertyChangeListener{
 				return false;
 			}
 		}catch (Exception e) {
-			System.out.println("NetworkController : "+e.toString());
+			//System.out.println("NetworkController : "+e.toString());
 			return false;
 		}
 	}
@@ -267,5 +271,32 @@ public class NetworkControler implements PropertyChangeListener{
 			System.out.println("NetworkController : File send failed "+e.toString());
 			return false;
 		}
+	}
+	
+	//function that analyzes and compares the oldlist and the new one in order to see what changes were made
+	private void analyzeListforNotif(ArrayList<User> oldlist, ArrayList<User> newlist) {
+		String notif = "";
+		if(oldlist.size()==newlist.size()) { //if both lists are the same sizes then someone changed username
+			ListIterator<User> i =oldlist.listIterator();
+			ListIterator<User> j =newlist.listIterator();
+			boolean trouve = false;
+			while(i.hasNext() && j.hasNext() && !trouve ) {
+				User local1=i.next();
+				User local2=j.next();
+				if(!local1.getUsername().equals(local2.getUsername())) {
+					notif = local1.getUsername()+" changed their username to "+local2.getUsername();	//make a notification
+					trouve=true;
+					pcs.firePropertyChange("Pseudo",new String() , notif);
+				}
+			}
+		}else if(oldlist.size() < newlist.size()) { 		//that means someone signed on
+			User newUser = newlist.get(newlist.size()-1); 	//gets the last user, the one who signed on
+			notif = newUser.getUsername()+" has logged on";
+			pcs.firePropertyChange("ConnectionStatus",new String() , notif);
+		}else if(oldlist.size() > newlist.size()) { 		//that means someone signed off
+			User newUser = oldlist.get(oldlist.size()-1); 	//gets the last user, the one who signed on
+			notif = newUser.getUsername()+" has logged off";
+			pcs.firePropertyChange("ConnectionStatus",new String() , notif);
+		}	
 	}
 }

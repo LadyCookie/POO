@@ -50,7 +50,7 @@ public class TestTCP {
 	public void setup() {
 		//On crée un utilisateur
 		Cont1 = new NetworkControler();
-		if (!Cont1.PerformConnect("Bob",4445,4446,2000)) {
+		if (!Cont1.PerformConnectUDP("Bob",4445,4446,2000)) {
 			System.out.println("La connection du premier Controller a raté");
 		} else {
 			System.out.println("La connection du premier Controller, Bob, a reussi");
@@ -60,7 +60,7 @@ public class TestTCP {
 	@Test		
 	public void test() {
 	Cont3 = new NetworkControler();
-	boolean success= Cont3.PerformConnect("Claude",4446,4445,2001);
+	boolean success= Cont3.PerformConnectUDP("Claude",4446,4445,2001);
 	System.out.println("Claude a pu se connecter: "+success);
 	User User1 = Cont1.getModelData().getLocalUser().getUser();
 	User User3 = Cont3.getModelData().getLocalUser().getUser();
