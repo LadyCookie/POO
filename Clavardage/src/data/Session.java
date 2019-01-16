@@ -3,6 +3,7 @@ package data;
 import java.net.InetAddress;
 import java.util.*;
 
+//One session per User you chat with
 public class Session {
 	private InetAddress otherUserAddress;
 	private ArrayList<MessageChat> ConvList;

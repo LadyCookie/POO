@@ -1,23 +1,15 @@
 package tests;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+
 import java.util.ArrayList;
 import java.util.ListIterator;
-import java.util.concurrent.TimeUnit;
-import java.util.Scanner;
-import java.io.IOException;
-
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-
+import java.util.Scanner;
 import data.*;
 import network.*;
-import model.*;
 
-public class TestControllerUDPTCP {
-	Controller Cont;
+public class TestNetworkController {
+	NetworkControler Cont;
 	
 	public static void afficherSession(ArrayList<MessageChat> list) {
 		if(list.isEmpty() || list.equals(null)) {
@@ -38,7 +30,6 @@ public class TestControllerUDPTCP {
 		if(list.isEmpty() || list.equals(null)) {
 			System.out.println("UserList vide");
 		}else {
-			//on cherche si le pseudo est déja dans la liste
 			ListIterator<User> i= list.listIterator();
 			while(i.hasNext()) {
 				User local=i.next();
@@ -58,7 +49,6 @@ public class TestControllerUDPTCP {
 		if(list.isEmpty() || list.equals(null) || pseudo.equals(localpseudo)) {
 			return false;
 		}else {
-			//on cherche si le pseudo est déja dans la liste
 			ListIterator<User> i= list.listIterator();
 			while(i.hasNext()) {
 				User local=i.next();
@@ -72,34 +62,31 @@ public class TestControllerUDPTCP {
 	
 	@Test		
 	public void test() {
-		Cont = new Controller();
+		Cont = new NetworkControler();
 		String pseudo ="";
 		boolean pseudo_ok = false;
-		
-		//boucle pour choisir un pseudo valide
+		Scanner keyboard = new Scanner(System.in);
+		System.out.println("Entrez un pseudo ");
+
+		//loop to choose a valid username
 		while(!pseudo_ok) {
-			Scanner keyboard = new Scanner(System.in);
-			System.out.println("Entrez un pseudo ");
 			pseudo = keyboard.nextLine();
-			
 			pseudo_ok= Cont.PerformConnect(pseudo, 4445, 4445, 2000);
 		}
 		
 		System.out.println("Bienvenue "+pseudo);
-		afficherList(Cont.getModelData().usersConnected(),pseudo);
+		afficherList(Cont.getModelData().getConnectedUsers(),pseudo);
 		
 		
 		String other_pseudo = "";
 		boolean other_pseudo_ok = false;
 		boolean run = true;
 		
-		//boucle pour choisir avec qui on veut clavarder
+		//loop to choose who to chat with
 		while(!other_pseudo_ok && run) {
-			Scanner keyboard1 = new Scanner(System.in);
 			System.out.println("Entrez un pseudo de personne à qui envoyer un message (DISCONNECT pour finir)");
-			other_pseudo = keyboard1.nextLine();
-			
-			other_pseudo_ok = isinList(Cont.getModelData().usersConnected(),other_pseudo,pseudo);
+			other_pseudo = keyboard.nextLine();
+			other_pseudo_ok = isinList(Cont.getModelData().getConnectedUsers(),other_pseudo,pseudo);
 			if(other_pseudo.equals("DISCONNECT")) {
 				run = false;
 			}
@@ -107,9 +94,8 @@ public class TestControllerUDPTCP {
 		
 		String message;
 		while (run) {	
-			Scanner keyboard2 = new Scanner(System.in);
 			System.out.println("Entrez un message (DISCONNECT pour finir la session) : ");
-			message = keyboard2.nextLine();
+			message = keyboard.nextLine();
 			if(message.equals("DISCONNECT")) {
 				run = false;
 			} else {
@@ -117,12 +103,12 @@ public class TestControllerUDPTCP {
 			}
 		}
 		
-		Scanner keyboard3 = new Scanner(System.in);
 		System.out.println("Appuyez sur entrer pour finir ");
-		message = keyboard3.nextLine();
+		message = keyboard.nextLine();
+		keyboard.close();
 		
-		//on se déconnecte
-		afficherSession(Cont.getModelData().getHistoric(other_pseudo));
+		//disconnect
+		afficherSession(Cont.getModelData().getSession(other_pseudo));
 		Cont.PerformDisconnect(4445, 4445);
 	}
 	

@@ -9,12 +9,11 @@ import org.junit.Test;
 
 import data.*;
 import network.*;
-import model.*;
 
 public class TestUDP {
-	Controller Cont1;
-	Controller Cont2;
-	Controller Cont3;
+	NetworkControler Cont1;
+	NetworkControler Cont2;
+	NetworkControler Cont3;
 	
 	public static void afficherList(ArrayList<User> list) {
 		if(list.isEmpty() || list.equals(null)) {
@@ -36,7 +35,7 @@ public class TestUDP {
 	@Before
 	public void setup() {
 		//On crée un utilisateur
-		Cont1 = new Controller();
+		Cont1 = new NetworkControler();
 		if (!Cont1.PerformConnect("Bob",4445,4446,2000)) {
 			System.out.println("La connection du premier Controller a raté");
 		} else {
@@ -46,8 +45,8 @@ public class TestUDP {
 	
 	@Test		
 	public void test() {
-		Cont2= new Controller();
-		Cont3= new Controller();
+		Cont2= new NetworkControler();
+		Cont3= new NetworkControler();
 		//TEST 1
 		System.out.println("\nTest 1: On tente de se connecter avec un pseudo déjà utilisé");
 		boolean success= Cont2.PerformConnect("Bob",4446,4445,2001);
@@ -58,25 +57,25 @@ public class TestUDP {
 		success= Cont3.PerformConnect("Claude",4446,4445,2001);
 		System.out.println("Réponse attendu: true \nRéponse obtenue: "+success);
 		System.out.print("La liste des utilisateurs connectés de Cont1 est: ");
-		afficherList(Cont1.getModelData().usersConnected());
+		afficherList(Cont1.getModelData().getConnectedUsers());
 		System.out.print("La liste des utilisateurs connectés de Cont3 est: ");
-		afficherList(Cont3.getModelData().usersConnected());
+		afficherList(Cont3.getModelData().getConnectedUsers());
 		
 		//TEST 3
 		System.out.println("\nTest 3: On tente de deconnecter Cont3");
 		success= Cont3.PerformDisconnect(4446,4445);
 		System.out.println("Réponse attendu: true \nRéponse obtenue: "+success);
 		System.out.println("La liste des utilisateurs connectés de Cont1 est: ");
-		afficherList(Cont1.getModelData().usersConnected());
+		afficherList(Cont1.getModelData().getConnectedUsers());
 		System.out.println("La liste des utilisateurs connectés de Cont3 est: ");
-		afficherList(Cont3.getModelData().usersConnected());
+		afficherList(Cont3.getModelData().getConnectedUsers());
 	}
 	
 	@After
 	public void tearDown() {
 		//on arrête les deux threads
 		UDPClient client = new UDPClient() ;
-		client.sendPseudo(Cont2.getModelData().usersConnected(),"end",4445);
+		client.sendPseudo(Cont2.getModelData().getConnectedUsers(),"end",4445);
 		client.close();
 	}
 

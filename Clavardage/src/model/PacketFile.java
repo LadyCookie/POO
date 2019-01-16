@@ -2,6 +2,7 @@ package model;
 
 import java.io.Serializable;
 
+//Serializable packet in order to send files
 public class PacketFile implements Serializable{
 	
 private static final long serialVersionUID = 1L;

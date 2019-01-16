@@ -1,16 +1,17 @@
-package Interface;
+package view;
 
 import javax.swing.JFrame;
 
+//Basic window class
 public class Window extends JFrame{
+	
+	private static final long serialVersionUID = 1L;
 
-    //constructeur
-    public Window(){
+	public Window(){
         this.setTitle("ChatSystem");
-        //this.setSize(1200,800);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setUndecorated(false); //utile si on veut que l'utilisateur utilise le bouton déconnexion pour sortir ?
+        this.setUndecorated(false);
         this.setResizable(false);
         this.setVisible(false);
     }

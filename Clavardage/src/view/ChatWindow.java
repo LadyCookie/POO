@@ -1,4 +1,4 @@
-package Interface;
+package view;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -17,24 +17,23 @@ import java.util.ListIterator;
 public class ChatWindow extends Window {
 	private static final long serialVersionUID = 1L;
 	
-    private JPanel chatWindowPanel; //panel global
+    private JPanel chatWindowPanel; //global panel
     
-    protected JList<String> OnlineUserList;	//list de contacts
-    protected JList<String> OfflineUserList;	//list de contacts
-    protected JList<String> NotificationList;	//list de contacts
+    protected JList<String> OnlineUserList;	//Online users list
+    protected JList<String> OfflineUserList;	//Offline users list
+    protected JList<String> NotificationList;	//Notificationslist
     
-    protected JButton chatFileButton;	//bouton pour envoyer un fichier
-    protected JButton chatSendButton; //bouton pour envoyer message
+    protected JButton chatFileButton;	//button to send file
     protected JButton ChangePseudoButton; //bouton pour changer de pseudo 
-    protected JTextField changePseudoArea;
-    protected JTextField chatTypeTextArea;
     
+    protected JTextField changePseudoArea;	//field to enter new username
+    protected JTextField chatTypeTextArea;	//field to enter message  
+    protected JTextArea affichageHistorique; //field to show messages
     
-    protected JTextArea affichageHistorique; 
-    private JScrollPane HistoriqueScroll;
-    private JScrollPane OnlineUserScroll;
-    private JScrollPane OfflineUserScroll;
-    private JScrollPane NotificationScroll;
+    private JScrollPane HistoriqueScroll;	//Scrollpane for message list
+    private JScrollPane OnlineUserScroll;	//Scrollpane for online users
+    private JScrollPane OfflineUserScroll;	//Scrollpane for offline users
+    private JScrollPane NotificationScroll; //Scrollpane for notifications
     
     public ChatWindow() {
         OnlineUserList.setModel(new DefaultListModel<String>());
@@ -47,17 +46,30 @@ public class ChatWindow extends Window {
     public void UpdateNotificationList(String notif,String pseudo,String localpseudo) {
     	DefaultListModel<String> notifModel = (DefaultListModel<String>) NotificationList.getModel();
     	String selectedValue = OnlineUserList.getSelectedValue();
+    	String lastline;
+    	if(!notifModel.isEmpty()) {
+    		lastline = notifModel.lastElement();
+    	} else {
+    		lastline ="";
+    	}
+    	
     	if(!(selectedValue==null)) {
 	    	if (selectedValue.equals(localpseudo+" (Moi)")) { //checks if the person selected is the localuser
 	    		selectedValue = localpseudo;
 	    	}
-	    	if(!selectedValue.equals(pseudo)){ //checks if the notification isn't from the person we're already chatting with
+	    	if(!selectedValue.equals(pseudo) && !notif.equals(lastline)){ //checks if the notification isn't from the person we're already chatting with
 	    		notifModel.addElement(notif);		//adds the notification to the list
 	        	NotificationList.setModel(notifModel);
 	        	NotificationScroll.setViewportView(NotificationList);
 	            JScrollBar vertical = NotificationScroll.getVerticalScrollBar();
 	     		vertical.setValue( vertical.getMaximum());
 	    	}
+    	} else if (!notif.equals(lastline)){
+    		notifModel.addElement(notif);		//adds the notification to the list
+        	NotificationList.setModel(notifModel);
+        	NotificationScroll.setViewportView(NotificationList);
+            JScrollBar vertical = NotificationScroll.getVerticalScrollBar();
+     		vertical.setValue( vertical.getMaximum());
     	}
     }
    
@@ -76,7 +88,6 @@ public class ChatWindow extends Window {
  				listModelOnline.addElement(local.getUsername());
  				
  			}
- 			
  		}
         OnlineUserList.setModel(listModelOnline);
         OnlineUserScroll.setViewportView(OnlineUserList);
@@ -113,7 +124,6 @@ public class ChatWindow extends Window {
     	ListIterator<MessageChat> i= messageList.listIterator();
  		while(i.hasNext()) {
  			MessageChat local=i.next();
- 		//affichageHistorique.append(local.getAuthor()+" ("+sdf.format(local.getDate())+") : "+local.getContent()+"\n");
  			n.append(local.getAuthor()+" ("+sdf.format(local.getDate())+") : "+local.getContent()+"\n");
  		}
  		//System.out.println("J'ai recup les messages");

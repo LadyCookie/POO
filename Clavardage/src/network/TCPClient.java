@@ -15,10 +15,10 @@ public class TCPClient {
 	    private Socket socket;
 	    
 	    public TCPClient(InetAddress serverAddr, int serverPort) throws Exception {
-	        this.socket = new Socket(serverAddr, serverPort);
+	        this.socket = new Socket(serverAddr, serverPort);				//opens the socket
 	    }
 	    
-	  //permet de convertir un objet java en byte[] pour l'envoi
+	  	//Converts a java object to bytes[] in order to send it
 		public static byte[] serialize(Object pack) throws IOException {
 		    ByteArrayOutputStream out = new ByteArrayOutputStream();
 		    ObjectOutputStream os = new ObjectOutputStream(out);
@@ -27,34 +27,35 @@ public class TCPClient {
 		    return data;
 		}
 	    
+		//sends message
 	    public void sendTxt(String message) throws IOException {
-	    	PacketMessage packet = new PacketMessage(message);
-	    	byte[] serialized_msg = serialize(packet);
+	    	PacketMessage packet = new PacketMessage(message);		//puts the message in a serializable packet
+	    	byte[] serialized_msg = serialize(packet);				//serializes it into bytes[]
 	    	
-	    	OutputStream os = this.socket.getOutputStream();
-	        os.write(serialized_msg,0,serialized_msg.length);
-	        os.flush();
-	        os.close();	        
-	        this.socket.close();
+	    	OutputStream os = this.socket.getOutputStream();		//retrieves the output stream of the socket
+	        os.write(serialized_msg,0,serialized_msg.length);		//writes the bytes into the stream
+	        os.flush();												//flushes the stream
+	        os.close();	        									//closes the stream
+	        this.socket.close();									//closes the socket
 	    }
 	    
+	    //sends the file corresponding to that path
 	    public void sendFile(String path) throws IOException {
-	    	
-	        File myFile = new File (path);
-	        String name = myFile.getName();
-	        byte [] byte_file  = new byte [(int)myFile.length()];
-	        FileInputStream fis = new FileInputStream(myFile);
-	        BufferedInputStream bis = new BufferedInputStream(fis);
-	        bis.read(byte_file,0,byte_file.length);
+	        File myFile = new File (path);							//gets the file corresponding to path
+	        String name = myFile.getName();							//retrieves the file name
+	        byte [] byte_file  = new byte [(int)myFile.length()];	//makes a byte that will contain the file's data
+	        FileInputStream fis = new FileInputStream(myFile);		//opens the input stream of the file
+	        BufferedInputStream bis = new BufferedInputStream(fis);	//links it to the buffered input stream
+	        bis.read(byte_file,0,byte_file.length);					//buffered input stream writes into byte_file
+	        bis.close();											//close buffered output stream
 	        
-	        PacketFile packet = new PacketFile(byte_file,name);
-	        byte[] serialized_file = serialize(packet);
+	        PacketFile packet = new PacketFile(byte_file,name);		//puts the byte_file + file name into serializable packet
+	        byte[] serialized_file = serialize(packet);				//serializes it into bytes[]
 	        
-	        OutputStream os = this.socket.getOutputStream();
-	        os.write(serialized_file,0,serialized_file.length);
-	        os.flush();
-	        bis.close();
-	        os.close();	        
-	        this.socket.close();
+	        OutputStream os = this.socket.getOutputStream();		//retrieves the output stream of the socket
+	        os.write(serialized_file,0,serialized_file.length);		//writes the bytes into the stream
+	        os.flush();												//flushes the stream
+	        os.close();	        									//closes the stream
+	        this.socket.close();									//closes the socket
 	    }
 }

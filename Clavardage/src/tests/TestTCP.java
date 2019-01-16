@@ -9,11 +9,10 @@ import org.junit.Test;
 
 import data.*;
 import network.*;
-import model.*;
 
 public class TestTCP {
-	Controller Cont1;
-	Controller Cont3;
+	NetworkControler Cont1;
+	NetworkControler Cont3;
 	
 	public static void afficherSession(ArrayList<MessageChat> list) {
 		if(list.isEmpty() || list.equals(null)) {
@@ -50,7 +49,7 @@ public class TestTCP {
 	@Before
 	public void setup() {
 		//On crée un utilisateur
-		Cont1 = new Controller();
+		Cont1 = new NetworkControler();
 		if (!Cont1.PerformConnect("Bob",4445,4446,2000)) {
 			System.out.println("La connection du premier Controller a raté");
 		} else {
@@ -60,7 +59,7 @@ public class TestTCP {
 	
 	@Test		
 	public void test() {
-	Cont3 = new Controller();
+	Cont3 = new NetworkControler();
 	boolean success= Cont3.PerformConnect("Claude",4446,4445,2001);
 	System.out.println("Claude a pu se connecter: "+success);
 	User User1 = Cont1.getModelData().getLocalUser().getUser();
@@ -73,19 +72,19 @@ public class TestTCP {
 	Cont1.sendMessage("Claude", "Hey", 2001);
 
 	System.out.println("Historique de Bob avec Claude");
-	afficherSession(Cont1.getModelData().getHistoric("Claude"));
+	afficherSession(Cont1.getModelData().getSession("Claude"));
 		
 	System.out.println("\nHistorique de Claude avec Bob");
-	afficherSession(Cont3.getModelData().getHistoric("Bob"));
+	afficherSession(Cont3.getModelData().getSession("Bob"));
 	System.out.println("--------------------------------------------------------------");
 	//Claude envoi un message à Bob
 	Cont3.sendMessage("Bob", "Hello Back", 2000);
 	
 	System.out.println("Historique de Bob avec Claude");
-	afficherSession(Cont1.getModelData().getHistoric("Claude"));
+	afficherSession(Cont1.getModelData().getSession("Claude"));
 		
 	System.out.println("\nHistorique de Claude avec Bob");
-	afficherSession(Cont3.getModelData().getHistoric("Bob"));
+	afficherSession(Cont3.getModelData().getSession("Bob"));
 	
 	}
 	
@@ -93,8 +92,8 @@ public class TestTCP {
 	public void tearDown() {
 		//on arrête les deux threads ServerUDP
 		UDPClient client = new UDPClient() ;
-		client.sendPseudo(Cont1.getModelData().usersConnected(),"end",4445);
-		client.sendPseudo(Cont3.getModelData().usersConnected(),"end",4446);
+		client.sendPseudo(Cont1.getModelData().getConnectedUsers(),"end",4445);
+		client.sendPseudo(Cont3.getModelData().getConnectedUsers(),"end",4446);
 		client.close();
 	}
 

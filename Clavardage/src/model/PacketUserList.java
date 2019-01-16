@@ -4,6 +4,7 @@ import data.*;
 import java.io.Serializable;
 import java.util.*;
 
+//Serializable packet in order to send userlists
 public class PacketUserList implements Serializable{
 	
 	private static final long serialVersionUID = 1L;

@@ -11,7 +11,6 @@ import java.util.*;
 import data.*;
 import model.*;
 
-
 public class UDPServer extends  Thread implements PropertyChangeListener {
 	
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -26,20 +25,17 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		//System.out.println("Server : un Listener a été ajouté");
 		pcs.addPropertyChangeListener(listener);
 	 }
 	
-	//fonction appelée lorsque une modification est faites à Data
+	@SuppressWarnings("unchecked")
 	public void propertyChange(PropertyChangeEvent evt) {
-		//si on a changé la liste d'utilisateur on met à jour la notre
-		if(evt.getPropertyName().equals("userList")) { 
-			this.Data.setUserConnected((ArrayList<User>) evt.getNewValue());
+		if(evt.getPropertyName().equals("userList")) { 							//if the connected user list has changed
+			this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue());
 		}
 	}
 
-	
-	//permet de convertir un objet java en byte[] pour l'envoi
+	//converts a java object to byte[] in order to send it
 	private static byte[] serialize(PacketUserList ListUser) throws IOException {
 	    ByteArrayOutputStream out = new ByteArrayOutputStream();
 	    ObjectOutputStream os = new ObjectOutputStream(out);
@@ -50,14 +46,13 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 	    return data;
 	}
 	
+	//returns true if the local user is the last of the list to connect
 	private boolean isLastConnected () {
 		Date localUserDate = Data.getLocalUser().getUser().getDate();
-		ListIterator<User> i= Data.usersConnected().listIterator();
-		
+		ListIterator<User> i= Data.getConnectedUsers().listIterator();
 		while(i.hasNext()) {
 			User local=i.next();
 			Date localDate = local.getDate();
-			
 			if(localUserDate.before(localDate)) {
 				return false;
 			}
@@ -70,75 +65,57 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 		while(running) {
 			try {
 				DatagramPacket incomingPacket = new DatagramPacket(buf,buf.length);
-				//System.out.println("Serveur : J'ecoute "+Thread.currentThread().getName());
-				//on attend de recevoir un message
-				this.socket.receive(incomingPacket);
-				//System.out.println("Serveur : J'ai recu un msg ");
+				this.socket.receive(incomingPacket);				//wait to receive a message
 				
-				//on extrait l'adresse et le msg
-				InetAddress dstAddress = incomingPacket.getAddress();
-				String msg = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
+				InetAddress dstAddress = incomingPacket.getAddress();								//extract the address
+				String msg = new String(incomingPacket.getData(), 0, incomingPacket.getLength());	//extract the message
 				
-				if(msg.equals("ListRQ") && isLastConnected() ) {
-					//On recupere le port distant
-					int port= incomingPacket.getPort();
+				if(msg.equals("ListRQ") && isLastConnected() ) { //if the message is a list request and local user is the last connected
+					int port= incomingPacket.getPort();		//retrieve the distant port
 					
-					//on prend notre propre liste de Connected Users, on la transforme en bytes et on met dans buf
-					PacketUserList PacketList = new PacketUserList(Data.usersConnected());
-					//System.out.println("Server : Je demarre la serialisation");
-				    
-					byte[] data = serialize(PacketList);
-				  			
-					//on renvoi à l'envoyeur
-					DatagramPacket outgoingPacket = new DatagramPacket(data,data.length,dstAddress,port);
-					this.socket.send(outgoingPacket);
-				} else if(msg.equals("end")) {
-					running=false;
-				} else if (msg.equals("disconnect")){
-					
-					//on cherche cet utilisateur dans la liste
-					ListIterator<User> i= Data.usersConnected().listIterator();
-					
+					PacketUserList PacketList = new PacketUserList(Data.getConnectedUsers()); //put list of connected users in packet
+					byte[] data = serialize(PacketList);									  //serialize the packet
+					DatagramPacket outgoingPacket = new DatagramPacket(data,data.length,dstAddress,port);	//put into datagram packet
+					this.socket.send(outgoingPacket);														//send packet
+				} else if(msg.equals("end")) {				//if the message is from local UDPClient to "end",
+					running=false;							// end loop and Thread
+				} else if (msg.equals("disconnect")){		//if the message is a user disconnection
+					ListIterator<User> i= Data.getConnectedUsers().listIterator();	//find that user in the list
 					boolean trouve = false;
 					while(i.hasNext() && !trouve) {
 						User local=i.next();
-						//System.out.println("Server: Je cherche si son addr est dans ma liste");
 						if(local.getAddr().equals(dstAddress)) {
-							//System.out.println("Server: J'ai cette addr dans ma liste, je le retire");
-							//System.out.println("Server: message de deconnection de "+local.getUsername());
-							ArrayList<User> oldlist = new ArrayList<User>(this.Data.usersConnected()); 
-							Data.removeUser(local);
-							String notif = local.getUsername()+" has logged off";
-							pcs.firePropertyChange("ConnectionStatus",new String() , notif);
-							pcs.firePropertyChange("userList", oldlist, Data.usersConnected());		
+							ArrayList<User> oldlist = new ArrayList<User>(this.Data.getConnectedUsers()); 
+							Data.removeConnectedUser(local);										//remove him from the list
+							
+							String notif = local.getUsername()+" has logged off";					//make a notification
+							pcs.firePropertyChange("ConnectionStatus",new String() , notif);		//fire change
+							pcs.firePropertyChange("userList", oldlist, Data.getConnectedUsers());	//fire change
 							trouve=true;
 						}
 					}
-				} else if(!msg.equals("ListRQ")){
-					//on recupère le pseudo
-					ListIterator<User> i= Data.usersConnected().listIterator();
+				} else if(!msg.equals("ListRQ")){									//if the message is a new username
+					ListIterator<User> i= Data.getConnectedUsers().listIterator();	//try to find the user in the list
 					boolean trouve = false;
-					Date date = new Date();
 					User newUser = new User(msg,dstAddress);
-					ArrayList<User> oldlist = new ArrayList<User>(this.Data.usersConnected());
+					ArrayList<User> oldlist = new ArrayList<User>(this.Data.getConnectedUsers());
 					while(i.hasNext() && !trouve) {
 						User local = i.next();
-						if(local.getAddr().equals(dstAddress)) {
-							this.Data.removeUser(local);
-							String notif = local.getUsername()+" changed his username to "+msg;
-							pcs.firePropertyChange("Pseudo",new String() , notif);
+						if(local.getAddr().equals(dstAddress)) {								//he's online already, so it's a renaming
+							this.Data.removeConnectedUser(local);								//remove him from the list
+							String notif = local.getUsername()+" changed his username to "+msg;	//make a notification
+							pcs.firePropertyChange("Pseudo",new String() , notif);				//fire change
+							newUser.setDate(local.getDate()); 									//set his date so it doesn't reset
 							trouve=true;
-							newUser.setDate(local.getDate()); 
 						}
 					}
 					
-					if(!trouve) {
-						String notif2 = msg + " has logged on";
-						pcs.firePropertyChange("ConnectionStatus",new String() , notif2);
+					if(!trouve) {															//if he wasn't on the list, he logged on
+						String notif2 = msg + " has logged on";								//make a notification
+						pcs.firePropertyChange("ConnectionStatus",new String() , notif2);	//fire change
 					}
-					
-					this.Data.addUser(newUser);
-					pcs.firePropertyChange("userList", oldlist, this.Data.usersConnected());
+					this.Data.addConnectedUser(newUser);									//add new user to list of connected users
+					pcs.firePropertyChange("userList", oldlist, this.Data.getConnectedUsers()); //fire change
 				}	
 			} catch (IOException e1) {
 				e1.printStackTrace();

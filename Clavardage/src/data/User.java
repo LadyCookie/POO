@@ -18,6 +18,7 @@ public class User implements Serializable{
 		this.date = new Date();
 	}
 	
+	//creates a copy of a user
 	public User(User user) {
 		this.Username= user.getUsername();
 		this.address= user.getAddr();

@@ -1,4 +1,4 @@
-package Interface;
+package view;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,13 +10,11 @@ public class LoginWindow extends Window {
     protected JTextArea welcomeTextArea;
     protected JTextArea loginTextArea;
     protected JTextArea SelectConnectTextArea;
-    
-    protected JTextField loginTextField; //là où on entre le login
+    protected JTextField loginTextField; //field to enter login
     protected JButton loginButton;
     protected JRadioButton lanRadioButton;
     protected JRadioButton wanRadioButton;
-    protected ButtonGroup selectConnectButtonGroup; //groupe de radiobuttons, homemade
-
+    protected ButtonGroup selectConnectButtonGroup; //radiobuttons
 
     public LoginWindow() {
         selectConnectButtonGroup = new ButtonGroup();

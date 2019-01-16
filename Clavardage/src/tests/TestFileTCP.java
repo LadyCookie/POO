@@ -7,17 +7,16 @@ import java.util.Scanner;
 import org.junit.Test;
 
 import data.User;
-import model.Controller;
+import network.NetworkControler;
 
 public class TestFileTCP {
 	
-	Controller Cont;
+	NetworkControler Cont;
 
 	public static void afficherList(ArrayList<User> list,String pseudo) {
 		if(list.isEmpty() || list.equals(null)) {
 			System.out.println("UserList vide");
 		}else {
-			//on cherche si le pseudo est déja dans la liste
 			ListIterator<User> i= list.listIterator();
 			while(i.hasNext()) {
 				User local=i.next();
@@ -37,7 +36,6 @@ public class TestFileTCP {
 		if(list.isEmpty() || list.equals(null) || pseudo.equals(localpseudo)) {
 			return false;
 		}else {
-			//on cherche si le pseudo est déja dans la liste
 			ListIterator<User> i= list.listIterator();
 			while(i.hasNext()) {
 				User local=i.next();
@@ -51,49 +49,40 @@ public class TestFileTCP {
 	
 	@Test		
 	public void test() {
-		Cont = new Controller();
+		Cont = new NetworkControler();
 		String pseudo="";
 		boolean pseudo_ok = false;
+		Scanner keyboard = new Scanner(System.in);
 		
-		//boucle pour choisir un pseudo valide
+		//loop to choose valid username
 		while(!pseudo_ok) {
-			Scanner keyboard = new Scanner(System.in);
 			System.out.println("Entrez un pseudo ");
 			pseudo = keyboard.nextLine();
-			
 			pseudo_ok=Cont.PerformConnect(pseudo, 4445, 4445, 2000);
 		}
 		
 		System.out.println("Bienvenue "+pseudo);
-		afficherList(Cont.getModelData().usersConnected(),pseudo);
-		
+		afficherList(Cont.getModelData().getConnectedUsers(),pseudo);
 		
 		String other_pseudo="";
 		boolean other_pseudo_ok = false;
 		
-		//boucle pour choisir avec qui on veut clavarder
+		//loop to choose who to chat with
 		while(!other_pseudo_ok) {
-			Scanner keyboard1 = new Scanner(System.in);
 			System.out.println("Entrez un pseudo de personne à qui envoyer un message ");
-			other_pseudo = keyboard1.nextLine();
-			
-			other_pseudo_ok = isinList(Cont.getModelData().usersConnected(),other_pseudo,pseudo);
+			other_pseudo = keyboard.nextLine();
+			other_pseudo_ok = isinList(Cont.getModelData().getConnectedUsers(),other_pseudo,pseudo);
 		}
 		
 		String path;
-		
 		if(!other_pseudo.equals("DISCONNECT")) {
-					
-			Scanner keyboard2 = new Scanner(System.in);
 			System.out.println("Entrez un chemin ");
-			path = keyboard2.nextLine();
-			keyboard2.close();
-			
+			path = keyboard.nextLine();
 			Cont.sendFile(other_pseudo, path, 2000);
-			
 		}
 		
-		//on se déconnecte
+		//disconnect
+		keyboard.close();
 		Cont.PerformDisconnect(4445, 4445);
 	}
 	

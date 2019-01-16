@@ -31,31 +31,29 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
-		////System.out.println("Server : un Listener a été ajouté");
 		pcs.addPropertyChangeListener(listener);
 	 }
 	
+	@SuppressWarnings("unchecked")
 	public void propertyChange(PropertyChangeEvent evt) {
-		//si on a changé la liste d'utilisateur/session on met à jour la notre
-		if(evt.getPropertyName().equals("userList")) {
-			this.Data.setUserConnected((ArrayList<User>) evt.getNewValue());
-			//System.out.println("TCP Server: la liste d'utilisateurs a changé");
-		} else if(evt.getPropertyName().equals("sessionList")) {
-			this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
-			//System.out.println("TCP Server: la liste de session a changé");
+		if(evt.getPropertyName().equals("userList")) {								//if the connected user list has changed
+			this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue());		//update the local one
+		} else if(evt.getPropertyName().equals("sessionList")) {					//if the session list has changed
+			this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());		//update the local one
 		} 
 	}
 	
+	//called when the TCP server is closed
 	public void stopServer() {
-		this.running=false;
+		this.running=false;							//the loop of the thread fails
 		try {
-			this.socket.close();
+			this.socket.close();					//closes the socket
 		}catch (Exception e) {
-			System.out.println("Socket non fermé");
+			System.out.println("TCPServer : Socket non fermé");
 		}
 	}
 	
-	//permet d'extraire un UserListPacket d'une série de byte
+	//Deserializes an Object from byte[]
 	private Object deserialize(byte[] data) throws IOException, ClassNotFoundException {
 		ByteArrayInputStream in = new ByteArrayInputStream(data);
 	    ObjectInputStream is = new ObjectInputStream(in);
@@ -65,60 +63,59 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 	public void run() {
 		while(this.running) {
 			try {
-		        this.socket.setSoTimeout(1000);
-		        Socket client = this.socket.accept();
-		        InetAddress clientAddr = client.getInetAddress();
-		        String pseudo = this.Data.getPseudo(clientAddr); //on verifie si il est dans notre liste
-		        				
-		        int bytesRead;
-		        int current = 0;
-		        // receive data
-		        byte [] byte_data = new byte [6022386];
-		        InputStream is = client.getInputStream();
-		          
-		        bytesRead = is.read(byte_data,0,byte_data.length);
-		        current = bytesRead;
-
+		        this.socket.setSoTimeout(1000);									//set the socket to timeout after 1 second
+		        Socket client = this.socket.accept();							//accept connections to the socket
+		        InetAddress clientAddr = client.getInetAddress();				//retrieve the distant user's address
+		        String pseudo = this.Data.getPseudoFromAddress((clientAddr)); 	//retrieve the distant user's username
+		        															
+		        byte [] byte_data = new byte [6022386];					//new byte to store data
+		        InputStream is = client.getInputStream();				//retrieve the input stream of the distant socket
+		        int bytesRead = is.read(byte_data,0,byte_data.length);	
+		        int current = bytesRead;
 		        do {
 		           bytesRead = is.read(byte_data, current, (byte_data.length-current));
 		           if(bytesRead >= 0) current += bytesRead;
 		        } while(bytesRead > -1);
 
-		        Object data = deserialize(byte_data);
-		        Class c = data.getClass();
+		        Object data = deserialize(byte_data);	//deserialize the data
+		        Class<? extends Object> c = data.getClass();				//retrieve the class of the data
 		        
-		        //si c'est un message
+		        //if it's a message
 		        if (c.getCanonicalName().equals(PacketMessage.class.getCanonicalName())) {
 		        	PacketMessage packet_msg = (PacketMessage) data;
-		        	String msg = packet_msg.getMessage();
-		        	//System.out.println("\r\nServerTCP : Message from " + pseudo + ": " + msg);
-			        MessageChat message = new MessageChat(pseudo, new Date(),msg);
-			        this.Data.addMessage(message,pseudo);
-			        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), this.Data.getSessionlist());
-			        pcs.firePropertyChange("NewMessageFrom", new String(), pseudo);
+		        	String msg = packet_msg.getMessage();							//retrieve message from the packet
+		        	
+			        MessageChat message = new MessageChat(pseudo, new Date(),msg);	//create new message
+			        this.Data.addMessage(message,pseudo);							//add message to session
+			        
+			        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), this.Data.getSessionlist()); //fire changes
+			        pcs.firePropertyChange("NewMessageFrom", new String(), pseudo);								 //fire changes
 		        } else if(c.getCanonicalName().equals(PacketFile.class.getCanonicalName())) {
-		        	PacketFile packet_file = (PacketFile) data;
-		        	String name = packet_file.getName();
-		        	byte[] byte_file = packet_file.getBytes();
+		        	PacketFile packet_file = (PacketFile) data;				
+		        	String name = packet_file.getName();				//retrieve file name from packet
+		        	byte[] byte_file = packet_file.getBytes();			//retrieve file bytes from packet
 		        	
-		        	//System.out.println("\r\nServer : File from " + pseudo + ": "+name);
-		        	String filePath = new File("").getAbsolutePath();
+		        	String filePath = new File("").getAbsolutePath();	//retrieve the path of local file
 		        	
-			        FileOutputStream fos = new FileOutputStream(filePath+"\\file_reception\\"+name);
+		        	//write bytes into the file
+			        FileOutputStream fos = new FileOutputStream(filePath+"\\file_reception\\"+name);	//get file output stream
 			        BufferedOutputStream bos = new BufferedOutputStream(fos);
 			        bos.write(byte_file, 0 , byte_file.length);
 			        bos.flush();
 			        fos.close();
 			        bos.close();
 			        
+			        //create and add message
 			        MessageChat message = new MessageChat(pseudo, new Date(),"Envoi du fichier "+name+" (Clavardage/file_reception)");
 			        this.Data.addMessage(message,pseudo);
+			        
+			        //fire changes
 			        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), this.Data.getSessionlist());
 			        pcs.firePropertyChange("NewFileFrom", new String(), pseudo);
 		        }
 		        
 	        }catch (Exception e) {
-	        	//System.out.println(e.toString());
+	        	System.out.println("TCPServer : "+e.toString());
 	        }
 		}
 	}
@@ -130,5 +127,4 @@ public class TCPServer extends Thread implements PropertyChangeListener{
     public int getPort() {
         return this.socket.getLocalPort();
     }
-
 }

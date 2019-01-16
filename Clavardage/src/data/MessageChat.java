@@ -2,6 +2,7 @@ package data;
 
 import java.util.Date;
 
+//Class with the format of messages
 public class MessageChat {
 	private String author;
 	private Date date;

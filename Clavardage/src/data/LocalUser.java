@@ -5,11 +5,12 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+//Class the keeps the localUser
 public class LocalUser {
 	private User Client;
 	
 	public LocalUser(String pseudo) {
-		//on cherche l'adresse IP locale
+		//finds the local IPaddress
 		try (final DatagramSocket socket = new DatagramSocket()){
 			socket.setBroadcast(true);
 			socket.connect(InetAddress.getByName("8.8.8.8"),10002);
