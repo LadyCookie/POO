@@ -50,8 +50,6 @@ public class NetworkControler implements PropertyChangeListener{
 			pcs.firePropertyChange("Pseudo",new String() , (String) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("ConnectionStatus")) {						//new connection/disconection
 			pcs.firePropertyChange("ConnectionStatus",new String() , (String) evt.getNewValue());
-		} else if(evt.getPropertyName().equals("OnlineUserListHTTP")) {						
-			this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("OnlineUserListHTTP")) {
 			this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue()); //updates local list
 			pcs.firePropertyChange("userList",new ArrayList<User>() , (ArrayList<User>) evt.getNewValue());
@@ -126,6 +124,7 @@ public class NetworkControler implements PropertyChangeListener{
 		}
 		
 		if(!trouve) {			
+			this.Data.getLocalUser().getUser().setUsername(pseudo);
 			return this.ServerHTTPThread.sendPseudo(pseudo);
 		} else {
 			return false;

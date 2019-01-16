@@ -87,7 +87,6 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 			// we listen until user halts server execution
 			while (running) {
 				ThreadClientConnection newThread = new ThreadClientConnection(serverConnect.accept(),OnlineUserList);
-				System.out.println("new Connection");
 				Thread thread = new Thread(newThread);		// create dedicated thread to manage the client connection
 				newThread.addPropertyChangeListener(this);
 				thread.start();				
