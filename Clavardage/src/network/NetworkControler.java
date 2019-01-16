@@ -85,6 +85,11 @@ public class NetworkControler implements PropertyChangeListener{
 				this.ServerHTTPThread = servertoHTTP;
 				ServerHTTPThread.addPropertyChangeListener(this); 	//adds NetworkController to the ServerHTTPThread's listeners
 				ServerHTTPThread.start();
+				
+				this.TCPserver = new TCPServer(this.Data,2000);		 	//makes TCPServer thread
+				addPropertyChangeListener(this.TCPserver); 				//adds TCPServer to listeners
+				this.TCPserver.addPropertyChangeListener(this); 		//adds NetworkController to the TCPServer's listeners
+				this.TCPserver.start();  								 //runs the TCPServer thread
 				return true;
 			}else { //if the username is already taken
 				return false;
