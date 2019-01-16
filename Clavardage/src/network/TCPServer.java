@@ -113,9 +113,8 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 			        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), this.Data.getSessionlist());
 			        pcs.firePropertyChange("NewFileFrom", new String(), pseudo);
 		        }
-		        
 	        }catch (Exception e) {
-	        	System.out.println("TCPServer : "+e.toString());
+	        	
 	        }
 		}
 	}

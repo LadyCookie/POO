@@ -21,6 +21,7 @@ public class InterfaceController implements PropertyChangeListener{
 	static NetworkControler NetworkController = new NetworkControler();
 	static LoginWindow loginWindow;
     static ChatWindow chatWindow;
+    static boolean UDPConnection;
 	
     private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     
@@ -73,13 +74,23 @@ public class InterfaceController implements PropertyChangeListener{
 	            	JOptionPane.showMessageDialog(null, "The Usernames : ListRQ, end, disconnect are forbidden", "Error", JOptionPane.ERROR_MESSAGE);
 	            }
 	            else {  
-	            	
-	            	if(NetworkController.PerformConnect(login, 4445, 4445, 2000)) {
-	            		chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),NetworkController.getModelData().getSessionlist());
-		            	loginWindow.setVisible(false);
-		            	chatWindow.setVisible(true);
+	            	UDPConnection = loginWindow.lanRadioButton.isSelected();
+	            	if(UDPConnection) {
+		            	if(NetworkController.PerformConnectUDP(login, 4445, 4445, 2000)) {
+		            		chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),NetworkController.getModelData().getSessionlist());
+			            	loginWindow.setVisible(false);
+			            	chatWindow.setVisible(true);
+		            	} else {
+		            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+		            	}
 	            	} else {
-	            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+	            		if(NetworkController.PerformConnectHTTP(login)) {
+		            		chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),NetworkController.getModelData().getSessionlist());
+			            	loginWindow.setVisible(false);
+			            	chatWindow.setVisible(true);
+		            	} else {
+		            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+		            	}
 	            	}
 	            }
 	        }
@@ -99,13 +110,23 @@ public class InterfaceController implements PropertyChangeListener{
 	            	JOptionPane.showMessageDialog(null, "The Usernames : ListRQ, end, disconnect are forbidden", "Error", JOptionPane.ERROR_MESSAGE);
 	            }
 	            else {  
-	            	
-	            	if(NetworkController.PerformConnect(login, 4445, 4445, 2000)) {
-	            		chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),NetworkController.getModelData().getSessionlist());
-		            	loginWindow.setVisible(false);
-		            	chatWindow.setVisible(true);
+	            	UDPConnection = loginWindow.lanRadioButton.isSelected();
+	            	if(UDPConnection) {
+		            	if(NetworkController.PerformConnectUDP(login, 4445, 4445, 2000)) {
+		            		chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),NetworkController.getModelData().getSessionlist());
+			            	loginWindow.setVisible(false);
+			            	chatWindow.setVisible(true);
+		            	} else {
+		            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+		            	}
 	            	} else {
-	            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+	            		if(NetworkController.PerformConnectHTTP(login)) {
+		            		chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),NetworkController.getModelData().getSessionlist());
+			            	loginWindow.setVisible(false);
+			            	chatWindow.setVisible(true);
+		            	} else {
+		            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+		            	}
 	            	}
 	            }
 			}
@@ -117,7 +138,11 @@ public class InterfaceController implements PropertyChangeListener{
 	    //User disconnects when the window is closed
 	    chatWindow.addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e){
-            	NetworkController.PerformDisconnect(4445, 4445);
+            	if(UDPConnection) {
+            		NetworkController.PerformDisconnectUDP(4445, 4445);
+            	}else {
+            		NetworkController.PerformDisconnectHTTP();
+            	}
                 e.getWindow().dispose();
             }
         });
@@ -200,31 +225,42 @@ public class InterfaceController implements PropertyChangeListener{
 	            }else if (new_pseudo.equals("ListRQ") || new_pseudo.equals("end") || new_pseudo.equals("disconnect")){
 	            	JOptionPane.showMessageDialog(null, "The Usernames : ListRQ, end, disconnect are forbidden", "Error", JOptionPane.ERROR_MESSAGE);
 	            }
-	            	if(!NetworkController.ChangePseudo(new_pseudo)) {
-	            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
-	            	}	            	
-	            }
+	    	    if(UDPConnection) {
+		            if(!NetworkController.ChangePseudoUDP(new_pseudo)) {
+		            	JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+		            }	   
+	    	    }else {
+	    	    	if(!NetworkController.ChangePseudoHTTP(new_pseudo)) {
+		            	JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+		            }
+	    	    }
+	    	}
 	    });	 
 	    
 	  	//same listener but when the Enter key is pressed
 	    chatWindow.changePseudoArea.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent event) {
-		    	String new_pseudo = chatWindow.changePseudoArea.getText();
-		    	chatWindow.changePseudoArea.setText(null);
-		    	if (new_pseudo.length() < 1) {
-		    		JOptionPane.showMessageDialog(null, "You forgot to enter a username", "Error", JOptionPane.ERROR_MESSAGE);
-		        } else if (new_pseudo.length() > 15) {
-		        	JOptionPane.showMessageDialog(null, "Your username can't contain more than 15 characters", "Error", JOptionPane.ERROR_MESSAGE);
-		        } else if (new_pseudo.contains(" ")==true){
-		         	JOptionPane.showMessageDialog(null, "Your username can't contain spaces", "Error", JOptionPane.ERROR_MESSAGE);
-		        }else if (new_pseudo.equals("ListRQ") || new_pseudo.equals("end") || new_pseudo.equals("disconnect")){
-		           	JOptionPane.showMessageDialog(null, "The Usernames : ListRQ, end, disconnect are forbidden", "Error", JOptionPane.ERROR_MESSAGE);
-		        }
-		    	
-		        if(!NetworkController.ChangePseudo(new_pseudo)) {
-		        	JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
-		        }	            	
-	    		}
+	    	    String new_pseudo = chatWindow.changePseudoArea.getText();
+	    	    chatWindow.changePseudoArea.setText(null);
+	    	    if (new_pseudo.length() < 1) {
+	                JOptionPane.showMessageDialog(null, "You forgot to enter a username", "Error", JOptionPane.ERROR_MESSAGE);
+	            } else if (new_pseudo.length() > 15) {
+	                JOptionPane.showMessageDialog(null, "Your username can't contain more than 15 characters", "Error", JOptionPane.ERROR_MESSAGE);
+	            } else if (new_pseudo.contains(" ")==true){
+	            	JOptionPane.showMessageDialog(null, "Your username can't contain spaces", "Error", JOptionPane.ERROR_MESSAGE);
+	            }else if (new_pseudo.equals("ListRQ") || new_pseudo.equals("end") || new_pseudo.equals("disconnect")){
+	            	JOptionPane.showMessageDialog(null, "The Usernames : ListRQ, end, disconnect are forbidden", "Error", JOptionPane.ERROR_MESSAGE);
+	            }
+	    	    if(UDPConnection) {
+		            if(!NetworkController.ChangePseudoUDP(new_pseudo)) {
+		            	JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+		            }	   
+	    	    }else {
+	    	    	if(!NetworkController.ChangePseudoHTTP(new_pseudo)) {
+		            	JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+		            }
+	    	    }
+	    	}
 	    });
     }
 
