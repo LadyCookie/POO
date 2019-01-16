@@ -36,11 +36,6 @@ public class ThreadClientConnection implements Runnable,PropertyChangeListener{
 	public ThreadClientConnection(Socket c,ArrayList<User> ulist) {
 		this.connect = c;
 		this.clientAddr = c.getInetAddress();
-		try {
-			this.clientSocket = new Socket(this.clientAddr,4446);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		this.OnlineUserList = ulist;
 	}
 	
@@ -64,29 +59,28 @@ public class ThreadClientConnection implements Runnable,PropertyChangeListener{
 			
 			// get first line of the request from the client
 			String input = in.readLine();
-			System.out.println("thread : Message from client is "+input);
 			if (input.equals("ListRQ")) {	//if the person is asking for the list of online users, he sends it
+				this.clientSocket = new Socket(this.clientAddr,4446);
 				OutputStream dataOut = this.clientSocket.getOutputStream();
-				System.out.println("thread : je prepare sa liste "+input);
 				PacketUserList packetlist = new PacketUserList(copyList);				//make a packet containing the list
 				byte[] fileData = serialize(packetlist);								//serialize the packet					
 				dataOut.write(fileData, 0, fileData.length);							//write packet into stream
 				dataOut.flush();
 				dataOut.close();
 				this.clientSocket.close();
-				System.out.println("thread : done");
+				connect.close(); // we close socket connection
 			} else if (input.equals("disconnect")){	//someone is signing off
 				ListIterator<User> i= copyList.listIterator();	//find that user in the list
 				boolean trouve = false;
 				while(i.hasNext() && !trouve) {
 					User local=i.next();
 					if(local.getAddr().equals(clientAddr)) {
-						this.OnlineUserList.remove(local);										//remove him from the list
-						System.out.println(local.getUsername()+" has logged off");		
-						pcs.firePropertyChange("changementListeConnectés", new ArrayList<User>(), this.OnlineUserList );
+						this.OnlineUserList.remove(local);										//remove him from the list	
 						trouve=true;
 					}
-				}		
+				}
+				connect.close(); // we close socket connection
+				pcs.firePropertyChange("changementListeConnectés", new ArrayList<User>(), this.OnlineUserList );
 			} else {	//it's a new connection OR username change
 				User newUser = new User(input,this.clientAddr);
 				ListIterator<User> i= copyList.listIterator();	//find that user in the list
@@ -101,9 +95,10 @@ public class ThreadClientConnection implements Runnable,PropertyChangeListener{
 					}
 				}		
 				this.OnlineUserList.add(newUser);
+				connect.close(); // we close socket connection
 				pcs.firePropertyChange("changementListeConnectés", new ArrayList<User>(), this.OnlineUserList );
 			}
-			connect.close(); // we close socket connection
+			
 		} catch (IOException ioe) {
 			System.err.println("Server error : " + ioe);
 		} 

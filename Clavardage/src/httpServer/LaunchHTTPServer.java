@@ -11,11 +11,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.ListIterator;
-import java.util.Scanner;
 
 import data.User;
 import model.PacketUserList;
@@ -24,7 +21,7 @@ import model.PacketUserList;
 public class LaunchHTTPServer  implements PropertyChangeListener{ 
 	
 	static ArrayList<User> OnlineUserList = new ArrayList<User>(); 	//list of online users
-	static final int PORT = 8080;		// port to listen connection
+	static final int PORT = 8080;									// port to listen connection
 	
 	private ServerSocket serverConnect;
 	private boolean running = true;
@@ -58,10 +55,9 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 		PacketUserList packetList = new PacketUserList(copyList);
 		try {
 			byte[] serialized_msg = serialize(packetList);				//serializes it into bytes[]
-		
 			ListIterator<User> i= copyList.listIterator();	//go through list
 			while(i.hasNext()) {
-				User local=i.next();
+				User local=i.next();					
 				Socket socket = new Socket (local.getAddr(),4446);
 			    	
 		    	OutputStream os = socket.getOutputStream();		//retrieves the output stream of the socket
@@ -93,7 +89,7 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 				ThreadClientConnection newThread = new ThreadClientConnection(serverConnect.accept(),OnlineUserList);
 				System.out.println("new Connection");
 				Thread thread = new Thread(newThread);		// create dedicated thread to manage the client connection
-				addPropertyChangeListener(newThread);
+				newThread.addPropertyChangeListener(this);
 				thread.start();				
 			}
 			

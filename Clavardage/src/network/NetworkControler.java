@@ -52,7 +52,10 @@ public class NetworkControler implements PropertyChangeListener{
 			pcs.firePropertyChange("ConnectionStatus",new String() , (String) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("OnlineUserListHTTP")) {						
 			this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue());
-		} 
+		} else if(evt.getPropertyName().equals("OnlineUserListHTTP")) {
+			this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue()); //updates local list
+			pcs.firePropertyChange("userList",new ArrayList<User>() , (ArrayList<User>) evt.getNewValue());
+		}
 	}
 	
 	//Tries to connect with a given username, returns true if success

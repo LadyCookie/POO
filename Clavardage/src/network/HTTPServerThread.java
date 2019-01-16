@@ -19,6 +19,7 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	private boolean running;
 	private InetAddress localAddress;
 	private Socket ClientSocket;
+	static final String SERVERADDRESS = "";           //THIS ADDRESS IS ESSENTIAL TO THE CONNECTION TO THE SERVER
 	
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
@@ -36,9 +37,6 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 			this.localAddress = socket.getLocalAddress();
 			socket.close();
 			
-			String strAddrServerHTTP="";											//INSERT SERVER ADDRESS
-			InetAddress serverAddr = InetAddress.getByName(strAddrServerHTTP);
-			this.ClientSocket = new Socket(serverAddr,8080);
 		}catch (UnknownHostException| SocketException e) {
 			System.out.println("HTTPServerThread : No Internet");
 		}
@@ -48,12 +46,15 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	
 	public ArrayList<User> sendListRequest() {
 		try {
+			String strAddrServerHTTP="";											//INSERT SERVER ADDRESS
+			InetAddress serverAddr = InetAddress.getByName(strAddrServerHTTP);
+			this.ClientSocket = new Socket(serverAddr,8080);
 			byte[] byte_rq = "ListRQ".getBytes();
 			OutputStream os = this.ClientSocket.getOutputStream();	//retrieves the output stream of the socket
 	        os.write(byte_rq,0,byte_rq.length);						//writes the bytes into the stream
 	        os.flush();												//flushes the stream
 	        os.close();	        									//closes the stream
-	        this.ClientSocket.close();								//close the socket
+	        //this.ClientSocket.close();								//close the socket
 	        
 	        this.Serversocket.setSoTimeout(3000);					//set the socket to timeout after 3 second
 	        Socket client = this.Serversocket.accept();				//accept connections to the socket
@@ -72,7 +73,6 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	        
 	        //if it's a list
 	        if (c.getCanonicalName().equals(PacketUserList.class.getCanonicalName())) {
-	        	System.out.println("HTTPServerThread : new List received from Server");
 	        	PacketUserList packet_list = (PacketUserList) data;
 	        	return	packet_list.getUserList();	
 	        } else{
@@ -124,19 +124,13 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 		        															
 		        byte [] byte_data = new byte [6022386];					//new byte to store data
 		        InputStream is = client.getInputStream();				//retrieve the input stream of the distant socket
-		        int bytesRead = is.read(byte_data,0,byte_data.length);	
-		        int current = bytesRead;
-		        do {
-		           bytesRead = is.read(byte_data, current, (byte_data.length-current));
-		           if(bytesRead >= 0) current += bytesRead;
-		        } while(bytesRead > -1);
-
+		        is.read(byte_data,0,byte_data.length);	
+		        
 		        Object data = deserialize(byte_data);			//deserialize the data
 		        Class<? extends Object> c = data.getClass();	//retrieve the class of the data
 		        
 		        //if it's a list
 		        if (c.getCanonicalName().equals(PacketUserList.class.getCanonicalName())) {
-		        	System.out.println("HTTPServerThread : new List received from Server");
 		        	PacketUserList packet_list = (PacketUserList) data;
 		        	ArrayList<User> list = packet_list.getUserList();	
 		        	

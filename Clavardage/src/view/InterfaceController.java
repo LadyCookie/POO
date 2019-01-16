@@ -72,6 +72,8 @@ public class InterfaceController implements PropertyChangeListener{
 	            	JOptionPane.showMessageDialog(null, "Your username can't contain spaces", "Error", JOptionPane.ERROR_MESSAGE);
 	            }else if (login.equals("ListRQ") || login.equals("end") || login.equals("disconnect")){
 	            	JOptionPane.showMessageDialog(null, "The Usernames : ListRQ, end, disconnect are forbidden", "Error", JOptionPane.ERROR_MESSAGE);
+	            } else if(!loginWindow.lanRadioButton.isSelected() && !loginWindow.wanRadioButton.isSelected()) {
+	            	JOptionPane.showMessageDialog(null, "Select a connexion mode", "Error", JOptionPane.ERROR_MESSAGE);
 	            }
 	            else {  
 	            	UDPConnection = loginWindow.lanRadioButton.isSelected();
@@ -95,44 +97,7 @@ public class InterfaceController implements PropertyChangeListener{
 	            }
 	        }
 	    });
-	    
-	    //same Listener when the Enter key is pressed after username is type
-	    loginWindow.loginTextField.addActionListener(new ActionListener() {
-	    	public void actionPerformed(ActionEvent event) {
-	            String login = loginWindow.loginTextField.getText();
-	            if (login.length() < 1) {
-	                JOptionPane.showMessageDialog(null, "You forgot to enter a username", "Error", JOptionPane.ERROR_MESSAGE);
-	            } else if (login.length() > 15) {
-	                JOptionPane.showMessageDialog(null, "Your username can't contain more than 15 characters", "Error", JOptionPane.ERROR_MESSAGE);
-	            } else if (login.contains(" ")==true){
-	            	JOptionPane.showMessageDialog(null, "Your username can't contain spaces", "Error", JOptionPane.ERROR_MESSAGE);
-	            }else if (login.equals("ListRQ") || login.equals("end") || login.equals("disconnect")){
-	            	JOptionPane.showMessageDialog(null, "The Usernames : ListRQ, end, disconnect are forbidden", "Error", JOptionPane.ERROR_MESSAGE);
-	            }
-	            else {  
-	            	UDPConnection = loginWindow.lanRadioButton.isSelected();
-	            	if(UDPConnection) {
-		            	if(NetworkController.PerformConnectUDP(login, 4445, 4445, 2000)) {
-		            		chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),NetworkController.getModelData().getSessionlist());
-			            	loginWindow.setVisible(false);
-			            	chatWindow.setVisible(true);
-		            	} else {
-		            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
-		            	}
-	            	} else {
-	            		if(NetworkController.PerformConnectHTTP(login)) {
-		            		chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),NetworkController.getModelData().getSessionlist());
-			            	loginWindow.setVisible(false);
-			            	chatWindow.setVisible(true);
-		            	} else {
-		            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
-		            	}
-	            	}
-	            }
-			}
-	    
-	    });
-	    
+	    	    
 	    /*------------------------ChatWindow listeners--------------------------*/
 	    
 	    //User disconnects when the window is closed
