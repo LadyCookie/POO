@@ -16,6 +16,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.sun.xml.internal.ws.api.message.Message;
+
 import data.*;
 import network.*;
 import model.*;
@@ -39,15 +41,6 @@ public class TestBDD {
 		database.loadDriver();
 		System.out.println("Driver OK");
 		
-		//Connection à la BDD
-		conn = database.newConnection();
-		System.out.println("Connexion à la base établie");
-		
-		//Création du statement
-		Statement st = conn.createStatement();
-		System.out.println("Statement OK");
-		
-		System.out.println();
 		
 		//TestAddSession(User)
 		System.out.println("Test addSession(user)");
@@ -87,10 +80,10 @@ public class TestBDD {
 		System.out.println("Test UpdateNickname");
 		database.updateNickname(addrBatman, "I am");
 		System.out.println("update effectuée");
-		//System.out.println(database.getNickname(addrBatman.toString() + " Batman"));
+		System.out.println(database.getNickname(addrBatman.toString()) + " Batman"); //cette ligne là est problématique, why?
 		System.out.println();
 		
-		//Test ajout doublon
+		//Test ajout doublon user
 		System.out.println("On tente de réajouter Batman");
 		database.addSession(addrBatman, "Le Joker");
 		System.out.println(database.getNickname(addrBatman.toString()) + " vs Batman");
@@ -99,7 +92,7 @@ public class TestBDD {
 		
 		//Test addMessage
 		System.out.println("Ajout de deux messages venant de Batman..., enfin Le Joker");
-		MessageChat msg=new MessageChat("Le Joker",new Date(),"je ne porte que du noir");
+		MessageChat msg=new MessageChat("Le Joker",new Date(),"je ne porte que du noir et des caractères spéciaux \\ '  ");
 		database.addMessage(msg, addrBatman);
 		System.out.println("Message1 reçu");
 		
@@ -107,6 +100,15 @@ public class TestBDD {
 		System.out.println("Message2 reçu");
 		
 		System.out.println();
+		
+		//Test ajoutMessage IP non existante
+		/*
+		System.out.println("Test ajout message d'une IP inexistante");
+		database.addMessage(InetAddress.getByName("euh"), new Date(), "null", "personne");
+		System.out.println("Si on est là ce n'est point normal");
+		
+		System.out.println();
+		*/
 		
 		//Test getHistoric
 		System.out.println("Les messages reçus sont : ");
@@ -128,15 +130,40 @@ public class TestBDD {
 		
 		System.out.println();
 		
+		//Test Update nickname in MessageChat
+		System.out.println("Test de l'update sur les auteurs des messages");
+		database.updateNickname(addrBatman, "Robin");
+		ArrayList<MessageChat> messages=database.getHistoric(addrBatman);
+		for(i=0;i<messages.size();i++) {
+			System.out.println(messages.get(i).getAuthor() + " a dit: "  +messages.get(i).getContent());
+		}
+		
+		System.out.println();
+		
+		//Test updateMyNickname 
+		System.out.println("Test de updateMyNickname");
+		database.addMessage(addrBatman, new Date(), "Ah bon, moi j aime bien la couleur", "Moi");
+		database.addMessage(addrBatman, new Date(), "c est zoli la couleur", "Moi");
+		messages=database.getHistoric(addrBatman);
+		for(i=0;i<messages.size();i++) {
+			System.out.println(messages.get(i).getAuthor() + " a dit: "  +messages.get(i).getContent());
+		}
+		database.updateMyNickname("Groot");
+		messages=database.getHistoric(addrBatman);
+		for(i=0;i<messages.size();i++) {
+			System.out.println(messages.get(i).getAuthor() + " a dit: "  +messages.get(i).getContent());
+		}
+		
 		//Fin des tests
 		System.out.println("Fins des tests");
 		System.out.println();
-		st.close();
-		System.out.println("fermeture du statement");
 		
-		if (conn!=null) conn.close();
-		System.out.println("fermeture de la connexion");
-	}catch(Exception e){
+		
+		String test="Dis quelquechose stp '   '    '";
+		System.out.println(test.replace("'", "''"));
+		
+		
+		}catch(Exception e){
 		System.out.println(e);
 		//e.printStackTrace();	
 	}
