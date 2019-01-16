@@ -86,7 +86,6 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 			System.out.println("HTTPServer: my local address is "+localAddress.toString());
 			
 			serverConnect = new ServerSocket(PORT,1,localAddress);
-			serverConnect.setSoTimeout(60000);
 			System.out.println("Server started.\nListening for connections on port : " + PORT + " ...\n");
 			
 			// we listen until user halts server execution
@@ -95,15 +94,7 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 				System.out.println("new Connection");
 				Thread thread = new Thread(newThread);		// create dedicated thread to manage the client connection
 				addPropertyChangeListener(newThread);
-				thread.start();
-				Scanner keyboard;
-				keyboard = new Scanner(System.in);
-				System.out.println("Enter STOP to close server");
-				String msg = keyboard.nextLine();
-				if(msg.equals("STOP")) {
-					running = false;
-				}
-				keyboard.close();
+				thread.start();				
 			}
 			
 		} catch (IOException e) {

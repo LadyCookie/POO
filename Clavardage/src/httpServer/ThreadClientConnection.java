@@ -3,7 +3,6 @@ package httpServer;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,6 +12,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.ListIterator;
+import java.io.OutputStream;
+
 import data.User;
 import model.PacketUserList;
 
@@ -21,6 +22,7 @@ public class ThreadClientConnection implements Runnable,PropertyChangeListener{
 	private ArrayList<User> OnlineUserList ; 	//list of online users
 	private Socket connect;				// Client Connection via Socket Class
 	private InetAddress clientAddr;		//client's address
+	private Socket clientSocket;
 	
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
@@ -34,6 +36,11 @@ public class ThreadClientConnection implements Runnable,PropertyChangeListener{
 	public ThreadClientConnection(Socket c,ArrayList<User> ulist) {
 		this.connect = c;
 		this.clientAddr = c.getInetAddress();
+		try {
+			this.clientSocket = new Socket(this.clientAddr,4446);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		this.OnlineUserList = ulist;
 	}
 	
@@ -53,17 +60,21 @@ public class ThreadClientConnection implements Runnable,PropertyChangeListener{
 			// we read characters from the client via input stream on the socket
 			BufferedReader in = new BufferedReader(new InputStreamReader(connect.getInputStream()));
 			// get binary output stream to client (for requested data)
-			BufferedOutputStream dataOut = new BufferedOutputStream(connect.getOutputStream());
 			ArrayList<User> copyList = new ArrayList<User>(this.OnlineUserList);
 			
 			// get first line of the request from the client
 			String input = in.readLine();
 			System.out.println("thread : Message from client is "+input);
 			if (input.equals("ListRQ")) {	//if the person is asking for the list of online users, he sends it
+				OutputStream dataOut = this.clientSocket.getOutputStream();
+				System.out.println("thread : je prepare sa liste "+input);
 				PacketUserList packetlist = new PacketUserList(copyList);				//make a packet containing the list
 				byte[] fileData = serialize(packetlist);								//serialize the packet					
 				dataOut.write(fileData, 0, fileData.length);							//write packet into stream
 				dataOut.flush();
+				dataOut.close();
+				this.clientSocket.close();
+				System.out.println("thread : done");
 			} else if (input.equals("disconnect")){	//someone is signing off
 				ListIterator<User> i= copyList.listIterator();	//find that user in the list
 				boolean trouve = false;
@@ -92,7 +103,6 @@ public class ThreadClientConnection implements Runnable,PropertyChangeListener{
 				this.OnlineUserList.add(newUser);
 				pcs.firePropertyChange("changementListeConnectés", new ArrayList<User>(), this.OnlineUserList );
 			}
-			dataOut.close();
 			connect.close(); // we close socket connection
 		} catch (IOException ioe) {
 			System.err.println("Server error : " + ioe);
