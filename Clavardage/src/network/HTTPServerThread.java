@@ -46,7 +46,7 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	
 	public ArrayList<User> sendListRequest() {
 		try {
-			String strAddrServerHTTP="";											//INSERT SERVER ADDRESS
+			String strAddrServerHTTP=SERVERADDRESS;					//INSERT SERVER ADDRESS
 			InetAddress serverAddr = InetAddress.getByName(strAddrServerHTTP);
 			this.ClientSocket = new Socket(serverAddr,8080);
 			byte[] byte_rq = "ListRQ".getBytes();
@@ -86,6 +86,9 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	
 	public boolean sendPseudo(String username) {
 		try {
+			String strAddrServerHTTP=SERVERADDRESS;					//INSERT SERVER ADDRESS
+			InetAddress serverAddr = InetAddress.getByName(strAddrServerHTTP);
+			this.ClientSocket = new Socket(serverAddr,8080);
 			byte[] byte_rq = username.getBytes();
 			OutputStream os = this.ClientSocket.getOutputStream();	//retrieves the output stream of the socket
 	        os.write(byte_rq,0,byte_rq.length);						//writes the bytes into the stream
@@ -126,8 +129,8 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 		        InputStream is = client.getInputStream();				//retrieve the input stream of the distant socket
 		        is.read(byte_data,0,byte_data.length);	
 		        
-		        Object data = deserialize(byte_data);			//deserialize the data
-		        Class<? extends Object> c = data.getClass();	//retrieve the class of the data
+		        Object data = deserialize(byte_data);					//deserialize the data
+		        Class<? extends Object> c = data.getClass();			//retrieve the class of the data
 		        
 		        //if it's a list
 		        if (c.getCanonicalName().equals(PacketUserList.class.getCanonicalName())) {
