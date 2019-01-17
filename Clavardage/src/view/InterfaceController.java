@@ -222,16 +222,17 @@ public class InterfaceController implements PropertyChangeListener{
 	            	JOptionPane.showMessageDialog(null, "Your username can't contain spaces", "Error", JOptionPane.ERROR_MESSAGE);
 	            }else if (new_pseudo.equals("ListRQ") || new_pseudo.equals("end") || new_pseudo.equals("disconnect")){
 	            	JOptionPane.showMessageDialog(null, "The Usernames : ListRQ, end, disconnect are forbidden", "Error", JOptionPane.ERROR_MESSAGE);
+	            } else {
+		    	    if(UDPConnection) {
+			            if(!NetworkController.ChangePseudoUDP(new_pseudo)) {
+			            	JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+			            }	   
+		    	    }else {
+		    	    	if(!NetworkController.ChangePseudoHTTP(new_pseudo)) {
+			            	JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+			            }
+		    	    }
 	            }
-	    	    if(UDPConnection) {
-		            if(!NetworkController.ChangePseudoUDP(new_pseudo)) {
-		            	JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
-		            }	   
-	    	    }else {
-	    	    	if(!NetworkController.ChangePseudoHTTP(new_pseudo)) {
-		            	JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
-		            }
-	    	    }
 	    	}
 	    });	 
 	    
@@ -248,16 +249,17 @@ public class InterfaceController implements PropertyChangeListener{
 	            	JOptionPane.showMessageDialog(null, "Your username can't contain spaces", "Error", JOptionPane.ERROR_MESSAGE);
 	            }else if (new_pseudo.equals("ListRQ") || new_pseudo.equals("end") || new_pseudo.equals("disconnect")){
 	            	JOptionPane.showMessageDialog(null, "The Usernames : ListRQ, end, disconnect are forbidden", "Error", JOptionPane.ERROR_MESSAGE);
+	            }else {
+		    	    if(UDPConnection) {
+			            if(!NetworkController.ChangePseudoUDP(new_pseudo)) {
+			            	JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+			            }	   
+		    	    }else {
+		    	    	if(!NetworkController.ChangePseudoHTTP(new_pseudo)) {
+			            	JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+			            }
+		    	    }
 	            }
-	    	    if(UDPConnection) {
-		            if(!NetworkController.ChangePseudoUDP(new_pseudo)) {
-		            	JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
-		            }	   
-	    	    }else {
-	    	    	if(!NetworkController.ChangePseudoHTTP(new_pseudo)) {
-		            	JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
-		            }
-	    	    }
 	    	}
 	    });
     }
