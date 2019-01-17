@@ -11,9 +11,9 @@ import data.*;
 import network.*;
 
 public class TestUDP {
-	NetworkControler Cont1;
-	NetworkControler Cont2;
-	NetworkControler Cont3;
+	NetworkController Cont1;
+	NetworkController Cont2;
+	NetworkController Cont3;
 	
 	public static void afficherList(ArrayList<User> list) {
 		if(list.isEmpty() || list.equals(null)) {
@@ -35,7 +35,7 @@ public class TestUDP {
 	@Before
 	public void setup() {
 		//On crée un utilisateur
-		Cont1 = new NetworkControler();
+		Cont1 = new NetworkController();
 		if (!Cont1.PerformConnectUDP("Bob",4445,4446,2000)) {
 			System.out.println("La connection du premier Controller a raté");
 		} else {
@@ -45,8 +45,8 @@ public class TestUDP {
 	
 	@Test		
 	public void test() {
-		Cont2= new NetworkControler();
-		Cont3= new NetworkControler();
+		Cont2= new NetworkController();
+		Cont3= new NetworkController();
 		//TEST 1
 		System.out.println("\nTest 1: On tente de se connecter avec un pseudo déjà utilisé");
 		boolean success= Cont2.PerformConnectUDP("Bob",4446,4445,2001);

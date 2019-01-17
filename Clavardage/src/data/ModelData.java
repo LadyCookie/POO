@@ -2,6 +2,9 @@ package data;
 
 
 import java.util.*;
+
+import model.database;
+
 import java.net.InetAddress;
 
 //Class that handles all the local data
@@ -20,6 +23,7 @@ public class ModelData{
 	//Adds a new message from a user
 	public void addMessage(MessageChat message,String OtherUser){
 		//finds the corresponding Session
+		/*
 		ListIterator<Session> i= this.sessionList.listIterator();
 		try {
 			InetAddress address = getAddressFromPseudo(OtherUser);	//gets the address of the otheruser
@@ -38,6 +42,14 @@ public class ModelData{
 			}
 		} catch (Exception e) {
 			System.out.println("Cet utilisateur n'est pas connecté");
+		}
+		*/
+		try {
+			InetAddress address = getAddressFromPseudo(OtherUser);	//gets the address of the otheruser
+			database.addSession(address, OtherUser);				
+			database.addMessage(message, address);
+		} catch (Exception e) {
+			System.out.println("ModelData : pb ajout de message dans base "+e.toString());
 		}
 	}
 	

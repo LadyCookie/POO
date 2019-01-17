@@ -7,11 +7,11 @@ import java.util.Scanner;
 import org.junit.Test;
 
 import data.User;
-import network.NetworkControler;
+import network.NetworkController;
 
 public class TestFileTCP {
 	
-	NetworkControler Cont;
+	NetworkController Cont;
 
 	public static void afficherList(ArrayList<User> list,String pseudo) {
 		if(list.isEmpty() || list.equals(null)) {
@@ -49,7 +49,7 @@ public class TestFileTCP {
 	
 	@Test		
 	public void test() {
-		Cont = new NetworkControler();
+		Cont = new NetworkController();
 		String pseudo="";
 		boolean pseudo_ok = false;
 		Scanner keyboard = new Scanner(System.in);

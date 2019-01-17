@@ -104,6 +104,11 @@ public class UDPServer extends  Thread implements PropertyChangeListener {
 						if(local.getAddr().equals(dstAddress)) {								//he's online already, so it's a renaming
 							this.Data.removeConnectedUser(local);								//remove him from the list
 							String notif = local.getUsername()+" changed their username to "+msg;	//make a notification
+							try {
+								database.updateNickname(local.getAddr(),msg);
+							}catch (Exception e) {
+								System.out.println("UDPServer : pb update nickname UDP "+e.toString());
+							}
 							pcs.firePropertyChange("Pseudo",new String() , notif);				//fire change
 							newUser.setDate(local.getDate()); 									//set his date so it doesn't reset
 							trouve=true;

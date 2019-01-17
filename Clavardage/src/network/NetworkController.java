@@ -10,8 +10,9 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
 import data.*;
+import model.database;
 
-public class NetworkControler implements PropertyChangeListener{
+public class NetworkController implements PropertyChangeListener{
 
 	private ModelData Data;
 	private TCPServer TCPserver;
@@ -20,8 +21,8 @@ public class NetworkControler implements PropertyChangeListener{
 	//pour tracker les changements faits à ModelData
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
-	public NetworkControler(){
-		//called by the InterfaceController
+	public NetworkController(){
+	
 	}
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -42,8 +43,10 @@ public class NetworkControler implements PropertyChangeListener{
 			this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
 			pcs.firePropertyChange("sessionList",new ArrayList<Session>() , (ArrayList<Session>) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("NewMessageFrom")) {							//new message notification
+			System.out.println("NetworkController notif : "+(String) evt.getNewValue());
 			pcs.firePropertyChange("NewMessageFrom",new String() , (String) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("NewFileFrom")) {							//new file notification
+			System.out.println("NetworkController notif : "+(String) evt.getNewValue());
 			pcs.firePropertyChange("NewFileFrom",new String() , (String) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("Pseudo")) {									//new username change
 			pcs.firePropertyChange("Pseudo",new String() , (String) evt.getNewValue());
@@ -134,6 +137,11 @@ public class NetworkControler implements PropertyChangeListener{
 		
 		if(!trouve) {			
 			this.Data.getLocalUser().getUser().setUsername(pseudo);
+			try {
+				database.updateMyNickname(pseudo);
+			}catch(Exception e) {
+				System.out.println("NetworkController : pb update mon pseudo "+e.toString());
+			}
 			return this.ServerHTTPThread.sendPseudo(pseudo);
 		} else {
 			return false;
@@ -223,6 +231,11 @@ public class NetworkControler implements PropertyChangeListener{
 				this.Data.getLocalUser().getUser().setUsername(pseudo); 				//changes local username
 				this.Data.addConnectedUser(this.Data.getLocalUser().getUser()); 					//adds the localuser back into the list
 				pcs.firePropertyChange("userList",new ArrayList<User>() , this.Data.getConnectedUsers());	//inform others that the list changed
+				try {
+					database.updateMyNickname(pseudo);
+				}catch(Exception e) {
+					System.out.println("NetworkController : pb update mon pseudo "+e.toString());
+				}
 				
 				UDPClient client = new UDPClient();										//make new UDPClient()
 				client.sendPseudo(this.Data.getConnectedUsers(),pseudo, 4445);			//send the username to the other online users
@@ -243,7 +256,7 @@ public class NetworkControler implements PropertyChangeListener{
 			if(!pseudo.equals(this.getModelData().getLocalUser().getUser().getUsername())) {	//if the message wasn't to the localuser		
 		        MessageChat message = new MessageChat(this.Data.getLocalUser().getUser().getUsername(), new Date(),msg); 
 		        this.Data.addMessage(message,pseudo);					//add the new message to the Session
-		        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), Data.getSessionlist());	//inform others that the session changed
+		        pcs.firePropertyChange("sessionList", "", "a");	//inform others that the session changed
 			}
 	        return true;
 		}catch(Exception e){
@@ -264,7 +277,7 @@ public class NetworkControler implements PropertyChangeListener{
 			    String name = myFile.getName();								//get the file name
 				MessageChat message = new MessageChat(this.Data.getLocalUser().getUser().getUsername(), new Date(),"Envoi du fichier "+name);
 		        this.Data.addMessage(message,pseudo);				//add the new message to the Session
-		        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), Data.getSessionlist());	//inform others that the session changed
+		        pcs.firePropertyChange("sessionList", "","a");	//inform others that the session changed
 			}
 			return true;
 		}catch(Exception e){
@@ -284,6 +297,11 @@ public class NetworkControler implements PropertyChangeListener{
 				User local1=i.next();
 				User local2=j.next();
 				if(!local1.getUsername().equals(local2.getUsername())) {
+					try {
+						database.updateNickname(local1.getAddr(),local2.getUsername());
+					}catch (Exception e) {
+						System.out.println("NetworkController : pb update nickname HTTP "+e.toString());
+					}
 					notif = local1.getUsername()+" changed their username to "+local2.getUsername();	//make a notification
 					trouve=true;
 					pcs.firePropertyChange("Pseudo",new String() , notif);

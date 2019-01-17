@@ -13,12 +13,14 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import network.NetworkControler;
+
+import model.database;
+import network.NetworkController;
 
 public class InterfaceController implements PropertyChangeListener{
 
 	static String SelectedContact;
-	static NetworkControler NetworkController = new NetworkControler();
+	static NetworkController NetworkController = new NetworkController();
 	static LoginWindow loginWindow;
     static ChatWindow chatWindow;
     static boolean UDPConnection;
@@ -32,10 +34,21 @@ public class InterfaceController implements PropertyChangeListener{
     public void propertyChange(PropertyChangeEvent evt) {
 		if(evt.getPropertyName().equals("userList")) {
 			//Update the online users list view
-			chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),NetworkController.getModelData().getSessionlist());
+			try {
+				chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),database.getAllUserIP());
+			}catch (Exception e) {
+				System.out.print("InterfaceController pb update connected user list: "+e.toString());
+			}
 		} else if(evt.getPropertyName().equals("sessionList")) {
 			//Update the message list view
-			chatWindow.UpdateHistorique(NetworkController.getModelData().getSession((SelectedContact)));
+		//	chatWindow.UpdateHistorique(NetworkController.getModelData().getSession((SelectedContact)));
+			try {
+			if(!chatWindow.OnlineUserList.isSelectionEmpty()) {
+				chatWindow.UpdateHistorique(database.getHistoric(NetworkController.getModelData().getAddressFromPseudo(SelectedContact)));	
+			}
+			}catch (Exception e) {
+				System.out.print("InterfaceController : "+e.toString());
+			}
 		} else if(evt.getPropertyName().equals("NewMessageFrom")) {
 			//Update the notification panel view with a new notification : new message
 			String notif = "New Message from "+(String) evt.getNewValue();
@@ -51,6 +64,12 @@ public class InterfaceController implements PropertyChangeListener{
 	}
     
     public InterfaceController() {
+    	try {
+			database.loadDriver();
+			//System.out.println("Database Driver OK");
+		} catch (Exception e){
+			System.out.println("Database Driver OK");
+		}
     	SelectedContact="";
     	loginWindow= new LoginWindow();
     	chatWindow = new ChatWindow();
@@ -79,16 +98,24 @@ public class InterfaceController implements PropertyChangeListener{
 	            	UDPConnection = loginWindow.lanRadioButton.isSelected();
 	            	if(UDPConnection) {
 		            	if(NetworkController.PerformConnectUDP(login, 4445, 4445, 2000)) {
-		            		chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),NetworkController.getModelData().getSessionlist());
-			            	loginWindow.setVisible(false);
+		            		try {
+		            			chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),database.getAllUserIP());
+		            		}catch (Exception e){
+		            			System.out.println("Interface controller : "+e.toString());
+		            		}
+		            		loginWindow.setVisible(false);
 			            	chatWindow.setVisible(true);
 		            	} else {
 		            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
 		            	}
 	            	} else {
 	            		if(NetworkController.PerformConnectHTTP(login)) {
-		            		chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),NetworkController.getModelData().getSessionlist());
-			            	loginWindow.setVisible(false);
+	            			try {
+	            				chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),database.getAllUserIP());
+	            			}catch (Exception e){
+	            				System.out.println("Interface controller : "+e.toString());
+	            			}
+	            			loginWindow.setVisible(false);
 			            	chatWindow.setVisible(true);
 		            	} else {
 		            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
@@ -122,7 +149,12 @@ public class InterfaceController implements PropertyChangeListener{
 	    		}else if(SelectedContact.equals(NetworkController.getModelData().getLocalUser().getUser().getUsername()+" (Moi)")){
 	    			SelectedContact =NetworkController.getModelData().getLocalUser().getUser().getUsername();
 	    		}
-	    		chatWindow.UpdateHistorique(NetworkController.getModelData().getSession((SelectedContact))); //Updates the messages window
+	    		//chatWindow.UpdateHistorique(NetworkController.getModelData().getSession((SelectedContact))); //Updates the messages window
+	    		try {
+	    			chatWindow.UpdateHistorique(database.getHistoric(NetworkController.getModelData().getAddressFromPseudo(SelectedContact)));
+	    		} catch (Exception e){
+	    			//System.out.println("InterfaceController (l.144) : "+e.toString());	
+	    		}
 			}
 	    });
 	    
@@ -134,7 +166,8 @@ public class InterfaceController implements PropertyChangeListener{
 		    		String address = chatWindow.OfflineUserList.getSelectedValue();
 		    		SelectedContact="";
 		    		address = address.substring(1); //takes the / away from the InetAddress
-		    		chatWindow.UpdateHistorique(NetworkController.getModelData().getSessionFromAddress((InetAddress.getByName(address))));
+		    		//chatWindow.UpdateHistorique(NetworkController.getModelData().getSessionFromAddress((InetAddress.getByName(address))));
+		    		chatWindow.UpdateHistorique(database.getHistoric(InetAddress.getByName(address)));
 				} catch (Exception e) {
 					//System.out.println("InterfaceController : "+e.toString());
 				}

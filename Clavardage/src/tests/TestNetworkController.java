@@ -9,7 +9,7 @@ import data.*;
 import network.*;
 
 public class TestNetworkController {
-	NetworkControler Cont;
+	NetworkController Cont;
 	
 	public static void afficherSession(ArrayList<MessageChat> list) {
 		if(list.isEmpty() || list.equals(null)) {
@@ -62,7 +62,7 @@ public class TestNetworkController {
 	
 	@Test		
 	public void test() {
-		Cont = new NetworkControler();
+		Cont = new NetworkController();
 		String pseudo ="";
 		boolean pseudo_ok = false;
 		Scanner keyboard = new Scanner(System.in);

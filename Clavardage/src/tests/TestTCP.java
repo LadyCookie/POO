@@ -11,8 +11,8 @@ import data.*;
 import network.*;
 
 public class TestTCP {
-	NetworkControler Cont1;
-	NetworkControler Cont3;
+	NetworkController Cont1;
+	NetworkController Cont3;
 	
 	public static void afficherSession(ArrayList<MessageChat> list) {
 		if(list.isEmpty() || list.equals(null)) {
@@ -49,7 +49,7 @@ public class TestTCP {
 	@Before
 	public void setup() {
 		//On crée un utilisateur
-		Cont1 = new NetworkControler();
+		Cont1 = new NetworkController();
 		if (!Cont1.PerformConnectUDP("Bob",4445,4446,2000)) {
 			System.out.println("La connection du premier Controller a raté");
 		} else {
@@ -59,7 +59,7 @@ public class TestTCP {
 	
 	@Test		
 	public void test() {
-	Cont3 = new NetworkControler();
+	Cont3 = new NetworkController();
 	boolean success= Cont3.PerformConnectUDP("Claude",4446,4445,2001);
 	System.out.println("Claude a pu se connecter: "+success);
 	User User1 = Cont1.getModelData().getLocalUser().getUser();

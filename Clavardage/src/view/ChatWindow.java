@@ -74,14 +74,14 @@ public class ChatWindow extends Window {
     }
    
     //Updates the list views of online/offline users
-    public void UpdateConnectedUsers (ArrayList<User> Onlinelist, String localpseudo,ArrayList<Session> listSession){
+    public void UpdateConnectedUsers (ArrayList<User> Onlinelist, String localpseudo,ArrayList<String> listIP){
     	DefaultListModel<String> listModelOnline = new DefaultListModel<String>();
     	DefaultListModel<String> listModelOffline = new DefaultListModel<String>();
-    	ArrayList<InetAddress> listOnlineAddr = new ArrayList<InetAddress>();
+    	ArrayList<String> listOnlineAddr = new ArrayList<String>();
     	ListIterator<User> i= Onlinelist.listIterator();
  		while(i.hasNext()) {
  			User local=i.next();
- 			listOnlineAddr.add(local.getAddr());
+ 			listOnlineAddr.add(local.getAddr().toString());
  			if(local.getUsername().equals(localpseudo)) {
  				listModelOnline.addElement(local.getUsername()+" (Moi)");
  			}else {
@@ -94,11 +94,11 @@ public class ChatWindow extends Window {
         JScrollBar vertical = OnlineUserScroll.getVerticalScrollBar();
  		vertical.setValue( vertical.getMinimum());
  		
- 		ListIterator<Session> j= listSession.listIterator();
+ 		ListIterator<String> j= listIP.listIterator();
  		while(j.hasNext()) {
- 			Session local=j.next();
- 			if(!listOnlineAddr.contains(local.getOtherUserAddress())) {
- 				listModelOffline.addElement(local.getOtherUserAddress().toString()); 			
+ 			String local=j.next();
+ 			if(!listOnlineAddr.contains(local)) {
+ 				listModelOffline.addElement(local); 			
  			}
  		}
  		OfflineUserList.setModel(listModelOffline);

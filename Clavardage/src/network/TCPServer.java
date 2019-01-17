@@ -38,9 +38,9 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 	public void propertyChange(PropertyChangeEvent evt) {
 		if(evt.getPropertyName().equals("userList")) {								//if the connected user list has changed
 			this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue());		//update the local one
-		} else if(evt.getPropertyName().equals("sessionList")) {					//if the session list has changed
+		}/* else if(evt.getPropertyName().equals("sessionList")) {					//if the session list has changed
 			this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());		//update the local one
-		} 
+		} */
 	}
 	
 	//called when the TCP server is closed
@@ -87,9 +87,9 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        	
 			        MessageChat message = new MessageChat(pseudo, new Date(),msg);	//create new message
 			        this.Data.addMessage(message,pseudo);							//add message to session
-			        
-			        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), this.Data.getSessionlist()); //fire changes
-			        pcs.firePropertyChange("NewMessageFrom", new String(), pseudo);								 //fire changes
+
+			        pcs.firePropertyChange("NewMessageFrom", new String(), pseudo);	//fire changes
+			        pcs.firePropertyChange("sessionList", "", "a"); //fire changes
 		        } else if(c.getCanonicalName().equals(PacketFile.class.getCanonicalName())) {
 		        	PacketFile packet_file = (PacketFile) data;				
 		        	String name = packet_file.getName();				//retrieve file name from packet
@@ -110,8 +110,8 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 			        this.Data.addMessage(message,pseudo);
 			        
 			        //fire changes
-			        pcs.firePropertyChange("sessionList", new ArrayList<Session>(), this.Data.getSessionlist());
 			        pcs.firePropertyChange("NewFileFrom", new String(), pseudo);
+			        pcs.firePropertyChange("sessionList", "", "a");
 		        }
 	        }catch (Exception e) {
 	        	

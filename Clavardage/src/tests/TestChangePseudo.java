@@ -5,11 +5,11 @@ import java.util.ListIterator;
 import java.util.Scanner;
 import org.junit.Test;
 import data.*;
-import network.NetworkControler;
+import network.NetworkController;
 
 //test to see if the username change works
 public class TestChangePseudo {
-	NetworkControler Cont;
+	NetworkController Cont;
 	
 	public static void afficherSession(ArrayList<MessageChat> list) {
 		if(list.isEmpty() || list.equals(null)) {
@@ -64,7 +64,7 @@ public class TestChangePseudo {
 	
 	@Test		
 	public void test() {
-		Cont = new NetworkControler();
+		Cont = new NetworkController();
 		String pseudo ="";
 		boolean pseudo_ok = false;
 		
