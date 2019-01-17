@@ -154,13 +154,20 @@ public class TestBDD {
 			System.out.println(messages.get(i).getAuthor() + " a dit: "  +messages.get(i).getContent());
 		}
 		
+		System.out.println();
+		
+		//Test de ISINDATABASE
+		System.out.println("Test de IsInDatabase");
+		boolean a=database.isInDatabase(addrBatman);
+		System.out.println("La réponse est " + a + " : true");
+		a=database.isInDatabase(InetAddress.getByName(null));
+		System.out.println("La réponse est " + a + " : false");
+		
+		System.out.println();
+		
 		//Fin des tests
 		System.out.println("Fins des tests");
 		System.out.println();
-		
-		
-		String test="Dis quelquechose stp '   '    '";
-		System.out.println(test.replace("'", "''"));
 		
 		
 		}catch(Exception e){

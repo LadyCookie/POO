@@ -258,4 +258,27 @@ public class database {
 			if (conn!=null) conn.close();
 		}
 	}
+	
+	//OTHER
+	public static boolean isInDatabase(InetAddress IP) throws SQLException{
+		Connection conn=null;
+		try {
+			conn= newConnection();
+			Statement st = conn.createStatement();
+			ResultSet rs = st.executeQuery(
+					"Select Count(*) " +
+					"FROM public.\"Session\" as ss " +
+					"WHERE ss.\"IP\" ='" + IP.toString() +"';"
+					);
+			int a=0;
+			while(rs.next()) {
+				a=rs.getInt(1);
+			}
+			rs.close();
+			st.close();
+			return(a!=0);
+		}finally {
+			if (conn!=null) conn.close();
+		}
+	}
 }
