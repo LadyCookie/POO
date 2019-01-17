@@ -4,11 +4,9 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
 import data.MessageChat;
-import data.Session;
 import data.User;
 
 import java.awt.*;
-import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.ListIterator;

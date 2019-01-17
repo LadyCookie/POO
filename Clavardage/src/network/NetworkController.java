@@ -85,6 +85,7 @@ public class NetworkController implements PropertyChangeListener{
 			//if it isn't
 			if (!trouve) {	
 				LocalUser lU = new LocalUser(pseudo);
+				database.updateMyNickname(pseudo);
 			//	list.add(lU.getUser());					//adds the LocalUser to its own list
 				this.Data = new ModelData(lU,list); 	//Instantiates local ModelData
 				servertoHTTP.sendPseudo(pseudo); //sends local username to server
@@ -170,14 +171,14 @@ public class NetworkController implements PropertyChangeListener{
 			
 			//if it isn't
 			if (!trouve) {	
-				LocalUser lU = new LocalUser(pseudo);
-				list.add(lU.getUser());					//adds the LocalUser to its own list
-				this.Data = new ModelData(lU,list); 	 //Instantiates local ModelData
-				
-				client.sendPseudo(this.Data.getConnectedUsers(),pseudo,portdist); //sends local username to all the people on the list
-				client.close();	//close client
-				
 				try {
+					LocalUser lU = new LocalUser(pseudo);
+					database.updateMyNickname(pseudo);
+					list.add(lU.getUser());					//adds the LocalUser to its own list
+					this.Data = new ModelData(lU,list); 	 //Instantiates local ModelData
+					
+					client.sendPseudo(this.Data.getConnectedUsers(),pseudo,portdist); //sends local username to all the people on the list
+					client.close();	//close client
 					UDPServer server= new UDPServer(this.Data,portsrc); 	//makes UDPServer thread
 					addPropertyChangeListener(server); 						//adds UDPServer to listeners
 					server.addPropertyChangeListener(this); 				//adds NetworkController to the UDPServer's listeners

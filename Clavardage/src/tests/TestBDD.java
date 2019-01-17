@@ -1,38 +1,21 @@
 package tests;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.sql.Connection;
-import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.ListIterator;
-import java.util.concurrent.TimeUnit;
-import java.util.Scanner;
 import java.util.Date;
-import java.io.IOException;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 //import com.sun.xml.internal.ws.api.message.Message;
 
 import data.*;
-import network.*;
 import model.*;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 public class TestBDD {
 	
 	@Test
 	public void testBDD() {		
-		Connection conn;
+		//Connection conn;
 	
 	try {
 		System.out.println("Begin");

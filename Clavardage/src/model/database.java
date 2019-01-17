@@ -8,9 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.sql.Timestamp;
-import java.sql.PreparedStatement;
 import java.util.Date;
-import java.net.UnknownHostException;
 
 import data.*;
 
