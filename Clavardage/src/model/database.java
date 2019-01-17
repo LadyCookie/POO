@@ -81,7 +81,7 @@ public class database {
 		try {
 			conn = newConnection();
 			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery("SELECT author,date,content FROM public.\"MessageChat\" WHERE \"IP\"='" + addrIP.toString()+"';");
+			ResultSet rs = st.executeQuery("SELECT author,date,content FROM public.\"MessageChat\" WHERE \"IP\"='" + addrIP.toString()+"' ORDER BY id;");
 
 			while (rs.next()) {
 				result.add(new MessageChat(  rs.getString("author") ,new Date(rs.getTimestamp("date").getTime()) , rs.getString("content") ));
