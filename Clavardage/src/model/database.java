@@ -102,7 +102,7 @@ public class database {
 			conn= newConnection();
 			
 			Statement st = conn.createStatement();			
-			ResultSet rs = st.executeQuery("SELECT nickname FROM public.\"Session\" WHERE \"IP\" ='" + addrIP + "';");
+			ResultSet rs = st.executeQuery("SELECT nickname FROM public.\"Session\" WHERE \"IP\" ='" + addrIP.replace("'", "''") + "';");
 			String result="";
 			while(rs.next()) 
 				result =  rs.getString("nickname");
