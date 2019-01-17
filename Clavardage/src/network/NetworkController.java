@@ -40,13 +40,13 @@ public class NetworkController implements PropertyChangeListener{
 			this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue()); //updates local list
 			pcs.firePropertyChange("userList",new ArrayList<User>() , (ArrayList<User>) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("sessionList")) {							//if new messages came in
-			this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
-			pcs.firePropertyChange("sessionList",new ArrayList<Session>() , (ArrayList<Session>) evt.getNewValue());
+			//this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
+			pcs.firePropertyChange("sessionList","" , "a");
 		} else if(evt.getPropertyName().equals("NewMessageFrom")) {							//new message notification
-			System.out.println("NetworkController notif : "+(String) evt.getNewValue());
+			//System.out.println("NetworkController notif : "+(String) evt.getNewValue());
 			pcs.firePropertyChange("NewMessageFrom",new String() , (String) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("NewFileFrom")) {							//new file notification
-			System.out.println("NetworkController notif : "+(String) evt.getNewValue());
+			//System.out.println("NetworkController notif : "+(String) evt.getNewValue());
 			pcs.firePropertyChange("NewFileFrom",new String() , (String) evt.getNewValue());
 		} else if(evt.getPropertyName().equals("Pseudo")) {									//new username change
 			pcs.firePropertyChange("Pseudo",new String() , (String) evt.getNewValue());
