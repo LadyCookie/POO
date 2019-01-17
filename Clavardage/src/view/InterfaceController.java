@@ -165,7 +165,9 @@ public class InterfaceController implements PropertyChangeListener{
 					chatWindow.OnlineUserList.clearSelection(); //clears the selection on the online list
 		    		String address = chatWindow.OfflineUserList.getSelectedValue();
 		    		SelectedContact="";
-		    		address = address.substring(1); //takes the / away from the InetAddress
+		    		int i =address.lastIndexOf("/");
+		    		address = address.substring(i+1);
+		    		//address = address.substring(1); //takes the / away from the InetAddress
 		    		//chatWindow.UpdateHistorique(NetworkController.getModelData().getSessionFromAddress((InetAddress.getByName(address))));
 		    		chatWindow.UpdateHistorique(database.getHistoric(InetAddress.getByName(address)));
 				} catch (Exception e) {

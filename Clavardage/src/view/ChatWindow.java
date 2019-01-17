@@ -5,6 +5,7 @@ import javax.swing.border.TitledBorder;
 
 import data.MessageChat;
 import data.User;
+import model.database;
 
 import java.awt.*;
 import java.text.SimpleDateFormat;
@@ -96,7 +97,9 @@ public class ChatWindow extends Window {
  		while(j.hasNext()) {
  			String local=j.next();
  			if(!listOnlineAddr.contains(local)) {
- 				listModelOffline.addElement(local); 			
+ 				try{
+ 					listModelOffline.addElement(database.getNickname(local)+local); 	
+ 				} catch (Exception e) {}
  			}
  		}
  		OfflineUserList.setModel(listModelOffline);
