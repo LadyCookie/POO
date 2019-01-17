@@ -58,7 +58,7 @@ public class TestFileTCP {
 		while(!pseudo_ok) {
 			System.out.println("Entrez un pseudo ");
 			pseudo = keyboard.nextLine();
-			pseudo_ok=Cont.PerformConnect(pseudo, 4445, 4445, 2000);
+			pseudo_ok=Cont.PerformConnectUDP(pseudo, 4445, 4445, 2000);
 		}
 		
 		System.out.println("Bienvenue "+pseudo);
@@ -83,7 +83,7 @@ public class TestFileTCP {
 		
 		//disconnect
 		keyboard.close();
-		Cont.PerformDisconnect(4445, 4445);
+		Cont.PerformDisconnectUDP(4445, 4445);
 	}
 	
 }

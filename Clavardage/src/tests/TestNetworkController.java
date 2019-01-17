@@ -71,7 +71,7 @@ public class TestNetworkController {
 		//loop to choose a valid username
 		while(!pseudo_ok) {
 			pseudo = keyboard.nextLine();
-			pseudo_ok= Cont.PerformConnect(pseudo, 4445, 4445, 2000);
+			pseudo_ok= Cont.PerformConnectUDP(pseudo, 4445, 4445, 2000);
 		}
 		
 		System.out.println("Bienvenue "+pseudo);
@@ -109,7 +109,7 @@ public class TestNetworkController {
 		
 		//disconnect
 		afficherSession(Cont.getModelData().getSession(other_pseudo));
-		Cont.PerformDisconnect(4445, 4445);
+		Cont.PerformDisconnectUDP(4445, 4445);
 	}
 	
 }

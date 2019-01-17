@@ -104,7 +104,7 @@ public class ChatWindow extends Window {
  		OfflineUserList.setModel(listModelOffline);
         OfflineUserScroll.setViewportView(OfflineUserList);
         JScrollBar vertical2 = OfflineUserScroll.getVerticalScrollBar();
-  		vertical2.setValue( vertical2.getMinimum());
+  		vertical2.setValue(vertical2.getMinimum());
     }
     
     //Updates the conversation with the new messages
@@ -126,7 +126,6 @@ public class ChatWindow extends Window {
  			MessageChat local=i.next();
  			n.append(local.getAuthor()+" ("+sdf.format(local.getDate())+") : "+local.getContent()+"\n");
  		}
- 		//System.out.println("J'ai recup les messages");
  		HistoriqueScroll.add(n);
  		HistoriqueScroll.setViewportView(n);
  		JScrollBar vertical = HistoriqueScroll.getVerticalScrollBar();
