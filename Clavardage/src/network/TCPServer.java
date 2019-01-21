@@ -8,10 +8,7 @@ import java.util.ArrayList;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeEvent;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -93,6 +90,8 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        } else if(c.getCanonicalName().equals(PacketFile.class.getCanonicalName())) {
 		        	PacketFile packet_file = (PacketFile) data;				
 		        	String name = packet_file.getName();				//retrieve file name from packet
+		        	
+		        	/*
 		        	byte[] byte_file = packet_file.getBytes();			//retrieve file bytes from packet
 		        	
 		        	String filePath = new File("").getAbsolutePath();	//retrieve the path of local file
@@ -103,13 +102,14 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 			        bos.write(byte_file, 0 , byte_file.length);
 			        bos.flush();
 			        fos.close();
-			        bos.close();
+			        bos.close();     */
 			        
 			        //create and add message
 			        MessageChat message = new MessageChat(pseudo, new Date(),"Envoi du fichier "+name+" (Clavardage/file_reception)");
 			        this.Data.addMessage(message,pseudo);
 			        
 			        //fire changes
+			        pcs.firePropertyChange("NewFile", null, packet_file);
 			        pcs.firePropertyChange("NewFileFrom", new String(), pseudo);
 			        pcs.firePropertyChange("sessionList", "", "a");
 		        }

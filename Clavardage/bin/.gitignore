@@ -1,6 +1,3 @@
-/httpServer/
 /network/
 /view/
-/tests/
-/data/
-/model/
+/httpServer/

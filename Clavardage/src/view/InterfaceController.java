@@ -7,13 +7,16 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.net.InetAddress;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import model.PacketFile;
 import model.database;
 import network.NetworkController;
 
@@ -23,44 +26,13 @@ public class InterfaceController implements PropertyChangeListener{
 	static NetworkController NetworkController = new NetworkController();
 	static LoginWindow loginWindow;
     static ChatWindow chatWindow;
+    static IPWindow IPWindow;
     static boolean UDPConnection;
 	
     private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     
     public void addPropertyChangeListener(PropertyChangeListener listener) {
 		pcs.addPropertyChangeListener(listener);
-	}
-    
-    public void propertyChange(PropertyChangeEvent evt) {
-		if(evt.getPropertyName().equals("userList")) {
-			//Update the online users list view
-			try {
-				chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),database.getAllUserIP());
-			}catch (Exception e) {
-				System.out.print("InterfaceController pb update connected user list: "+e.toString());
-			}
-		} else if(evt.getPropertyName().equals("sessionList")) {
-			//Update the message list view
-		//	chatWindow.UpdateHistorique(NetworkController.getModelData().getSession((SelectedContact)));
-			try {
-			if(!chatWindow.OnlineUserList.isSelectionEmpty()) {
-				chatWindow.UpdateHistorique(database.getHistoric(NetworkController.getModelData().getAddressFromPseudo(SelectedContact)));	
-			}
-			}catch (Exception e) {
-				System.out.print("InterfaceController : "+e.toString());
-			}
-		} else if(evt.getPropertyName().equals("NewMessageFrom")) {
-			//Update the notification panel view with a new notification : new message
-			String notif = "New Message from "+(String) evt.getNewValue();
-			chatWindow.UpdateNotificationList(notif,(String) evt.getNewValue(),NetworkController.getModelData().getLocalUser().getUser().getUsername());
-		} else if(evt.getPropertyName().equals("NewFileFrom")) {
-			//Update the notification panel view with a new notification : new file
-			String notif = "New File from "+(String) evt.getNewValue();
-			chatWindow.UpdateNotificationList(notif,(String) evt.getNewValue(),NetworkController.getModelData().getLocalUser().getUser().getUsername());
-		} else if(evt.getPropertyName().equals("Pseudo") || evt.getPropertyName().equals("ConnectionStatus")) {
-			//Update the notification panel view with a new notification
-			chatWindow.UpdateNotificationList( (String) evt.getNewValue(),"",NetworkController.getModelData().getLocalUser().getUser().getUsername());
-		} 
 	}
     
     public InterfaceController() {
@@ -73,9 +45,11 @@ public class InterfaceController implements PropertyChangeListener{
     	SelectedContact="";
     	loginWindow= new LoginWindow();
     	chatWindow = new ChatWindow();
+    	IPWindow= new IPWindow();
     	NetworkController.addPropertyChangeListener(this);
 	    loginWindow.setVisible(true);
 	    chatWindow.setVisible(false);
+	    IPWindow.setVisible(false);
 	    
 	    /*------------------------LoginWindow listeners--------------------------*/
 	    
@@ -109,22 +83,37 @@ public class InterfaceController implements PropertyChangeListener{
 		            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
 		            	}
 	            	} else {
-	            		if(NetworkController.PerformConnectHTTP(login)) {
-	            			try {
-	            				chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),database.getAllUserIP());
-	            			}catch (Exception e){
-	            				System.out.println("Interface controller : "+e.toString());
-	            			}
-	            			loginWindow.setVisible(false);
-			            	chatWindow.setVisible(true);
-		            	} else {
-		            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
-		            	}
+	            		IPWindow.setVisible(true);
+	            		loginWindow.setVisible(false);
 	            	}
 	            }
 	        }
 	    });
-	    	    
+	    
+	    /*------------------------IPWindow listeners--------------------------*/
+	    //Send a file button listener
+	    IPWindow.connectButton.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent event) {
+	    		String IP = IPWindow.IPField.getText();
+	    		String login = loginWindow.loginTextField.getText();
+	    		try {
+	    			InetAddress serveraddr = InetAddress.getByName(IP);
+		    		if(NetworkController.PerformConnectHTTP(login,serveraddr)) {
+	        			try {
+	        				chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),database.getAllUserIP());
+	        			}catch (Exception e){
+	        				System.out.println("Interface controller : "+e.toString());
+	        			}
+		            	chatWindow.setVisible(true);
+	            	} else {
+	            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+	            	}
+	    		}catch(Exception e) {
+	    			JOptionPane.showMessageDialog(null, "That is not an IP address", "Error", JOptionPane.ERROR_MESSAGE);
+	    		}
+			}
+	    
+	    });
 	    /*------------------------ChatWindow listeners--------------------------*/
 	    
 	    //User disconnects when the window is closed
@@ -179,17 +168,20 @@ public class InterfaceController implements PropertyChangeListener{
 	    //Send a file button listener
 	    chatWindow.chatFileButton.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent event) {
-	    		JFileChooser fileChooser = new JFileChooser();
-	    		  	    
-	    	    int result = fileChooser.showOpenDialog(chatWindow); //opens a file selector
-	    	    if (result == JFileChooser.APPROVE_OPTION) {	//if a value was chosen
-	    	        File selectedFile = fileChooser.getSelectedFile();
-	    	        if(!(selectedFile.exists() && selectedFile.isFile() )){
-	    	        	JOptionPane.showMessageDialog(null, "That is not a file", "Error", JOptionPane.ERROR_MESSAGE);
-	   				}else if(!NetworkController.sendFile(SelectedContact, selectedFile.getAbsolutePath(), 2000)){
-		    			JOptionPane.showMessageDialog(null, "You need to select an online contact", "Error", JOptionPane.ERROR_MESSAGE);
-		    		}
-	    	    }
+	    		if(SelectedContact.equals("")){
+	    			JOptionPane.showMessageDialog(null, "Please select a contact", "Error", JOptionPane.ERROR_MESSAGE);
+	    		} else {
+		    		JFileChooser fileChooser = new JFileChooser();
+		    	    int result = fileChooser.showOpenDialog(chatWindow); //opens a file selector
+		    	    if (result == JFileChooser.APPROVE_OPTION) {	//if a value was chosen
+		    	        File selectedFile = fileChooser.getSelectedFile();
+		    	        if(!(selectedFile.exists() && selectedFile.isFile() )){
+		    	        	JOptionPane.showMessageDialog(null, "That is not a file", "Error", JOptionPane.ERROR_MESSAGE);
+		   				}else if(!NetworkController.sendFile(SelectedContact, selectedFile.getAbsolutePath(), 2000)){
+			    			JOptionPane.showMessageDialog(null, "You need to select an online contact", "Error", JOptionPane.ERROR_MESSAGE);
+			    		}
+		    	    }
+	    		}
 			}
 	    
 	    });
@@ -265,5 +257,60 @@ public class InterfaceController implements PropertyChangeListener{
 	    	}
 	    });
     }
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+		if(evt.getPropertyName().equals("userList")) {
+			//Update the online users list view
+			try {
+				chatWindow.UpdateConnectedUsers(NetworkController.getModelData().getConnectedUsers(),NetworkController.getModelData().getLocalUser().getUser().getUsername(),database.getAllUserIP());
+			}catch (Exception e) {
+				System.out.print("InterfaceController pb update connected user list: "+e.toString());
+			}
+		} else if(evt.getPropertyName().equals("sessionList")) {
+			//Update the message list view
+		//	chatWindow.UpdateHistorique(NetworkController.getModelData().getSession((SelectedContact)));
+			try {
+			if(!chatWindow.OnlineUserList.isSelectionEmpty()) {
+				chatWindow.UpdateHistorique(database.getHistoric(NetworkController.getModelData().getAddressFromPseudo(SelectedContact)));	
+			}
+			}catch (Exception e) {
+				System.out.print("InterfaceController : "+e.toString());
+			}
+		} else if(evt.getPropertyName().equals("NewMessageFrom")) {
+			//Update the notification panel view with a new notification : new message
+			String notif = "New Message from "+(String) evt.getNewValue();
+			chatWindow.UpdateNotificationList(notif,(String) evt.getNewValue(),NetworkController.getModelData().getLocalUser().getUser().getUsername());
+		} else if(evt.getPropertyName().equals("NewFileFrom")) {
+			//Update the notification panel view with a new notification : new file
+			String notif = "New File from "+(String) evt.getNewValue();
+			chatWindow.UpdateNotificationList(notif,(String) evt.getNewValue(),NetworkController.getModelData().getLocalUser().getUser().getUsername());
+		} else if(evt.getPropertyName().equals("NewFile")) {
+			//Update the notification panel view with a new notification : new file
+			String choosertitle = "Select directory to save file";
+			PacketFile packet = (PacketFile) evt.getNewValue();
+			byte[] byte_file =  packet.getBytes();				//retrieve file bytes from packet
+			JFileChooser fileChooser = new JFileChooser();
+			fileChooser.setDialogTitle(choosertitle);
+		    fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		    int result = fileChooser.showOpenDialog(chatWindow); //opens a file selector
+		    if (result == JFileChooser.APPROVE_OPTION) {	//if a value was chosen
+		    	try {
+	    	        File selectedFile = fileChooser.getSelectedFile();
+	    	      //write bytes into the file
+	    	        FileOutputStream fos = new FileOutputStream(selectedFile.getAbsolutePath()+"\\"+packet.getName());	//get file output stream
+	    	        BufferedOutputStream bos = new BufferedOutputStream(fos);
+	    	        bos.write(byte_file, 0 , byte_file.length);
+	    	        bos.flush();
+	    	        fos.close();
+	    	        bos.close();
+		    	} catch (Exception e) {
+		    		System.out.println("InterfaceController : "+e.toString());
+		    	}
+		    }
+		}else if(evt.getPropertyName().equals("Pseudo") || evt.getPropertyName().equals("ConnectionStatus")) {
+			//Update the notification panel view with a new notification
+			chatWindow.UpdateNotificationList( (String) evt.getNewValue(),"",NetworkController.getModelData().getLocalUser().getUser().getUsername());
+		} 
+	}
 
 }

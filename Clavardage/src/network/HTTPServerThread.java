@@ -19,7 +19,7 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	private boolean running;
 	private InetAddress localAddress;
 	private Socket ClientSocket;
-	static final String SERVERADDRESS = "172.20.10.11";           //THIS ADDRESS IS ESSENTIAL TO THE CONNECTION TO THE SERVER
+	static InetAddress SERVERADDRESS;
 	
 	private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 	
@@ -29,7 +29,7 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	
 	public void propertyChange(PropertyChangeEvent evt) {};
 	
-	public HTTPServerThread(int port) throws Exception{
+	public HTTPServerThread(int port,InetAddress addr) throws Exception{
 		//connect to a socket in order to retrieve local address
 		try (final DatagramSocket socket = new DatagramSocket()){
 			socket.setBroadcast(true);
@@ -40,14 +40,14 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 		}catch (UnknownHostException| SocketException e) {
 			System.out.println("HTTPServerThread : No Internet");
 		}
+		SERVERADDRESS = addr;
 		this.Serversocket = new ServerSocket(port,1,this.localAddress);
 		this.running = true;
 	}
 	
 	public ArrayList<User> sendListRequest() {
-		try {
-			String strAddrServerHTTP=SERVERADDRESS;					
-			InetAddress serverAddr = InetAddress.getByName(strAddrServerHTTP);
+		try {				
+			InetAddress serverAddr = SERVERADDRESS;
 			this.ClientSocket = new Socket(serverAddr,8080);
 			byte[] byte_rq = "ListRQ".getBytes();
 			OutputStream os = this.ClientSocket.getOutputStream();	//retrieves the output stream of the socket
@@ -86,8 +86,7 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	
 	public boolean sendPseudo(String username) {
 		try {
-			String strAddrServerHTTP=SERVERADDRESS;					//INSERT SERVER ADDRESS
-			InetAddress serverAddr = InetAddress.getByName(strAddrServerHTTP);
+			InetAddress serverAddr = SERVERADDRESS;
 			this.ClientSocket = new Socket(serverAddr,8080);
 			byte[] byte_rq = username.getBytes();
 			OutputStream os = this.ClientSocket.getOutputStream();	//retrieves the output stream of the socket

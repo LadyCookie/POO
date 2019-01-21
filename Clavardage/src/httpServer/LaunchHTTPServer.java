@@ -1,5 +1,9 @@
 package httpServer;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -16,6 +20,7 @@ import java.util.ListIterator;
 
 import data.User;
 import model.PacketUserList;
+import view.ServerWindow;
 
 // Each Client Connection will be managed in a dedicated Thread
 public class LaunchHTTPServer  implements PropertyChangeListener{ 
@@ -71,6 +76,16 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 		}
 	}
 	
+	public boolean Disconnect() {
+		try {
+			this.serverConnect.close();
+			return true;
+		} catch (Exception e){
+			System.out.println("HTTPServer: disconnect failed "+e.toString());
+			return false;
+		}
+	}
+	
 	public LaunchHTTPServer() {
 		try {
 			//connect to a socket in order to retrieve local address
@@ -79,11 +94,28 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 			socket.connect(InetAddress.getByName("8.8.8.8"),10002);
 			InetAddress localAddress = socket.getLocalAddress();
 			socket.close();
-			System.out.println("HTTPServer: my local address is "+localAddress.toString());
-			
 			serverConnect = new ServerSocket(PORT,1,localAddress);
-			System.out.println("Server started.\nListening for connections on port : " + PORT + " ...\n");
 			
+			ServerWindow window = new ServerWindow();
+			window.setVisible(true);
+			
+			window.addWindowListener(new WindowAdapter(){
+	            public void windowClosing(WindowEvent e){
+	            	if(Disconnect()) {
+	            		e.getWindow().dispose();
+		    		}
+	            }
+	        });    
+			
+			 //Send a file button listener
+		    window.disconnectButton.addActionListener(new ActionListener() {
+		    	public void actionPerformed(ActionEvent event) {
+		    		if(Disconnect()) {
+		    			window.dispatchEvent(new WindowEvent(window, WindowEvent.WINDOW_CLOSING));
+		    		}
+				}
+		    });
+
 			// we listen until user halts server execution
 			while (running) {
 				ThreadClientConnection newThread = new ThreadClientConnection(serverConnect.accept(),OnlineUserList);
@@ -93,7 +125,7 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 			}
 			
 		} catch (IOException e) {
-			System.err.println("Server Connection error : " + e.getMessage());
+			//System.err.println("Server Connection error : " + e.getMessage());
 		}
 	}
 	
@@ -101,6 +133,5 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 	public static void main(String[] args) {
 		LaunchHTTPServer HTTPServer = new LaunchHTTPServer();	
 
-		
 	}
 }

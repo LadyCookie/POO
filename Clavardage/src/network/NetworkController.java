@@ -10,6 +10,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
 import data.*;
+import model.PacketFile;
 import model.database;
 
 public class NetworkController implements PropertyChangeListener{
@@ -33,36 +34,10 @@ public class NetworkController implements PropertyChangeListener{
 		return this.Data;
 	}
 	
-	//Listens to any changes or new data fired by TCPServer and UDPServer, and fires them back
-	@SuppressWarnings("unchecked")
-	public void propertyChange(PropertyChangeEvent evt) {
-		if(evt.getPropertyName().equals("userList")) { 										//If the online users list has changed
-			this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue()); //updates local list
-			pcs.firePropertyChange("userList",new ArrayList<User>() , (ArrayList<User>) evt.getNewValue());
-		} else if(evt.getPropertyName().equals("sessionList")) {							//if new messages came in
-			//this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
-			pcs.firePropertyChange("sessionList","" , "a");
-		} else if(evt.getPropertyName().equals("NewMessageFrom")) {							//new message notification
-			//System.out.println("NetworkController notif : "+(String) evt.getNewValue());
-			pcs.firePropertyChange("NewMessageFrom",new String() , (String) evt.getNewValue());
-		} else if(evt.getPropertyName().equals("NewFileFrom")) {							//new file notification
-			//System.out.println("NetworkController notif : "+(String) evt.getNewValue());
-			pcs.firePropertyChange("NewFileFrom",new String() , (String) evt.getNewValue());
-		} else if(evt.getPropertyName().equals("Pseudo")) {									//new username change
-			pcs.firePropertyChange("Pseudo",new String() , (String) evt.getNewValue());
-		} else if(evt.getPropertyName().equals("ConnectionStatus")) {						//new connection/disconection
-			pcs.firePropertyChange("ConnectionStatus",new String() , (String) evt.getNewValue());
-		} else if(evt.getPropertyName().equals("OnlineUserListHTTP")) {
-			analyzeListforNotif(this.Data.getConnectedUsers(),(ArrayList<User>) evt.getNewValue());			//makes notifications
-			this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue()); 								//updates local list
-			pcs.firePropertyChange("userList",new ArrayList<User>() , (ArrayList<User>) evt.getNewValue());
-		}
-	}
-	
 	//Tries to connect with a given username, returns true if success
-	public boolean PerformConnectHTTP(String pseudo) {
+	public boolean PerformConnectHTTP(String pseudo,InetAddress addr) {
 		try {
-			HTTPServerThread servertoHTTP = new HTTPServerThread(4446);
+			HTTPServerThread servertoHTTP = new HTTPServerThread(4446,addr);
 			ArrayList<User> list = servertoHTTP.sendListRequest(); //ask server for list of connected users
 			boolean trouve=false;
 			
@@ -318,4 +293,32 @@ public class NetworkController implements PropertyChangeListener{
 			pcs.firePropertyChange("ConnectionStatus",new String() , notif);
 		}	
 	}
+	
+	//Listens to any changes or new data fired by TCPServer and UDPServer, and fires them back
+		@SuppressWarnings("unchecked")
+		public void propertyChange(PropertyChangeEvent evt) {
+			if(evt.getPropertyName().equals("userList")) { 										//If the online users list has changed
+				this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue()); //updates local list
+				pcs.firePropertyChange("userList",new ArrayList<User>() , (ArrayList<User>) evt.getNewValue());
+			} else if(evt.getPropertyName().equals("sessionList")) {							//if new messages came in
+				//this.Data.setSessionList((ArrayList<Session>) evt.getNewValue());
+				pcs.firePropertyChange("sessionList","" , "a");
+			} else if(evt.getPropertyName().equals("NewMessageFrom")) {							//new message notification
+				//System.out.println("NetworkController notif : "+(String) evt.getNewValue());
+				pcs.firePropertyChange("NewMessageFrom",new String() , (String) evt.getNewValue());
+			} else if(evt.getPropertyName().equals("NewFileFrom")) {							//new file notification
+				//System.out.println("NetworkController notif : "+(String) evt.getNewValue());
+				pcs.firePropertyChange("NewFileFrom",new String() , (String) evt.getNewValue());
+			} else if(evt.getPropertyName().equals("Pseudo")) {									//new username change
+				pcs.firePropertyChange("Pseudo",new String() , (String) evt.getNewValue());
+			} else if(evt.getPropertyName().equals("ConnectionStatus")) {						//new connection/disconection
+				pcs.firePropertyChange("ConnectionStatus",new String() , (String) evt.getNewValue());
+			} else if(evt.getPropertyName().equals("OnlineUserListHTTP")) {
+				analyzeListforNotif(this.Data.getConnectedUsers(),(ArrayList<User>) evt.getNewValue());			//makes notifications
+				this.Data.setConnectedUsers((ArrayList<User>) evt.getNewValue()); 								//updates local list
+				pcs.firePropertyChange("userList",new ArrayList<User>() , (ArrayList<User>) evt.getNewValue());
+			} else if(evt.getPropertyName().equals("NewFile")) {
+				pcs.firePropertyChange("NewFile",null , (PacketFile) evt.getNewValue());
+			}
+		}
 }
