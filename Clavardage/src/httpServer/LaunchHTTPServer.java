@@ -87,6 +87,8 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 	}
 	
 	public LaunchHTTPServer() {
+		ServerWindow window = new ServerWindow();
+		window.setVisible(true);
 		try {
 			//connect to a socket in order to retrieve local address
 			final DatagramSocket socket = new DatagramSocket();
@@ -95,9 +97,6 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 			InetAddress localAddress = socket.getLocalAddress();
 			socket.close();
 			serverConnect = new ServerSocket(PORT,1,localAddress);
-			
-			ServerWindow window = new ServerWindow();
-			window.setVisible(true);
 			
 			window.addWindowListener(new WindowAdapter(){
 	            public void windowClosing(WindowEvent e){
@@ -115,6 +114,8 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 		    		}
 				}
 		    });
+		    
+		    window.TextArea.setText("Server is running on local address : "+localAddress.toString());
 
 			// we listen until user halts server execution
 			while (running) {
@@ -125,6 +126,7 @@ public class LaunchHTTPServer  implements PropertyChangeListener{
 			}
 			
 		} catch (IOException e) {
+			window.TextArea.setText("The server crashed, please restart");
 			//System.err.println("Server Connection error : " + e.getMessage());
 		}
 	}

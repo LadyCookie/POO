@@ -90,19 +90,6 @@ public class TCPServer extends Thread implements PropertyChangeListener{
 		        } else if(c.getCanonicalName().equals(PacketFile.class.getCanonicalName())) {
 		        	PacketFile packet_file = (PacketFile) data;				
 		        	String name = packet_file.getName();				//retrieve file name from packet
-		        	
-		        	/*
-		        	byte[] byte_file = packet_file.getBytes();			//retrieve file bytes from packet
-		        	
-		        	String filePath = new File("").getAbsolutePath();	//retrieve the path of local file
-		        	
-		        	//write bytes into the file
-			        FileOutputStream fos = new FileOutputStream(filePath+"\\file_reception\\"+name);	//get file output stream
-			        BufferedOutputStream bos = new BufferedOutputStream(fos);
-			        bos.write(byte_file, 0 , byte_file.length);
-			        bos.flush();
-			        fos.close();
-			        bos.close();     */
 			        
 			        //create and add message
 			        MessageChat message = new MessageChat(pseudo, new Date(),"Envoi du fichier "+name+" (Clavardage/file_reception)");

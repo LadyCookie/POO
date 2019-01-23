@@ -7,7 +7,7 @@ public class ServerWindow extends Window {
 	
 	private static final long serialVersionUID = 1L;
 	protected JPanel loginPanel;
-    protected JTextArea TextArea;
+    public JTextArea TextArea;
     public JButton disconnectButton;
 
     public ServerWindow() {

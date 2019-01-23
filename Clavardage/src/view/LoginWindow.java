@@ -93,7 +93,7 @@ public class LoginWindow extends Window {
         
         loginTextArea = new JTextArea();
         loginTextArea.setEditable(false);
-        loginTextArea.setText("Veuillez entrer votre login :");
+        loginTextArea.setText("Enter your username :");
         loginTextArea.setBackground(getBackground());
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
@@ -122,7 +122,7 @@ public class LoginWindow extends Window {
         SelectConnectTextArea = new JTextArea();
         SelectConnectTextArea.setEditable(false);
         SelectConnectTextArea.setBackground(getBackground());
-        SelectConnectTextArea.setText("Sélectionnez un mode de connexion :");
+        SelectConnectTextArea.setText("Select a connexion mode :");
         gbc = new GridBagConstraints();
         gbc.gridx = 1;
         gbc.gridy = 7;
@@ -154,7 +154,7 @@ public class LoginWindow extends Window {
         gbc.ipady = 20;
         loginPanel.add(spacer5, gbc);
         loginButton = new JButton();
-        loginButton.setText("Entrer");
+        loginButton.setText("Enter");
         
         gbc = new GridBagConstraints();
         gbc.gridx = 1;

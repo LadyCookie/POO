@@ -61,7 +61,7 @@ public class IPWindow extends Window {
         loginPanel.add(IPField, gbc);
     
         connectButton = new JButton();
-        connectButton.setText("Se connecter");
+        connectButton.setText("Connect");
         gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 2;
