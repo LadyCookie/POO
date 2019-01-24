@@ -1,6 +1,6 @@
 # POO
 To do before using ChatSystem app:
--Install java
+-Install JRE (Java Runtime Environment) version 10 or older --> https://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html
 
 -Install postgresql on the localhost:5432
 -Create a new Database named Clavardage
@@ -16,7 +16,29 @@ To do before using ChatSystem app:
 		-author of type string of lenght 15 with attribute not null
 		-IP of type string with attribute not null
 	Create a foreign key in the constraints of MessageChat, where columns MessageChat.IP references Session.IP
+-----------------------------------------------Launch exe files----------------------------------------------------------
+To launch ChatSystem app:
+- download git repository
+- go into the directory ExeFiles
+- Double-click on ChatSystem.exe file (Windows)
 
+To launch Server app:
+- download git repository
+- go into the directory ExeFiles
+- Double-click on Server.exe file (Windows)
+-----------------------------------------------Launch Jar files----------------------------------------------------------------
+To launch ChatSystem app:
+- download git repository
+- go into the directory JarFiles
+- Double-click on ChatSystem.jar file (Windows)
+- type : java -jar ChatSystem.jar (Linux)
+
+To launch Server app:
+- download git repository
+- go into the directory JarFiles
+- Double-click on Server.jar file (Windows)
+- type : java -jar Server.jar (Linux)
+-----------------------------------------------Launch in Eclipse---------------------------------------------------------------
 To launch ChatSystem app:
 - download git repository
 - open POO workspace under eclipse
