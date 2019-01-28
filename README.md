@@ -1,5 +1,6 @@
 # POO
-A ChatSystem allowing you to exchange messages and files while keeping a local copy on your machine
+A ChatSystem allowing you to exchange messages and files while keeping a local copy on your machine. 
+A [User Manual](UserManual.pdf) is available.
 
 ## Authors
 - Laura BOUZEREAU
