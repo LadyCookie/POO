@@ -106,10 +106,14 @@ public class InterfaceController implements PropertyChangeListener{
 	        			}
 		            	chatWindow.setVisible(true);
 	            	} else {
-	            		JOptionPane.showMessageDialog(null, "This username is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+	            		JOptionPane.showMessageDialog(null, "This username is unavailable/this server is unavailable", "Error", JOptionPane.ERROR_MESSAGE);
+	            		IPWindow.IPField.setText(null);
+	            		IPWindow.setVisible(false);
+	            		loginWindow.setVisible(true);
 	            	}
 	    		}catch(Exception e) {
 	    			JOptionPane.showMessageDialog(null, "That is not an IP address", "Error", JOptionPane.ERROR_MESSAGE);
+	    			IPWindow.IPField.setText(null);
 	    		}
 			}
 	    

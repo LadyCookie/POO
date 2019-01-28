@@ -1,2 +1,6 @@
-/network/
 /data/
+/httpServer/
+/model/
+/network/
+/tests/
+/view/
