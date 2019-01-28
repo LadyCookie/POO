@@ -31,13 +31,9 @@ public class HTTPServerThread extends Thread implements PropertyChangeListener{
 	
 	public HTTPServerThread(int port,InetAddress addr) throws Exception{
 		//connect to a socket in order to retrieve local address
-		try (final DatagramSocket socket = new DatagramSocket()){
-			socket.setBroadcast(true);
-			socket.connect(InetAddress.getByName("8.8.8.8"),10002);
-			this.localAddress = socket.getLocalAddress();
-			socket.close();
-			
-		}catch (UnknownHostException| SocketException e) {
+		try {
+			this.localAddress = InetAddress.getLocalHost();
+		}catch (UnknownHostException e) {
 			System.out.println("HTTPServerThread : No Internet");
 		}
 		SERVERADDRESS = addr;
