@@ -142,12 +142,10 @@ public class ChatWindow extends Window {
     }
 
     private void $$$setupUI$$$() {
-    	/*
+    	
     	GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-    	int width = (int) (gd.getDisplayMode().getWidth() * 0.7);
-    	int height = (int) (gd.getDisplayMode().getHeight() * 0.2);
-    	*/
-    	int width = 700;
+    	int width = (int) (gd.getDisplayMode().getWidth() * 0.6);
+    	
     	int height =(int)(width * 0.7);
     	setSize(width,height);
     	setLocationRelativeTo(null);

@@ -30,8 +30,14 @@ public class IPWindow extends Window {
      * @noinspection ALL
      */
     private void $$$setupUI$$$() {
-    	this.setTitle("Distant Server");
-    	setSize(200,200);
+    	this.setTitle("IP of Distant Server");
+    	GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+    	int width = (int) (gd.getDisplayMode().getWidth() * 0.2);
+    	//int height = (int) (gd.getDisplayMode().getHeight() * 0.2);
+    	
+    	//int width = 700;
+    	int height =(int)(width * 0.5);
+    	setSize(width,height);
     	setLocationRelativeTo(null);
     	
         loginPanel = new JPanel();
